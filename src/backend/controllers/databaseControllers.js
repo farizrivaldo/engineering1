@@ -2634,7 +2634,7 @@ console.log(queryData);
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000 AS x,
           round(data_format_0,2) AS y
-          FROM parammachine_saka.\`cMT-BWT_lopo_${area}_data\`
+          FROM parammachine_saka.\`cMT-BWT_${area}_data\`
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
@@ -2652,7 +2652,7 @@ console.log(queryData);
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000 AS x,
           round(data_format_0,2) AS y
-          FROM parammachine_saka.\`cMT-BWT_osmo_${area}_data\`
+          FROM parammachine_saka.\`cMT-BWT_${area}_data\`
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY

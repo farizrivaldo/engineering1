@@ -128,6 +128,7 @@ export default function BuildingRnD() {
                 xValueFormatString: "",
                 yValueFormatString: "",
                 dataPoints: SuhuData,
+                markerType: "none",
               },
               {
                 type: "spline",
@@ -136,6 +137,7 @@ export default function BuildingRnD() {
                 xValueFormatString: "",
                 yValueFormatString: "",
                 dataPoints: RHData,
+                markerType: "none",
               },
               {
                 type: "spline",
@@ -144,6 +146,7 @@ export default function BuildingRnD() {
                 xValueFormatString: "",
                 yValueFormatString: "",
                 dataPoints: DPData,
+                markerType: "none",
                 color: "magenta"
               }
             ],

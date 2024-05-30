@@ -28,21 +28,21 @@ export default function Loopo() {
                   },
                 }
               ) 
-              if (LoopoArea === "A845A_2.1") {
+              if (LoopoArea === "lopo_A845A_2.1") {
                 var multipliedData = response.data.map((data) => ({
                   label: data.label,
                   y: data.y,
                   x: data.x,
                 }));
               } else if (
-                  LoopoArea === "FT845A_8.1" 
+                  LoopoArea === "lopo_FT845A_8.1" 
               ) {
                 var multipliedData = response.data.map((data) => ({
                   label: data.label,
                   y: data.y,
                   x: data.x,
                 }));
-              } else if (LoopoArea === "LT845A_1.1"){
+              } else if (LoopoArea === "lopo_LT845A_1.1"){
                 var multipliedData = response.data.map((data) => ({
                   label: data.label,
                   y: data.y,
@@ -57,20 +57,24 @@ export default function Loopo() {
               }
               setLoopoData(multipliedData);
 
-              setTitle(LoopoArea);
-
-              if (LoopoArea === "FT845A_8.1"){
+              if (LoopoArea === "lopo_FT845A_8.1"){
                 setunit("Meter Cubic/Hour")
-              } else if (LoopoArea === "PT845A_1.1" || LoopoArea === "PT845A_8.1"  ){
+              } else if (LoopoArea === "lopo_PT845A_1.1" || LoopoArea === "lopo_PT845A_8.1"  ){
                 setunit("Bar")
-              } else if  (LoopoArea === "QE845A_4.1"){
+              } else if  (LoopoArea === "lopo_QE845A_4.1"){
                 setunit("W/Square Meter")
-              } else if  (LoopoArea === "QE845A_5.1"){
+              } else if  (LoopoArea === "lopo_QE845A_5.1"){
                 setunit("ppb")
-              }else if  (LoopoArea === "TT845A_3.1"){
+              }else if  (LoopoArea === "lopo_TT845A_3.1" || LoopoArea ==="TE845A_8.1"){
                 setunit("°C")
-              }else if  (LoopoArea === "LT560A_1.1"){
+              }else if  (LoopoArea === "lopo_LT560A_1.1"){
                 setunit("%")
+              }else if  (LoopoArea === "lopo_LT560A_1.1"){
+                setunit("%")
+              }else if  (LoopoArea === "QE845A_6.1"){
+                setunit("ppb")
+              }else if  (LoopoArea === "QE845A_8.1"){
+                setunit("µS/cm")
               }else {
                 setunit("")
               }
@@ -120,7 +124,7 @@ export default function Loopo() {
       
             theme: "light1",
             title: {
-              text: title,
+              text: "Loopo Data Graph",
             },
             subtitles: [
                 {
@@ -144,7 +148,7 @@ export default function Loopo() {
             data: [
               {
                 type: "spline",
-                name: title,
+                name: unit,
                 showInLegend: true,
                 markerType: "circle",
                 yValueFormatString: "",
@@ -166,16 +170,19 @@ export default function Loopo() {
                 <div>
                     <h2>Parameter</h2>
                     <Select placeholder="Select Parameter" onChange={getLoopoArea}>
-                        <option value="A845A_2.1">A845A_2.1</option>
-                        <option value="FT845A_8.1">FT845A_8.1</option>
-                        <option value="LT560A_1.1">LT560A_1.1</option>
-                        <option value="P845A_1.1">P845A_1.1</option>
-                        <option value="PT845A_1.1">PT845A_1.1</option>
-                        <option value="PT845A_8.1">PT845A_8.1</option>
-                        <option value="QE845A_4.1">QE845A_4.1</option>
-                        <option value="QE845A_5.1">QE845A_5.1</option>
-                        <option value="TT845A_3.1">TT845A_3.1</option>
-                        <option value="V845A_3.1">V845A_3.1</option>
+                        <option value="lopo_A845A_2.1">A845A_2.1</option>
+                        <option value="lopo_FT845A_8.1">FT845A_8.1</option>
+                        <option value="lopo_LT560A_1.1">LT560A_1.1</option>
+                        <option value="lopo_P845A_1.1">P845A_1.1</option>
+                        <option value="lopo_PT845A_1.1">PT845A_1.1</option>
+                        <option value="lopo_PT845A_8.1">PT845A_8.1</option>
+                        <option value="lopo_QE845A_4.1">QE845A_4.1</option>
+                        <option value="lopo_QE845A_5.1">QE845A_5.1</option>
+                        <option value="lopo_TT845A_3.1">TT845A_3.1</option>
+                        <option value="lopo_V845A_3.1">V845A_3.1</option>
+                        <option value="QE845A_6.1">QE845A 6.1</option>
+                        <option value="QE845A_8.1">QE845A 8.1</option>
+                        <option value="TE845A_8.1">TE845A 8.1</option>
                     </Select>
                 </div>
                 <div>
@@ -215,6 +222,11 @@ export default function Loopo() {
             <div className="flex flex-row justify-center mx-12 pb-10 "> 
                 <CanvasJSChart className="" options={options} />
             </div>
+            <div className="mt-3">
+                    <div className="ml-16">Standard value :</div>
+                    <div className="ml-16">Conductivity = below/equal 1,3µS/cm (25°)</div>
+                    <div className="ml-16">Total Organic Carbon = below/equal 500ppb</div>
+                </div>
             </div>
         )
 }
