@@ -122,6 +122,8 @@ export default function BuildingRnD() {
             setArea(dataInput);
           };
 
+        
+
           var localeOptions = {
             year: "numeric",
             month: "numeric",
@@ -231,6 +233,16 @@ export default function BuildingRnD() {
                         Export to PDF
                     </Button>
                 </div>
+            </Stack>
+            <div className="flex flex-row justify-center mx-12 pb-10 "> 
+                <CanvasJSChart className="" options={options} />
+            </div>
+            <Stack
+                className="flex flex-row justify-center mb-4  "
+                direction="row"
+                spacing={4}
+                align="center"
+                >
                 <div className="mt-3">
                     <div className="ml-16">Avg Suhu = {avgSuhu.toLocaleString()} °C</div>
                     <div className="ml-16">Max Suhu = {maxSuhu.toLocaleString()} °C</div>
@@ -242,9 +254,6 @@ export default function BuildingRnD() {
                     <div className="ml-16">Min RH = {minRH.toLocaleString()} %</div>
                 </div>
             </Stack>
-            <div className="flex flex-row justify-center mx-12 pb-10 "> 
-                <CanvasJSChart className="" options={options} />
-            </div>
       <div className="mt-20 mx-20" ref={ComponentPDF}>
         <TableContainer>
           <Table variant="simple">

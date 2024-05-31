@@ -29,7 +29,6 @@ function Utility() {
               <Tab>Waste Water Management</Tab>
               <Tab>Heating Ventilating & Air Control</Tab>
               <Tab>Steam Control</Tab>
-              <Tab>Purified Control</Tab>
               <Tab>Solar Management</Tab>
               <Tab>Loopo</Tab>
               <Tab>Osmotron</Tab>
@@ -53,9 +52,6 @@ function Utility() {
               </TabPanel>
               <TabPanel>
                 <p>Steam Control</p>
-              </TabPanel>
-              <TabPanel>
-                <PurifiedControl />
               </TabPanel>
               <TabPanel>
                 <p>Solar Management</p>
