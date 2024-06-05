@@ -117,6 +117,8 @@ export default function PowerManagement() {
   const [PPChiller1, setPPChiller1] = useState([])
   const [PPChiller2, setPPChiller2] = useState([])
   const [PPChiller3, setPPChiller3] = useState([])
+  const [PP2AC31RND, setPP2AC31RND] = useState([])
+  const [LP2PRO31RND, setLP2PRO31RND] = useState([])
 
   useEffect(() => {
     var bodyWidth = document.body.clientWidth;
@@ -186,6 +188,8 @@ export default function PowerManagement() {
       setPPChiller1  (Math.floor(response.data[i].PPChiller1))
       setPPChiller2  (Math.floor(response.data[i].PPChiller2))
       setPPChiller3  (Math.floor(response.data[i].PPChiller3))
+      setPP2AC31RND  (Math.floor(response.data[i].PP2AC31RND))
+      setLP2PRO31RND  (Math.floor(response.data[i].LP2PRO31RND))
       }   
     }
     
@@ -679,7 +683,27 @@ export default function PowerManagement() {
         var persen = PPLP2Mezz11 / supplylistrik*100
         list.push(persen.toFixed(2))
         data1.push(list)
-      }  ;
+      }
+      if (PP2AC31RND > 0 && PP2AC31RND != null){
+        var nilai = ['SDP.2 Produksi','PP.2-AC 3.1 RND']
+        nilai.push(PP2AC31RND)
+        data.push(nilai)
+
+        var list = ['SDP.2 Produksi','PP.2-AC 3.1 RND']
+        var persen = PP2AC31RND / supplylistrik*100
+        list.push(persen.toFixed(2))
+        data1.push(list)
+      }
+      if (LP2PRO31RND > 0 && LP2PRO31RND != null){
+        var nilai = ['PP.2-AC 3.1 RND','LP.2-PRO 3.1 RND']
+        nilai.push(LP2PRO31RND)
+        data.push(nilai)
+
+        var list = ['PP.2-AC 3.1 RND','LP.2-PRO 3.1 RND']
+        var persen = LP2PRO31RND / supplylistrik*100
+        list.push(persen.toFixed(2))
+        data1.push(list)
+      };
   const fetchDataDayly = async () => {
     let response = await axios.get(
       "http://10.126.15.141:8002/part/PowerDaily",
@@ -1375,6 +1399,8 @@ export default function PowerManagement() {
             <option value="cMT-Gedung-UTY_Chiller1_data">PPChiller1</option>
             <option value="cMT-Gedung-UTY_Chiller2_data">PPChiller2</option>
             <option value="cMT-Gedung-UTY_Chiller3_data">PPChiller3</option>
+            <option value="cMT-Gedung-UTY_PP.2-AC 3.1 RND_data">PP.2-AC 3.1 RND</option>
+            <option value="cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data">LP.2-PRO 3.1 RND</option>
           </Select>
         </div>
         <div>
@@ -1520,6 +1546,8 @@ export default function PowerManagement() {
             <option value="cMT-Gedung-UTY_Chiller1_data">PPChiller1</option>
             <option value="cMT-Gedung-UTY_Chiller2_data">PPChiller2</option>
             <option value="cMT-Gedung-UTY_Chiller3_data">PPChiller3</option>
+            <option value="cMT-Gedung-UTY_PP.2-AC 3.1 RND_data">PP.2-AC 3.1 RND</option>
+            <option value="cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data">LP.2-PRO 3.1 RND</option>
           </Select>
         </div>
         <div>

@@ -1511,10 +1511,10 @@ console.log(queryData);
     const queryGet = `SELECT
     s1.data_index as x,
     DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m-%d') AS label,
-    s1.data_format_0 -
+    round(s1.data_format_0 -
       (select s2.data_format_0 as previous from
       parammachine_saka.\`${area}\` as s2
-      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1) as y
+      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1),2) as y
     From parammachine_saka.\`${area}\` as s1 
     WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     `;
@@ -1529,10 +1529,10 @@ console.log(queryData);
     const queryGet = `SELECT
     s1.\`time@timestamp\`*1000 as x,
     DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m') AS label,
-    sum(s1.data_format_0 -
+    round(sum(s1.data_format_0 -
       (select s2.data_format_0 as previous from
       parammachine_saka.\`${area}\` as s2
-      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1)) as y
+      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1)),2) as y
     From parammachine_saka.\`${area}\` as s1 
     where  DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`), '%Y-%m') BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     GROUP BY YEAR(date(FROM_UNIXTIME(s1.\`time@timestamp\`))), 
@@ -1588,7 +1588,9 @@ console.log(queryData);
     sdpgenset as  "SDPGenset",
     chiller1 as  "PPChiller1",
     chiller2 as  "PPChiller2",
-    chiller3 as  "PPChiller3"
+    chiller3 as  "PPChiller3",
+    ac31rnd as "PP2AC31RND",
+    pro31rnd as "LP2PRO31RND"
     from
       (SELECT sum(kwh1) as MVMDP from (SELECT
       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl1,
@@ -1932,8 +1934,6 @@ console.log(queryData);
       date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table38
       where kwh38>0) as total38, 
 
-
-
       (SELECT sum(kwh40) as koperasi from (SELECT
       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl40,
       data_format_0-(select s2.data_format_0 as previous from
@@ -1986,7 +1986,25 @@ console.log(queryData);
 		where s2.data_index < l49.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh49
       from parammachine_saka.\`cMT-Gedung-UTY_Chiller3_data\` as l49 WHERE
       date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table49
-      where kwh49>0) as total49
+      where kwh49>0) as total49,
+
+      (SELECT sum(kwh50) as ac31rnd from (SELECT
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl50,
+        data_format_0-(select s2.data_format_0 as previous from
+      parammachine_saka.\`cMT-Gedung-UTY_PP.2-AC 3.1 RND_data\` as s2
+      where s2.data_index < l50.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh50
+        from parammachine_saka.\`cMT-Gedung-UTY_PP.2-AC 3.1 RND_data\` as l50 WHERE
+        date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table50
+        where kwh50>0) as total50,
+
+        (SELECT sum(kwh51) as pro31rnd from (SELECT
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl51,
+          data_format_0-(select s2.data_format_0 as previous from
+        parammachine_saka.\`cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data\` as s2
+        where s2.data_index < l51.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh51
+          from parammachine_saka.\`cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data\` as l51 WHERE
+          date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '2024-06-01' AND '2024-06-05' AND data_format_0>0)  as table51
+          where kwh51>0) as total51
     `;
 
     db.query(queryGet,(err, result) => {
