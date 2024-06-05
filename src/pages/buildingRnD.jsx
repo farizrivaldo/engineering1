@@ -196,7 +196,7 @@ export default function BuildingRnD() {
             hour12: false
           };
           const options = {
-      
+            zoomEnabled: true,
             theme: "light1",
             title: {
               text: "RND LABORATORIUM GRAPH",

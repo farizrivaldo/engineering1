@@ -121,7 +121,7 @@ export default function Loopo() {
           };
       
           const options = {
-      
+            zoomEnabled: true,
             theme: "light1",
             title: {
               text: "Loopo Data Graph",
@@ -129,6 +129,7 @@ export default function Loopo() {
             subtitles: [
                 {
                   text: unit,
+                  fontSize: "20"
                 },
               ],
             axisY: {

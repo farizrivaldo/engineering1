@@ -130,7 +130,7 @@ export default function Osmotron() {
           };
       
           const options = {
-      
+            zoomEnabled: true,
             theme: "light1",
             title: {
               text: "Osmotron Data Graph",
@@ -138,6 +138,7 @@ export default function Osmotron() {
             subtitles: [
                 {
                   text: unit,
+                  fontSize: "20"
                 },
               ],
             axisY: {

@@ -205,6 +205,7 @@ function BuildingEMS() {
   };
 
   const options = {
+    zoomEnabled: true,
     theme: "light2",
     title: {
       text: "Enviroment Room",
