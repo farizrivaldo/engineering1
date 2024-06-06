@@ -171,19 +171,19 @@ export default function Loopo() {
                 <div>
                     <h2>Parameter</h2>
                     <Select placeholder="Select Parameter" onChange={getLoopoArea}>
-                        <option value="lopo_A845A_2.1">A845A_2.1</option>
-                        <option value="lopo_FT845A_8.1">FT845A_8.1</option>
-                        <option value="lopo_LT560A_1.1">LT560A_1.1</option>
-                        <option value="lopo_P845A_1.1">P845A_1.1</option>
-                        <option value="lopo_PT845A_1.1">PT845A_1.1</option>
-                        <option value="lopo_PT845A_8.1">PT845A_8.1</option>
-                        <option value="lopo_QE845A_4.1">QE845A_4.1</option>
-                        <option value="lopo_QE845A_5.1">QE845A_5.1</option>
-                        <option value="lopo_TT845A_3.1">TT845A_3.1</option>
-                        <option value="lopo_V845A_3.1">V845A_3.1</option>
-                        <option value="QE845A_6.1">QE845A 6.1</option>
-                        <option value="QE845A_8.1">QE845A 8.1</option>
-                        <option value="TE845A_8.1">TE845A 8.1</option>
+                        <option value="lopo_A845A_2.1">A845A_2.1 (Ozone Hours Meter)</option>
+                        <option value="lopo_FT845A_8.1">FT845A_8.1 (Flow Meter Return)</option>
+                        <option value="lopo_LT560A_1.1">LT560A_1.1 (PW Tank)</option>
+                        <option value="lopo_P845A_1.1">P845A_1.1 (Pompa Supply)</option>
+                        <option value="lopo_PT845A_1.1">PT845A_1.1 (Pressure Supply)</option>
+                        <option value="lopo_PT845A_8.1">PT845A_8.1 (Pressure Return)</option>
+                        <option value="lopo_QE845A_4.1">QE845A_4.1 (UV Hours Meter)</option>
+                        <option value="lopo_QE845A_5.1">QE845A_5.1 (Ozone After Pompa)</option>
+                        <option value="lopo_TT845A_3.1">TT845A_3.1 (Suhu After PHE)</option>
+                        <option value="lopo_V845A_3.1">V845A_3.1 (Valve Motorize Chiller PHE)</option>
+                        <option value="QE845A_6.1">QE845A 6.1 (TOC)</option>
+                        <option value="QE845A_8.1">QE845A 8.1 (Conductivity)</option>
+                        <option value="TE845A_8.1">TE845A 8.1 (Suhu Return)</option>
                     </Select>
                 </div>
                 <div>
