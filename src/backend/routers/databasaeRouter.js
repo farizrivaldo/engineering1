@@ -103,4 +103,5 @@ routers.get("/BuildingWH1Suhu", databaseControllers.BuildingWH1Suhu);
 routers.get("/BuildingWH1RH", databaseControllers.BuildingWH1RH);
 routers.get("/BuildingWH1All", databaseControllers.BuildingWH1All);
 
+routers.get("/AlarmList", databaseControllers.AlarmList);
 module.exports = routers;

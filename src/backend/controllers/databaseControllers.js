@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("../helpers/nodemailers");
 const { request, response } = require("express");
 const { log } = require("util");
+const { data } = require("jquery");
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -2726,6 +2727,23 @@ console.log(queryData);
           FROM parammachine_saka.\`cMT-DehumRNDLt3danWH1_${area}_data\`
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+          ORDER BY
+          \`time@timestamp\`;`
+          
+          db.query(queryGet,(err, result) => {
+            return response.status(200).send(result);
+          });
+        },
+
+        // Alarm List Backend
+        AlarmList : async (request, response) => {
+          const {type, start, finish} = request.query;
+          const queryGet = `SELECT
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 11 HOUR, '%Y-%m-%d %H:%i:%s') AS Tanggal,
+          data_format_0 AS Event
+          FROM parammachine_saka.\`${type}\`
+          WHERE
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 11 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
           \`time@timestamp\`;`
           

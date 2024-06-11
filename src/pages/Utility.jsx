@@ -15,6 +15,7 @@ import Water from "./Water";
 import PurifiedControl from "./PurifiedControl";
 import Loopo from "./Loopo";
 import Osmotron from "./Osmotron";
+import AlarmList from "./AlarmList";
 
 function Utility() {
   return (
@@ -32,6 +33,7 @@ function Utility() {
               <Tab>Solar Management</Tab>
               <Tab>Loopo</Tab>
               <Tab>Osmotron</Tab>
+              <Tab>Alarm List</Tab>
             </TabList>
 
             <TabPanels>
@@ -61,6 +63,9 @@ function Utility() {
               </TabPanel>
               <TabPanel>
                 <Osmotron/>
+              </TabPanel>
+              <TabPanel>
+                <AlarmList/>
               </TabPanel>
             </TabPanels>
           </Tabs>
