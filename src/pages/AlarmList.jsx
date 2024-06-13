@@ -76,6 +76,9 @@ function AlarmList() {
                         <option value="Alarm_Air_Event_Log">Pemakaian Air</option>
                         <option value="Alarm_Loopo_Event_Log">Loopo</option>
                         <option value="Alarm_Osmotron_Event_Log">Osmotron</option>
+                        <option value="Alarm_Suhu_Event_Log">Suhu</option>
+                        <option value="Alarm_RH_Event_Log">RH</option>
+                        <option value="Alarm_DP_Event_Log">DP</option>
                     </Select>
                 </div>
             <div>
