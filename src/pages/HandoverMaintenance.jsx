@@ -485,10 +485,10 @@ function HandoverMaintenance() {
                     <Select onChange={PICHendeler} placeholder="Select PIC">
                       <option value="SGO">Sugino</option>
                       <option value="MKF">Khaerul</option>
-                      <option value="RAO">Renaldo</option>
-                      <option value="CKA">Chandra</option>
                       <option value="RDP">Ricy</option>
                       <option value="ARF">Arief</option>
+                      <option value="RMR">Rieco</option>
+                      <option value="EGS">Ezra</option>
                     </Select>
                   </div>
                 </div>
