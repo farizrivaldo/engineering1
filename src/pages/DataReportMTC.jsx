@@ -1,15 +1,15 @@
 import React from "react";
 
-function MachineHistorical() {
+function DataReportMTC() {
   return (
     <>
       <div>
         <h1 class="text-center text-4xl antialiased hover:subpixel-antialiased; p-8">
-          HISTORICAL
+          REPORT MAINTAINANCE
         </h1>
       </div>
     </>
   );
 }
 
-export default MachineHistorical;
+export default DataReportMTC;

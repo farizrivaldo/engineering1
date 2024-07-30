@@ -13,7 +13,7 @@ import {
 import MachineBreakdown from "./MachineBreakdown";
 import HandoverMaintenance from "./HandoverMaintenance";
 import MachineHistorical from "./MachineHistorical";
-import DatReportMTC from "./DatReportMTC";
+import DataReportMTC from "./DataReportMTC";
 import { useSelector } from "react-redux";
 function Maintenance() {
   const userGlobal = useSelector((state) => state.user.user);
@@ -49,7 +49,7 @@ function Maintenance() {
                 <MachineBreakdown />
               </TabPanel>
               <TabPanel>
-                <DatReportMTC />
+                <DataReportMTC />
               </TabPanel>
               <TabPanel>
                 <MachineHistorical />
