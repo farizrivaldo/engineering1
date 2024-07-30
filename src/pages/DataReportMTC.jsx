@@ -49,13 +49,7 @@ function DataReportMTC() {
           <Td>{users.quality}</Td> */}
           <Td>{users.status}</Td>
           <Td>{users.breakdown}</Td>
-          {/* <Td>{users.jobDetail}</Td> */}
-          <Td className="relative">
-            <div className="truncate max-w-xs">{users.jobDetail}</div>
-            <div className="hidden absolute bg-gray-200 border border-gray-400 p-2 mt-2 w-64 whitespace-normal group-hover:block">
-              {users.jobDetail}
-            </div>
-          </Td>
+          <Td>{users.jobDetail}</Td>
         </Tr>
       );
     });
