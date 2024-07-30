@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Button, Stack, Select } from "@chakra-ui/react";
+import {
+  Stack,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  Button,
+  Select,
+} from "@chakra-ui/react";
 import axios from "axios";
 
 function DataReportMTC() {
