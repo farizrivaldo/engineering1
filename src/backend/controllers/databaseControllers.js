@@ -502,7 +502,7 @@ module.exports = {
       ${db.escape(status)}, ${db.escape(detail)} ,${db.escape(breakdown)}
       )`;
 
-      console.log(queryData);
+    console.log(queryData);
 
     db.query(queryData, (err, result) => {
       if (err) {
@@ -587,12 +587,21 @@ module.exports = {
     });
   },
 
+  //-------------------------DATA REPORT-------------MTC-------------
+
+  dataReportMTC: async (request, response) => {
+    let queryData = "SELECT * FROM parammachine_saka.mtc_report;";
+    db.query(queryData, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
   //=========================POWER MANAGEMENT============================================================
 
   getPowerData: async (request, response) => {
     const { area, start, finish } = request.query;
-    
-    const cleanString = area.replace(/(cMT-Gedung-UTY_|_data)/g,'')
+
+    const cleanString = area.replace(/(cMT-Gedung-UTY_|_data)/g, "");
 
     let queryData =
       "SELECT label,  x,  y  FROM ( SELECT (@counter := @counter + 1) AS x, label, y FROM ( SELECT p1.date AS label, p1.id AS x, p2.`" +
@@ -612,7 +621,6 @@ module.exports = {
       "'";
     console.log(queryData);
 
-
     db.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
@@ -620,7 +628,7 @@ module.exports = {
 
   getPowerMonthly: async (request, response) => {
     const { area, start, finish } = request.query;
-    const cleanString = area.replace(/(cMT-Gedung-UTY_|_data)/g,'')
+    const cleanString = area.replace(/(cMT-Gedung-UTY_|_data)/g, "");
 
     let queryData =
       " SELECT      DATE_FORMAT(label, '%b') AS label, MONTH(label) AS x,     SUM(y) AS y  FROM (      SELECT          p1.date AS label,          p1.id AS x,          p2.`" +
@@ -638,7 +646,7 @@ module.exports = {
       "      AND MONTH(label) <= " +
       finish +
       "  GROUP BY      MONTH(label)  ORDER BY      MONTH(label);  ";
-      console.log(queryData);
+    console.log(queryData);
     db.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
@@ -800,7 +808,7 @@ LEFT JOIN
     group by s.data_index
     order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i');
 `;
-console.log(queryData);
+    console.log(queryData);
     db.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
@@ -887,8 +895,8 @@ console.log(queryData);
   },
 
   // Water Management Backend
-  waterSystem : async (request, response) => {
-    const {area, start, finish} = request.query;
+  waterSystem: async (request, response) => {
+    const { area, start, finish } = request.query;
     const queryGet = `SELECT
       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%Y-%m-%d') AS label,
       data_index AS x,
@@ -899,15 +907,14 @@ console.log(queryData);
       ORDER BY
       \`time@timestamp\``;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
-  waterSankey : async (request, response) => {
-    const {start, finish} = request.query;
-    const queryGet = 
-    `SELECT 
+  waterSankey: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT 
     a AS "Pdam",
     b AS "Domestik",
     c AS "Softwater",
@@ -985,16 +992,15 @@ console.log(queryData);
     (SELECT SUM(data_format_0) as s 
     from parammachine_saka.\`cMT-BWT_AirMancur_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum19`;
-      
-    db.query(queryGet,(err, result) => {
-    return response.status(200).send(result);
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
     });
-      
   },
 
   // Export Data Water Consumption Daily Backend
-  ExportWaterConsumptionDaily : async (request, response) => {
-    const {start, finish} = request.query;
+  ExportWaterConsumptionDaily: async (request, response) => {
+    const { start, finish } = request.query;
     const queryGet = `SELECT 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') AS Tanggal,
     round(d.data_format_0,2) as Domestik,
@@ -1070,14 +1076,14 @@ console.log(queryData);
     where  date(FROM_UNIXTIME(d.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
     order by date(FROM_UNIXTIME(d.\`time@timestamp\`));`;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   // Export Data Water Totalizer Daily Backend
-  ExportWaterTotalizerDaily : async (request, response) => {
-    const {start, finish} = request.query;
+  ExportWaterTotalizerDaily: async (request, response) => {
+    const { start, finish } = request.query;
     const queryGet = `SELECT 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') AS Tanggal,
     round(d.data_format_0,2) as Domestik,
@@ -1153,14 +1159,14 @@ console.log(queryData);
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
     where  date(FROM_UNIXTIME(d.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'`;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   // Export Data Water Consumption Daily Backend
-  ExportWaterConsumptionMonthly : async (request, response) => {
-    const {start, finish} = request.query;
+  ExportWaterConsumptionMonthly: async (request, response) => {
+    const { start, finish } = request.query;
     const queryGet = `SELECT 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%m-%Y') AS Bulan,
     sum(round(d.data_format_0,2)) as Domestik,
@@ -1238,14 +1244,14 @@ console.log(queryData);
     GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`))), 
     MONTH(date(FROM_UNIXTIME(d.\`time@timestamp\`)))`;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
-   // Export Data Water Totalizer Monthly Backend
-   ExportWaterTotalizerMonthly : async (request, response) => {
-    const {start, finish} = request.query;
+  // Export Data Water Totalizer Monthly Backend
+  ExportWaterTotalizerMonthly: async (request, response) => {
+    const { start, finish } = request.query;
     const queryGet = `SELECT 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%m-%Y') AS Bulan,
     round(d.data_format_0,2) as Domestik,
@@ -1328,15 +1334,15 @@ console.log(queryData);
     where DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') = Tgld and
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m') BETWEEN '${start}' AND '${finish}'`;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
-    // Export Data Water Consumption Yearly Backend
-    ExportWaterConsumptionYearly : async (request, response) => {
-      const {start, finish} = request.query;
-      const queryGet = `SELECT 
+  // Export Data Water Consumption Yearly Backend
+  ExportWaterConsumptionYearly: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') AS Tahun,
       sum(round(d.data_format_0,2)) as Domestik,
       sum(round(c.data_format_0,2)) as Chiller,
@@ -1411,16 +1417,16 @@ console.log(queryData);
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
       where  DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') BETWEEN '${start}' AND '${finish}' 
       GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`)))`;
-  
-      db.query(queryGet,(err, result) => {
-        return response.status(200).send(result);
-      });
-    },
-  
-     // Export Data Water Totalizer Yearly Backend
-     ExportWaterTotalizerYearly : async (request, response) => {
-      const {start, finish} = request.query;
-      const queryGet = `SELECT 
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Export Data Water Totalizer Yearly Backend
+  ExportWaterTotalizerYearly: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') AS Tahun,
       round(d.data_format_0,2) as Domestik,
       round(c.data_format_0,2) as Chiller,
@@ -1500,15 +1506,15 @@ console.log(queryData);
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
       where DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') = Tgld and
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') BETWEEN '${start}' AND '${finish}'`;
-  
-      db.query(queryGet,(err, result) => {
-        return response.status(200).send(result);
-      });
-    },
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
   // Power Management 2 Backend
-  PowerDaily : async (request, response) => {
-    const {area, start, finish} = request.query;
+  PowerDaily: async (request, response) => {
+    const { area, start, finish } = request.query;
     const queryGet = `SELECT
     s1.data_index as x,
     DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m-%d') AS label,
@@ -1520,13 +1526,13 @@ console.log(queryData);
     WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     `;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
-  PowerMonthly : async (request, response) => {
-    const {area, start, finish} = request.query;
+  PowerMonthly: async (request, response) => {
+    const { area, start, finish } = request.query;
     const queryGet = `SELECT
     s1.\`time@timestamp\`*1000 as x,
     DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m') AS label,
@@ -1539,14 +1545,13 @@ console.log(queryData);
     GROUP BY YEAR(date(FROM_UNIXTIME(s1.\`time@timestamp\`))), 
     MONTH(date(FROM_UNIXTIME(s1.\`time@timestamp\`)))`;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
-  PowerSankey : async (request, response) => {
-    const {start, finish} = request.query;
-    const queryGet = 
-    `select MVMDP as "MVMDP",
+  PowerSankey: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `select MVMDP as "MVMDP",
     lvmdp1 as  "LVMDP1",
     lvmdp2 as  "LVMDP2",
     SP16 as  "SolarPanel16",
@@ -2008,14 +2013,14 @@ console.log(queryData);
           where kwh51>0) as total51
     `;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
-    // Purified Water Backend
-    PurifiedWater : async (request, response) => {
-      const {area, start, finish} = request.query;
-      const queryGet = `SELECT
+  // Purified Water Backend
+  PurifiedWater: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
         DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4  HOUR, '%Y-%m-%d %H:%i') AS label,
         data_index AS x,
         round(data_format_0,2) AS y
@@ -2024,14 +2029,14 @@ console.log(queryData);
           DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         ORDER BY
         \`time@timestamp\``;
-  
-      db.query(queryGet,(err, result) => {
-        return response.status(200).send(result);
-      });
-    },
-    // Chiller Chart Backend
-  ChillerGraph : async (request, response) => {
-    const {area, start, finish, chiller, komp} = request.query;
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+  // Chiller Chart Backend
+  ChillerGraph: async (request, response) => {
+    const { area, start, finish, chiller, komp } = request.query;
     const queryGet = `SELECT
     DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
     \`time@timestamp\`*1000 AS x,
@@ -2042,14 +2047,14 @@ console.log(queryData);
     ORDER BY
     \`time@timestamp\``;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   // Chiller Status Backend
-  ChillerStatus : async (request, response) => {
-    const {start, finish, chiller, komp} = request.query;
+  ChillerStatus: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
     const queryGet = `SELECT
     DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
       case
@@ -2085,17 +2090,17 @@ console.log(queryData);
   WHERE 
   DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
       group by a.data_index
-      order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+      order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-    db.query(queryGet,(err, result) => {
+    db.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
-    // Chiller Status Backend
-    ChillerKondisi : async (request, response) => {
-      const {start, finish, chiller, komp, oliats} = request.query;
-      const queryGet = `SELECT
+  // Chiller Status Backend
+  ChillerKondisi: async (request, response) => {
+    const { start, finish, chiller, komp, oliats } = request.query;
+    const queryGet = `SELECT
       DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
       case
         when b.data_format_0 = 0 then "Kotor"
@@ -2148,17 +2153,17 @@ console.log(queryData);
     WHERE 
     DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
         group by a.data_index
-        order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
-  
-      db.query(queryGet,(err, result) => {
-        return response.status(200).send(result);
-      });
-    },
+        order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-    // Chiller Nama Backend
-    ChillerNama : async (request, response) => {
-      const {start, finish, chiller, komp} = request.query;
-      const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Chiller Nama Backend
+  ChillerNama: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `SELECT
       DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
       case
         when s.data_format_0 = 0 then "Andi"
@@ -2192,17 +2197,17 @@ console.log(queryData);
         WHERE 
         DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
         group by a.data_index
-        order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
-  
-      db.query(queryGet,(err, result) => {
-        return response.status(200).send(result);
-      });
-    },
+        order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        // Chiller Data 1 Backend
-        ChillerData1 : async (request, response) => {
-          const {start, finish, chiller, komp} = request.query;
-          const queryGet = `select
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Chiller Data 1 Backend
+  ChillerData1: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
           a1.data_format_0 AS "Active_Setpoint",
           a2.data_format_0  AS "Evap_LWT",
@@ -2234,17 +2239,17 @@ console.log(queryData);
           WHERE 
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
               group by s.data_index
-              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
-      
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        // Chiller Data 2 Backend
-        ChillerData2 : async (request, response) => {
-          const {start, finish, chiller, komp} = request.query;
-          const queryGet = `select
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Chiller Data 2 Backend
+  ChillerData2: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
           a1.data_format_0 AS "Unit_Capacity_Kompresor",
           a2.data_format_0  AS "Evap_Pressure_Kompresor",
@@ -2276,18 +2281,17 @@ console.log(queryData);
           WHERE 
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
               group by s.data_index
-              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
-      
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-        // Chiller Data 3 Backend
-        ChillerData3 : async (request, response) => {
-          const {start, finish, chiller, komp} = request.query;
-          const queryGet = `select
+  // Chiller Data 3 Backend
+  ChillerData3: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
           a1.data_format_0 AS "Suction_Temperature_Kompresor",
           a2.data_format_0  AS "Discharge_Temperature_Kompresor",
@@ -2314,17 +2318,17 @@ console.log(queryData);
           WHERE 
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
               group by s.data_index
-              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
-      
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
-  
-        // Chiller Data 4 Backend
-        ChillerData4 : async (request, response) => {
-          const {start, finish, chiller, komp} = request.query;
-          const queryGet = `select
+              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Chiller Data 4 Backend
+  ChillerData4: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
           a1.data_format_0 AS "Evap_Approach_Kompresor",
           a2.data_format_0  AS "Evap_Design_Approach_Kompresor",
@@ -2356,17 +2360,17 @@ console.log(queryData);
           WHERE 
           DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
               group by s.data_index
-              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+              order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-      // Chiller Data 5 Backend
-      ChillerData5 : async (request, response) => {
-        const {start, finish, chiller, komp, fan} = request.query;
-        const queryGet = `select
+  // Chiller Data 5 Backend
+  ChillerData5: async (request, response) => {
+    const { start, finish, chiller, komp, fan } = request.query;
+    const queryGet = `select
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
         a1.data_format_0 AS "EXV_Position_Kompresor",
         a2.data_format_0  AS "Run_Hour_Kompressor",
@@ -2398,16 +2402,16 @@ console.log(queryData);
         WHERE 
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
             group by s.data_index
-            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        db.query(queryGet,(err, result) => {
-          return response.status(200).send(result);
-        });
-      },
-      // Chiller Data 6 Backend
-      ChillerData6 : async (request, response) => {
-        const {start, finish, chiller, komp} = request.query;
-        const queryGet = `select
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+  // Chiller Data 6 Backend
+  ChillerData6: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
         a1.data_format_0 AS "Tekanan_Return_Chiller",
         round(a2.data_format_0,2)  AS "Tekanan_Supply_Chiller",
@@ -2439,16 +2443,16 @@ console.log(queryData);
         WHERE 
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
             group by s.data_index
-            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        db.query(queryGet,(err, result) => {
-          return response.status(200).send(result);
-        });
-      },
-      // Chiller Data 7 Backend
-      ChillerData7 : async (request, response) => {
-        const {start, finish, chiller, komp} = request.query;
-        const queryGet = `select
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+  // Chiller Data 7 Backend
+  ChillerData7: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
         round(a1.data_format_0,2) AS "Suhu_sesudah_Pompa_Supply",
         round(a2.data_format_0,2)  AS "Tekanan_Sebelum_Pompa_Supply",
@@ -2480,17 +2484,17 @@ console.log(queryData);
         WHERE 
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
             group by s.data_index
-            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        db.query(queryGet,(err, result) => {
-          return response.status(200).send(result);
-        });
-      },
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-      // Chiller Data 8 Backend
-      ChillerData8 : async (request, response) => {
-        const {start, finish, chiller, komp} = request.query;
-        const queryGet = `select
+  // Chiller Data 8 Backend
+  ChillerData8: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
         round(a1.data_format_0,2) AS "Suhu_sesudah_Pompa_Return",
         round(a2.data_format_0,2)  AS "Tekanan_Sebelum_Pompa_Return",
@@ -2522,17 +2526,17 @@ console.log(queryData);
         WHERE 
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
             group by s.data_index
-            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        db.query(queryGet,(err, result) => {
-          return response.status(200).send(result);
-        });
-      },
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-      // Chiller Data 9 Backend
-      ChillerData9 : async (request, response) => {
-        const {start, finish, chiller, komp} = request.query;
-        const queryGet = `select
+  // Chiller Data 9 Backend
+  ChillerData9: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+    const queryGet = `select
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
         round(a1.data_format_0,2) AS "Tegangan_TR",
         round(a2.data_format_0,2)  AS "Ampere_RS",
@@ -2564,19 +2568,17 @@ console.log(queryData);
         WHERE 
         DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
             group by s.data_index
-            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`
+            order by DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
 
-        db.query(queryGet,(err, result) => {
-          return response.status(200).send(result);
-        });
-      },
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-      
-
-        // Building RND Suhu Backend
-        BuildingRNDSuhu : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+  // Building RND Suhu Backend
+  BuildingRNDSuhu: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000  AS x,
           round(data_format_0,2) AS y
@@ -2584,17 +2586,17 @@ console.log(queryData);
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-          
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+          \`time@timestamp\`;`;
 
-        // Building RND Suhu Backend
-        BuildingRNDDP : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Building RND Suhu Backend
+  BuildingRNDDP: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000  AS x,
           round(data_format_2/10,2) AS y
@@ -2602,17 +2604,17 @@ console.log(queryData);
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-          
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+          \`time@timestamp\`;`;
 
-        // Building RND Suhu Backend
-        BuildingRNDRH : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Building RND Suhu Backend
+  BuildingRNDRH: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000  AS x,
           round(data_format_1,2) AS y
@@ -2620,17 +2622,17 @@ console.log(queryData);
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-          
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+          \`time@timestamp\`;`;
 
-        // Building RND Suhu Backend
-        BuildingRNDAll : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Building RND Suhu Backend
+  BuildingRNDAll: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS tgl,
           round(data_format_0,2) AS temp,
           round(data_format_1,2) AS RH,
@@ -2639,17 +2641,17 @@ console.log(queryData);
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-          
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+          \`time@timestamp\`;`;
 
-        // Loopo Chart Backend
-        Loopo : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Loopo Chart Backend
+  Loopo: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000 AS x,
           round(data_format_0,2) AS y
@@ -2659,15 +2661,15 @@ console.log(queryData);
           ORDER BY
           \`time@timestamp\``;
 
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-        // Osmotron Chart Backend
-        Osmotron : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+  // Osmotron Chart Backend
+  Osmotron: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000 AS x,
           round(data_format_0,2) AS y
@@ -2677,15 +2679,15 @@ console.log(queryData);
           ORDER BY
           \`time@timestamp\``;
 
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 
-        // Building RND Suhu Backend
-        BuildingWH1Suhu : async (request, response) => {
-        const {area, start, finish} = request.query;
-        const queryGet = `SELECT
+  // Building RND Suhu Backend
+  BuildingWH1Suhu: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
         DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
         \`time@timestamp\`*1000  AS x,
         round(data_format_0,2) AS y
@@ -2693,16 +2695,16 @@ console.log(queryData);
         WHERE
         DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
         ORDER BY
-        \`time@timestamp\`;`
-                  
-        db.query(queryGet,(err, result) => {
-        return response.status(200).send(result);
-        });
-        },
-        // Building RND RH Backend
-        BuildingWH1RH : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+        \`time@timestamp\`;`;
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+  // Building RND RH Backend
+  BuildingWH1RH: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000  AS x,
           round(data_format_1,2) AS y
@@ -2710,17 +2712,17 @@ console.log(queryData);
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-                    
-          db.query(queryGet,(err, result) => {
-          return response.status(200).send(result);
-          });
-          },
+          \`time@timestamp\`;`;
 
-          // Building RND Suhu Backend
-        BuildingWH1All : async (request, response) => {
-          const {area, start, finish} = request.query;
-          const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Building RND Suhu Backend
+  BuildingWH1All: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS tgl,
           round(data_format_0,2) AS temp,
           round(data_format_1,2) AS RH
@@ -2728,27 +2730,27 @@ console.log(queryData);
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-          
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+          \`time@timestamp\`;`;
 
-        // Alarm List Backend
-        AlarmList : async (request, response) => {
-          const {type, start, finish} = request.query;
-          const queryGet = `SELECT
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  // Alarm List Backend
+  AlarmList: async (request, response) => {
+    const { type, start, finish } = request.query;
+    const queryGet = `SELECT
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 11 HOUR, '%Y-%m-%d %H:%i:%s') AS Tanggal,
           data_format_0 AS Event
           FROM parammachine_saka.\`${type}\`
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 11 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
-          \`time@timestamp\`;`
-          
-          db.query(queryGet,(err, result) => {
-            return response.status(200).send(result);
-          });
-        },
+          \`time@timestamp\`;`;
+
+    db.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 };
