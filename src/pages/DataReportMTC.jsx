@@ -112,7 +112,11 @@ function DataReportMTC() {
 
         <div>
           <br />
-          <Button className="w-40" colorScheme="blue" onClick={() => fetchData}>
+          <Button
+            className="w-40"
+            colorScheme="blue"
+            onClick={() => fetchData()}
+          >
             Submit
           </Button>
         </div>
