@@ -31,7 +31,7 @@ function DataReportMTC() {
         <Tr>
           <Td>{users.id}</Td>
           <Td>{users.line}</Td>
-          <Td>{users.process}</Td>
+          <Td>{users.proces}</Td>
           <Td>{users.machine}</Td>
           <Td>{users.location}</Td>
           <Td>{users.pic}</Td>
