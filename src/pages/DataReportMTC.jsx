@@ -1,7 +1,46 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Stack, Select } from "@chakra-ui/react";
+import axios from "axios";
 
 function DataReportMTC() {
+  const [listData, setListData] = useState([]);
+
+  const fetchData = async () => {
+    let response = await axios.get(
+      "http://10.126.15.141:8002/part/dataReportMTC"
+    );
+    setListData(response.data);
+  };
+
+  const renderListData = () => {
+    return userData.map((users) => {
+      return (
+        <Tr>
+          <Td>{users.id}</Td>
+          <Td>{users.line}</Td>
+          <Td>{users.process}</Td>
+          <Td>{users.machine}</Td>
+          <Td>{users.location}</Td>
+          <Td>{users.pic}</Td>
+          <Td>{users.tanggal}</Td>
+          <Td>{users.start}</Td>
+          <Td>{users.finish}</Td>
+          <Td>{users.total}</Td>
+          <Td>{users.sparepart}</Td>
+          <Td>{users.quantity}</Td>
+          <Td>{users.unit}</Td>
+          <Td>{users.PMJob}</Td>
+          <Td>{users.PMactual}</Td>
+          <Td>{users.safety}</Td>
+          <Td>{users.quality}</Td>
+          <Td>{users.status}</Td>
+          <Td>{users.jobDetail}</Td>
+          <Td>{users.breakdown}</Td>
+        </Tr>
+      );
+    });
+  };
+
   return (
     <>
       <div>
@@ -60,12 +99,43 @@ function DataReportMTC() {
 
         <div>
           <br />
-          <Button className="w-40" colorScheme="blue">
-            Create New
+          <Button className="w-40" colorScheme="blue" onClick={() => fetchData}>
+            Submit
           </Button>
         </div>
       </Stack>
       <br />
+      <div>
+        <TableContainer>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Id</Th>
+                <Th>Line</Th>
+                <Th>Process</Th>
+                <Th>Machine</Th>
+                <Th>Location</Th>
+                <Th>PIC</Th>
+                <Th>Tanggal</Th>
+                <Th>Start</Th>
+                <Th>Finish</Th>
+                <Th>Total</Th>
+                <Th>Sparepart</Th>
+                <Th>Quantity</Th>
+                <Th>Unit</Th>
+                <Th>PMJob</Th>
+                <Th>PMActual</Th>
+                <Th>safety</Th>
+                <Th>Quality</Th>
+                <Th>Status</Th>
+                <Th>JobDetail</Th>
+                <Th>Breakdown</Th>
+              </Tr>
+            </Thead>
+            <Tbody>{renderListData()}</Tbody>
+          </Table>
+        </TableContainer>
+      </div>
     </>
   );
 }
