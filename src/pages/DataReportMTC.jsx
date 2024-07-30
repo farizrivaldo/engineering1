@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import moment from "moment";
+import moment from "moment/moment";
 import {
   Stack,
   Table,
@@ -34,9 +34,9 @@ function DataReportMTC() {
           <Td>{users.line}</Td>
           <Td>{users.proces}</Td>
           <Td>{users.machine}</Td>
-          <Td>{moment(users.location).format("DD/MM/YYYY")}</Td>
+          <Td>{users.location}</Td>
           <Td>{users.pic}</Td>
-          <Td>{users.tanggal}</Td>
+          <Td>{moment(users.tanggal).format("DD/MM/YYYY")}</Td>
           <Td>{users.start}</Td>
           <Td>{users.finish}</Td>
           <Td>{users.total}</Td>
