@@ -20,7 +20,6 @@ function DataReportMTC() {
           <h1>Search Mesin</h1>
           <div className="search">
             <input
-              onChange={inputHandler}
               id="outlined-basic"
               variant="outlined"
               fullWidth
@@ -32,7 +31,7 @@ function DataReportMTC() {
 
         <div>
           <h2>Month serch</h2>
-          <Select placeholder="Select Mounth" onChange={getDate}>
+          <Select placeholder="Select Mounth">
             <option value="1">Jan</option>
             <option value="2">Feb</option>
             <option value="3">Mar</option>
@@ -50,7 +49,7 @@ function DataReportMTC() {
 
         <div>
           <h2>Line</h2>
-          <Select placeholder="Select Line" onChange={doprDown}>
+          <Select placeholder="Select Line">
             <option value="Line4">FULL</option>
             <option value="Line1">Line 1</option>
             <option value="Line2">Line 2</option>
@@ -61,13 +60,7 @@ function DataReportMTC() {
 
         <div>
           <br />
-          <Button
-            className="w-40"
-            colorScheme="blue"
-            // onClick={() => {
-            //   navigate(`/createnew`);
-            // }}
-          >
+          <Button className="w-40" colorScheme="blue">
             Create New
           </Button>
         </div>
