@@ -22,6 +22,7 @@ function DataReportMTC() {
       "http://10.126.15.141:8002/part/dataReportMTC"
     );
     setListData(response.data);
+    console.log(response.data);
   };
 
   const renderListData = () => {
