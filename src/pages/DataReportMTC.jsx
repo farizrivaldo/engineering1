@@ -40,16 +40,16 @@ function DataReportMTC() {
           <Td>{users.start}</Td>
           <Td>{users.finish}</Td>
           <Td>{users.total}</Td>
-          <Td>{users.sparepart}</Td>
+          {/* <Td>{users.sparepart}</Td>
           <Td>{users.quantity}</Td>
           <Td>{users.unit}</Td>
           <Td>{users.PMJob}</Td>
           <Td>{users.PMactual}</Td>
           <Td>{users.safety}</Td>
-          <Td>{users.quality}</Td>
+          <Td>{users.quality}</Td> */}
           <Td>{users.status}</Td>
-          <Td>{users.jobDetail}</Td>
           <Td>{users.breakdown}</Td>
+          <Td>{users.jobDetail}</Td>
         </Tr>
       );
     });
@@ -138,16 +138,16 @@ function DataReportMTC() {
                 <Th>Start</Th>
                 <Th>Finish</Th>
                 <Th>Total</Th>
-                <Th>Sparepart</Th>
+                {/* <Th>Sparepart</Th>
                 <Th>Quantity</Th>
                 <Th>Unit</Th>
                 <Th>PMJob</Th>
                 <Th>PMActual</Th>
                 <Th>safety</Th>
-                <Th>Quality</Th>
+                <Th>Quality</Th> */}
                 <Th>Status</Th>
-                <Th>JobDetail</Th>
                 <Th>Breakdown</Th>
+                <Th>JobDetail</Th>
               </Tr>
             </Thead>
             <Tbody>{renderListData()}</Tbody>
