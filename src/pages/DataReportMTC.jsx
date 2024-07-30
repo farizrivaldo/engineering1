@@ -31,12 +31,12 @@ function DataReportMTC() {
       return (
         <Tr>
           <Td>{users.id}</Td>
+          <Td>{moment(users.tanggal).format("DD/MM/YYYY")}</Td>
           <Td>{users.line}</Td>
           <Td>{users.proces}</Td>
           <Td>{users.machine}</Td>
           <Td>{users.location}</Td>
           <Td>{users.pic}</Td>
-          <Td>{moment(users.tanggal).format("DD/MM/YYYY")}</Td>
           <Td>{users.start}</Td>
           <Td>{users.finish}</Td>
           <Td>{users.total}</Td>
@@ -129,12 +129,12 @@ function DataReportMTC() {
             <Thead>
               <Tr>
                 <Th>Id</Th>
+                <Th>Tanggal</Th>
                 <Th>Line</Th>
                 <Th>Process</Th>
                 <Th>Machine</Th>
                 <Th>Location</Th>
                 <Th>PIC</Th>
-                <Th>Tanggal</Th>
                 <Th>Start</Th>
                 <Th>Finish</Th>
                 <Th>Total</Th>
