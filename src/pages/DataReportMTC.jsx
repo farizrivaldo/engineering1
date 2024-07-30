@@ -33,7 +33,7 @@ function DataReportMTC() {
           <Td>{users.line}</Td>
           <Td>{users.proces}</Td>
           <Td>{users.machine}</Td>
-          <Td>{users.location}</Td>
+          <Td>{moment(users.location).format("DD/MM/YYYY")}</Td>
           <Td>{users.pic}</Td>
           <Td>{users.tanggal}</Td>
           <Td>{users.start}</Td>
