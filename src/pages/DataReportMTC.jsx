@@ -25,7 +25,7 @@ function DataReportMTC() {
   };
 
   const renderListData = () => {
-    return userData.map((users) => {
+    return listData.map((users) => {
       return (
         <Tr>
           <Td>{users.id}</Td>
