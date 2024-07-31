@@ -14,6 +14,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import axios from "axios";
+import * as XLSX from "xlsx";
 
 function DataReportMTC() {
   const [listData, setListData] = useState([]);
@@ -37,10 +38,17 @@ function DataReportMTC() {
     console.log(response.data);
   };
 
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(listData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "DataReportMTC.xlsx");
+  };
+
   const renderListData = () => {
-    return listData.map((users) => {
+    return listData.map((users, index) => {
       return (
-        <Tr>
+        <Tr key={index}>
           <Td>{users.id}</Td>
           <Td>{moment(users.tanggal).format("DD/MM/YYYY")}</Td>
           <Td>{users.line}</Td>
@@ -51,13 +59,6 @@ function DataReportMTC() {
           <Td>{users.start}</Td>
           <Td>{users.finish}</Td>
           <Td>{users.total}</Td>
-          {/* <Td>{users.sparepart}</Td>
-          <Td>{users.quantity}</Td>
-          <Td>{users.unit}</Td>
-          <Td>{users.PMJob}</Td>
-          <Td>{users.PMactual}</Td>
-          <Td>{users.safety}</Td>
-          <Td>{users.quality}</Td> */}
           <Td>{users.status}</Td>
           <Td>{users.breakdown}</Td>
           <Td>{users.jobDetail}</Td>
@@ -69,13 +70,13 @@ function DataReportMTC() {
   return (
     <>
       <div>
-        <h1 class="text-center text-4xl antialiased hover:subpixel-antialiased; p-8">
+        <h1 className="text-center text-4xl antialiased hover:subpixel-antialiased p-8">
           REPORT MAINTAINANCE
         </h1>
       </div>
 
       <Stack
-        className="flex flex-row justify-center   "
+        className="flex flex-row justify-center"
         direction="row"
         spacing={4}
         align="center"
@@ -132,6 +133,12 @@ function DataReportMTC() {
             Submit
           </Button>
         </div>
+        <div>
+          <br />
+          <Button className="w-40" colorScheme="green" onClick={exportToExcel}>
+            Export to Excel
+          </Button>
+        </div>
       </Stack>
       <br />
       <div>
@@ -149,13 +156,6 @@ function DataReportMTC() {
                 <Th>Start</Th>
                 <Th>Finish</Th>
                 <Th>Total</Th>
-                {/* <Th>Sparepart</Th>
-                <Th>Quantity</Th>
-                <Th>Unit</Th>
-                <Th>PMJob</Th>
-                <Th>PMActual</Th>
-                <Th>safety</Th>
-                <Th>Quality</Th> */}
                 <Th>Status</Th>
                 <Th>Breakdown</Th>
                 <Th>JobDetail</Th>
