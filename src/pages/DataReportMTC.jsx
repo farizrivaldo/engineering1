@@ -38,13 +38,21 @@ function DataReportMTC() {
     console.log(response.data);
   };
 
-  const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(listData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Data");
-    XLSX.writeFile(wb, "DataReportMTC.xlsx");
-  };
+  // const exportToExcel = () => {
+  //   const ws = XLSX.utils.json_to_sheet(listData);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "Data");
+  //   XLSX.writeFile(wb, "DataReportMTC.xlsx");
+  // };
 
+  const exportToExcel = () => {
+    const table = document.getElementById("data-table");
+    const rows = Array.from(table.querySelectorAll("tr"));
+    const data = rows.map((row) => {
+      const cells = Array.from(row.querySelectorAll("th, td"));
+      return cells.map((cell) => cell.innerText);
+    });
+  };
   const renderListData = () => {
     return listData.map((users, index) => {
       return (
@@ -143,7 +151,7 @@ function DataReportMTC() {
       <br />
       <div>
         <TableContainer>
-          <Table variant="simple">
+          <Table id="data-table" variant="simple">
             <Thead>
               <Tr>
                 <Th>Id</Th>
