@@ -81,7 +81,7 @@ function DataReportMTC() {
         spacing={4}
         align="center"
       >
-        <div className="main">
+        {/* <div className="main">
           <h1>Search Mesin</h1>
           <div className="search">
             <input
@@ -92,7 +92,7 @@ function DataReportMTC() {
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
           </div>
-        </div>
+        </div> */}
 
         <div>
           <h2>Month serch</h2>
@@ -112,7 +112,7 @@ function DataReportMTC() {
           </Select>
         </div>
 
-        <div>
+        {/* <div>
           <h2>Line</h2>
           <Select placeholder="Select Line">
             <option value="Line4">FULL</option>
@@ -121,7 +121,7 @@ function DataReportMTC() {
             <option value="Line3">Line 3</option>
             <option value="Line4">Line 4</option>
           </Select>
-        </div>
+        </div> */}
 
         <div>
           <br />
