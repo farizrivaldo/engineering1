@@ -590,7 +590,11 @@ module.exports = {
   //-------------------------DATA REPORT-------------MTC-------------
 
   dataReportMTC: async (request, response) => {
-    let queryData = "SELECT * FROM parammachine_saka.mtc_report;";
+    const date = request.query.date;
+
+    let queryData = `SELECT * FROM parammachine_saka.mtc_report WHERE MONTH(tanggal) = ${db.escape(
+      date
+    )};`;
     db.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });

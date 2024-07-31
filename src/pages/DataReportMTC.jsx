@@ -17,10 +17,21 @@ import axios from "axios";
 
 function DataReportMTC() {
   const [listData, setListData] = useState([]);
+  const [dateData, setDateData] = useState(6);
+
+  const dateHendeler = (e) => {
+    var dataInput = e.target.value;
+    setDateData(dataInput);
+  };
 
   const fetchData = async () => {
     let response = await axios.get(
-      "http://10.126.15.141:8002/part/dataReportMTC"
+      "http://10.126.15.141:8002/part/dataReportMTC",
+      {
+        params: {
+          date: dateData,
+        },
+      }
     );
     setListData(response.data);
     console.log(response.data);
@@ -84,7 +95,7 @@ function DataReportMTC() {
 
         <div>
           <h2>Month serch</h2>
-          <Select placeholder="Select Mounth">
+          <Select placeholder="Select Mounth" onChange={dateHendeler}>
             <option value="1">Jan</option>
             <option value="2">Feb</option>
             <option value="3">Mar</option>
