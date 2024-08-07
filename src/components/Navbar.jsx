@@ -60,6 +60,7 @@ export default function Navbar() {
       { name: "Production", href: "#", current: false },
       { name: "building", href: "#", current: false },
       { name: "OPE", href: "#", current: false },
+      { name: "Batch Record", href: "#", current: false },
     ];
   }
 
