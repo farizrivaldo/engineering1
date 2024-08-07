@@ -25,6 +25,7 @@ import OEEline from "./pages/OEEline";
 import Utility from "./pages/Utility";
 import Stopwatch from "./pages/Stopwatch";
 import MachineHistorical from "./pages/MachineHistorical";
+import BatchRecord from "./pages/BatchRecord";
 
 function App() {
   const dispatch = useDispatch();
@@ -80,6 +81,7 @@ function App() {
           <Route path="/Utility" element={<Utility />} />
           <Route path="/Stopwatch" element={<Stopwatch />} />
           <Route path="/HistoricalMachine" element={<MachineHistorical />} />
+          <Route path="/Batch%20Record" element={<BatchRecord />} />
         </Routes>
       </div>
     );
