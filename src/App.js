@@ -81,7 +81,7 @@ function App() {
           <Route path="/Utility" element={<Utility />} />
           <Route path="/Stopwatch" element={<Stopwatch />} />
           <Route path="/HistoricalMachine" element={<MachineHistorical />} />
-          <Route path="/Batch%20Record" element={<BatchRecord />} />
+          <Route path="/BatchRecord" element={<BatchRecord />} />
         </Routes>
       </div>
     );
