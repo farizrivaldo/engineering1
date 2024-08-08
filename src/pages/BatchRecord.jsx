@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from "react";
-import { Stack, Select } from "@chakra-ui/react";
+import { Stack, Select, Input, Button } from "@chakra-ui/react";
 import axios from "axios";
 
 function BatchRecord() {
@@ -96,66 +96,81 @@ function BatchRecord() {
       <h1 className="text-center text-4xl antialiased hover:subpixel-antialiased p-8">
         BATCH RECORD
       </h1>
-      <div className="pb-12 border-solid border-4 mt-2 ">
-        <div className="flex flex-col mt-2 gap-x-6 gap-y-8 p-4  sm:grid-cols-6   ">
-          <div className="main">
-            <h1>Search Batch</h1>
-            <div className="search">
-              <input
-                id="outlined-basic"
-                variant="outlined"
-                fullWidth
-                label="Search"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              />
-            </div>
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Line Area
-              </label>
-              <div className="mt-2 ">
-                <Select
-                  placeholder="Select Line"
-                  id="line"
-                  onChange={lineHendeler}
-                >
-                  {renderLine()}
-                </Select>
-              </div>
-            </div>
-            <div className="sm:col-span-4 ">
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Proces
-              </label>
-              <div className="mt-2 ">
-                <Select placeholder="Select Machine" onChange={procesHendeler}>
-                  {renderProces()}
-                </Select>
-              </div>
-            </div>
 
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Machine
-              </label>
-              <div className="mt-2 ">
-                <Select placeholder="Select Machine" onChange={machineHendeler}>
-                  {renderMachine()}
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-row justify-center items-center">
+      <div className="main flex flex-row gap-x-6">
+
+    <div>
+      <label
+        htmlFor="line"
+        className="block text-sm font-medium leading-6 text-gray-900"
+      >
+        Search Batch
+      </label>
+      <div className="search">
+        <Input
+          id="outlined-basic"
+          label="Search"
+          
+        />
       </div>
+    </div>
+    <div>
+      <label
+        htmlFor="line"
+        className="block text-sm font-medium leading-6 text-gray-900"
+      >
+        Line Area
+      </label>
+      <div className="mt-2">
+        <Select
+          placeholder="All Line"
+          id="line"
+          onChange={lineHendeler}
+        >
+          {renderLine()}
+        </Select>
+      </div>
+    </div>
+    <div>
+      <label
+        htmlFor="proces"
+        className="block text-sm font-medium leading-6 text-gray-900"
+      >
+        Process
+      </label>
+      <div className="mt-2">
+        <Select placeholder="All Process" onChange={procesHendeler}>
+          {renderProces()}
+        </Select>
+      </div>
+    </div>
+    <div>
+      <label
+        htmlFor="machine"
+        className="block text-sm font-medium leading-6 text-gray-900"
+      >
+        Machine
+      </label>
+      <div className="mt-2">
+        <Select placeholder="All Machine" onChange={machineHendeler}>
+          {renderMachine()}
+        </Select>
+      </div>
+    </div>
+
+        <div className="no-print">
+          <Button
+            className="w-40 mt-8 no-print"
+            colorScheme="blue"
+          >
+            Submit
+          </Button>
+        </div>
+  </div>
+</div>
+
+
     </>
   );
 }
