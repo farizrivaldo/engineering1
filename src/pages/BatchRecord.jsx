@@ -1,5 +1,5 @@
 import { React, useState } from "react";
-import { Stack } from "@chakra-ui/react";
+import { Stack, Select } from "@chakra-ui/react";
 import axios from "axios";
 
 function BatchRecord() {
@@ -84,7 +84,6 @@ function BatchRecord() {
 
   const machineHendeler = (event) => {
     setNewMachine(event.target.value);
-    fetchLocation(newLine, newProces, event.target.value);
     //console.log(event.target.value);
   };
 
