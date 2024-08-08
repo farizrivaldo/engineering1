@@ -99,7 +99,7 @@ function BatchRecord() {
       <div className="pb-12 border-solid border-4 mt-2 ">
         <div className="flex flex-auto mt-2 gap-x-6 gap-y-8 p-4  sm:grid-cols-6   ">
           <Stack
-            className="flex flex-row justify-center   "
+            className="flex flex-col justify-center   "
             direction="row"
             spacing={4}
             align="center"
