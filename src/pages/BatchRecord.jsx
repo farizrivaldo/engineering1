@@ -97,7 +97,7 @@ function BatchRecord() {
         BATCH RECORD
       </h1>
       <div className="pb-12 border-solid border-4 mt-2 ">
-        <div className="flex flex-auto mt-2 gap-x-6 gap-y-8 p-4  sm:grid-cols-6   ">
+        <div className="flex flex-row mt-2 gap-x-6 gap-y-8 p-4  sm:grid-cols-6   ">
           <div className="main">
             <h1>Search Batch</h1>
             <div className="search">
