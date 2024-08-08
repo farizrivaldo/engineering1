@@ -122,7 +122,7 @@ export default function Navbar() {
   }
 
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-gray-800 no-print" >
       {({ open }) => (
         <>
           <div className="mx-auto max-w-8x2 px-6 sm:px-8 lg:px-2">
