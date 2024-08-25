@@ -88,7 +88,7 @@ function BatchRecord() {
   };
 
   const submitHendeler = (even) => {
-    console.log(fetchMachineData);
+    console.log(newMachine);
   };
 
   useEffect(() => {
