@@ -2757,4 +2757,25 @@ LEFT JOIN
       return response.status(200).send(result);
     });
   },
+
+  //==============EBR========================================EBR==========================================
+
+  GetDataEBR_PMA: async (request, response) => {
+    const { batch, date, machine } = request.query;
+    const querryGet = ` SELECT data_index, 
+       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
+       CONVERT(data_format_0 USING utf8) AS data_format_0_string, 
+       CONVERT(data_format_1 USING utf8) AS data_format_1_string, 
+       data_format_2,
+       data_format_3,
+       data_format_4,
+       data_format_5,
+       data_format_6,
+       data_format_7
+FROM ems_saka.\`cMT-FHDGEA1_EBR_PMA_data\``;
+
+    db2.query(querryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 };

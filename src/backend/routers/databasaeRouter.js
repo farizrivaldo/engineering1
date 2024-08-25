@@ -123,4 +123,7 @@ routers.get("/BuildingWH1RH", databaseControllers.BuildingWH1RH);
 routers.get("/BuildingWH1All", databaseControllers.BuildingWH1All);
 
 routers.get("/AlarmList", databaseControllers.AlarmList);
+
+//=====================EBR==========================================================
+routers.get("/PmaGetData", databaseControllers.GetDataEBR_PMA);
 module.exports = routers;
