@@ -87,6 +87,10 @@ function BatchRecord() {
     //console.log(event.target.value);
   };
 
+  const submitHendeler = (even) => {
+    console.log(fetchMachineData);
+  };
+
   useEffect(() => {
     fetchLine();
   }, []);
@@ -98,79 +102,71 @@ function BatchRecord() {
       </h1>
 
       <div className="flex flex-row justify-center items-center">
-      <div className="main flex flex-row gap-x-6">
+        <div className="main flex flex-row gap-x-6">
+          <div>
+            <label
+              htmlFor="line"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Search Batch
+            </label>
+            <div className="search">
+              <Input id="outlined-basic" label="Search" />
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="line"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Line Area
+            </label>
+            <div className="mt-2">
+              <Select placeholder="All Line" id="line" onChange={lineHendeler}>
+                {renderLine()}
+              </Select>
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="proces"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Process
+            </label>
+            <div className="mt-2">
+              <Select placeholder="All Process" onChange={procesHendeler}>
+                {renderProces()}
+              </Select>
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="machine"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Machine
+            </label>
+            <div className="mt-2">
+              <Select placeholder="All Machine" onChange={machineHendeler}>
+                {renderMachine()}
+              </Select>
+            </div>
+          </div>
 
-    <div>
-      <label
-        htmlFor="line"
-        className="block text-sm font-medium leading-6 text-gray-900"
-      >
-        Search Batch
-      </label>
-      <div className="search">
-        <Input
-          id="outlined-basic"
-          label="Search"
-          
-        />
-      </div>
-    </div>
-    <div>
-      <label
-        htmlFor="line"
-        className="block text-sm font-medium leading-6 text-gray-900"
-      >
-        Line Area
-      </label>
-      <div className="mt-2">
-        <Select
-          placeholder="All Line"
-          id="line"
-          onChange={lineHendeler}
-        >
-          {renderLine()}
-        </Select>
-      </div>
-    </div>
-    <div>
-      <label
-        htmlFor="proces"
-        className="block text-sm font-medium leading-6 text-gray-900"
-      >
-        Process
-      </label>
-      <div className="mt-2">
-        <Select placeholder="All Process" onChange={procesHendeler}>
-          {renderProces()}
-        </Select>
-      </div>
-    </div>
-    <div>
-      <label
-        htmlFor="machine"
-        className="block text-sm font-medium leading-6 text-gray-900"
-      >
-        Machine
-      </label>
-      <div className="mt-2">
-        <Select placeholder="All Machine" onChange={machineHendeler}>
-          {renderMachine()}
-        </Select>
-      </div>
-    </div>
-
-        <div className="no-print">
-          <Button
-            className="w-40 mt-8 no-print"
-            colorScheme="blue"
-          >
-            Submit
-          </Button>
+          <div className="no-print">
+            <Button
+              className="w-40 mt-8 no-print"
+              colorScheme="blue"
+              onClick={() => {
+                submitHendeler;
+              }}
+            >
+              Submit
+            </Button>
+          </div>
         </div>
-  </div>
-</div>
-
-
+      </div>
     </>
   );
 }
