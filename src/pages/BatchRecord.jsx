@@ -158,9 +158,7 @@ function BatchRecord() {
             <Button
               className="w-40 mt-8 no-print"
               colorScheme="blue"
-              onClick={() => {
-                submitHendeler;
-              }}
+              onClick={() => submitHendeler()}
             >
               Submit
             </Button>
