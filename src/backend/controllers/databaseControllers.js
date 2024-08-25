@@ -2764,8 +2764,8 @@ LEFT JOIN
     const { batch, date, machine } = request.query;
     const querryGet = ` SELECT data_index, 
        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
-       CONVERT(data_format_0 USING utf8) AS data_format_0_string, 
-       CONVERT(data_format_1 USING utf8) AS data_format_1_string, 
+	   REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\u0000$', ''), '\u0008$', '') AS data_format_0_string,
+       REPLACE(REPLACE(CONVERT(data_format_1 USING utf8), '\u0000$', ''), '\u0008$', '') AS data_format_1_string,
        data_format_2,
        data_format_3,
        data_format_4,
