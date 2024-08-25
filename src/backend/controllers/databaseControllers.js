@@ -2763,7 +2763,7 @@ LEFT JOIN
   GetDataEBR_PMA: async (request, response) => {
     const { batch, date, machine } = request.query;
     if (machine == "Wetmill") {
-      const querryGet = ` SELECT *, 
+      var querryGet = ` SELECT *, 
        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
        REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') AS data_format_0_string,
        data_format_1,
@@ -2772,7 +2772,7 @@ LEFT JOIN
 FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\``;
       console.log("wetmill", querryGet);
     } else {
-      const querryGet = ` SELECT *, 
+      var querryGet = ` SELECT *, 
       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
 REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') AS data_format_0_string,
       REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_1 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') AS data_format_1_string,
