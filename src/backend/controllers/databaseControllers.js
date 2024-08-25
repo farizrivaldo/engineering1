@@ -2770,6 +2770,7 @@ LEFT JOIN
        data_format_2,
        data_format_3,
 FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\``;
+      console.log("wetmill", querryGet);
     } else {
       const querryGet = ` SELECT *, 
       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
@@ -2782,9 +2783,8 @@ REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\
       data_format_6,
       data_format_7
 FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\``;
+      console.log("yglain", querryGet);
     }
-
-    console.log(querryGet);
 
     db2.query(querryGet, (err, result) => {
       return response.status(200).send(result);
