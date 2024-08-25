@@ -2772,7 +2772,7 @@ LEFT JOIN
        data_format_5,
        data_format_6,
        data_format_7
-FROM ems_saka.\`cMT-FHDGEA1_EBR_PMA_data\``;
+FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\``;
 
     db2.query(querryGet, (err, result) => {
       return response.status(200).send(result);

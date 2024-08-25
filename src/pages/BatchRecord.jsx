@@ -9,6 +9,7 @@ function BatchRecord() {
   const [newLine, setNewLine] = useState("");
   const [newProces, setNewProces] = useState("");
   const [newMachine, setNewMachine] = useState("");
+  const [noBatch, setNoBatch] = useState("");
 
   const fetchLine = async () => {
     let response = await axios.get("http://10.126.15.141:8002/part/lineData");
@@ -39,6 +40,18 @@ function BatchRecord() {
       }
     );
     setFetchMachineData(response.data);
+  };
+
+  const getDataWithMachine = async (newMachine, noBatch) => {
+    let response = await axios.get(
+      "http://10.126.15.141:8002/part/PmaGetData",
+      {
+        params: {
+          machine: newMachine,
+        },
+      }
+    );
+    console.log(response.data);
   };
 
   const renderLine = () => {
@@ -88,6 +101,7 @@ function BatchRecord() {
   };
 
   const submitHendeler = (even) => {
+    getDataWithMachine;
     console.log(newMachine);
   };
 
