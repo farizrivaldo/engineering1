@@ -42,7 +42,7 @@ function BatchRecord() {
     setFetchMachineData(response.data);
   };
 
-  const getDataWithMachine = async (newMachine, noBatch) => {
+  const getDataWithMachine = async () => {
     let response = await axios.get(
       "http://10.126.15.141:8002/part/PmaGetData",
       {
@@ -51,6 +51,7 @@ function BatchRecord() {
         },
       }
     );
+
     console.log(response.data);
   };
 
