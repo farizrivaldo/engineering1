@@ -106,6 +106,11 @@ function BatchRecord() {
     console.log(newMachine);
   };
 
+  const batchHendeler = (even) => {
+    setNoBatch(even.target.value);
+    console.log(even.target.value);
+  };
+
   useEffect(() => {
     fetchLine();
   }, []);
@@ -126,7 +131,11 @@ function BatchRecord() {
               Search Batch
             </label>
             <div className="search">
-              <Input id="outlined-basic" label="Search" />
+              <Input
+                id="outlined-basic"
+                label="Search"
+                onChange={batchHendeler}
+              />
             </div>
           </div>
           <div>

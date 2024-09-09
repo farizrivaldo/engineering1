@@ -2762,6 +2762,7 @@ LEFT JOIN
 
   GetDataEBR_PMA: async (request, response) => {
     const { batch, date, machine } = request.query;
+
     if (machine == "Wetmill") {
       var querryGet = ` SELECT data_index, 
        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
