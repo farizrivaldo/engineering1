@@ -48,6 +48,7 @@ function BatchRecord() {
       {
         params: {
           machine: newMachine,
+          batch: noBatch,
         },
       }
     );

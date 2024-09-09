@@ -2762,6 +2762,7 @@ LEFT JOIN
 
   GetDataEBR_PMA: async (request, response) => {
     const { batch, date, machine } = request.query;
+    console.log(batch);
 
     if (machine == "Wetmill") {
       var querryGet = ` SELECT data_index, 
