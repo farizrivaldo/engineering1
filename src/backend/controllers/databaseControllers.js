@@ -2771,7 +2771,8 @@ LEFT JOIN
        data_format_1,
        data_format_2,
        data_format_3
-FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\``;
+FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\`
+WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') LIKE '%${batch}%'`;
       console.log("wetmill", querryGet);
     } else {
       var querryGet = ` SELECT data_index, 
@@ -2784,7 +2785,8 @@ REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\
       data_format_5,
       data_format_6,
       data_format_7
-FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\``;
+FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\`
+WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') LIKE '%${batch}%'`;
       console.log("yglain", querryGet);
     }
 
