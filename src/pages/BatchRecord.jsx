@@ -161,21 +161,31 @@ function BatchRecord() {
       <div className="flex flex-row justify-center items-center">
         <div className="main flex flex-row gap-x-6">
           <div>
-            <h2>Start Time</h2>
+            <label
+              htmlFor="line"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Start Date
+            </label>
             <Input
               //onChange={dateStart}
               placeholder="Select Date and Time"
               size="md"
-              type="date"
+              type="time"
             />
           </div>
           <div>
-            <h2>Finish Time</h2>
+            <label
+              htmlFor="line"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Finish Date
+            </label>
             <Input
               //onChange={dateFinish}
               placeholder="Select Date and Time"
               size="md"
-              type="date"
+              type="time"
             />
           </div>
 
