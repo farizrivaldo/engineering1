@@ -109,12 +109,12 @@ function BatchRecord() {
           <Td>{ebr.data_format_0_string}</Td>
           <Td>{ebr.data_format_1_string}</Td>
           <Td>{ebr.label}</Td>
-          <Td>{data_format_2}</Td>
-          <Td>{data_format_3}</Td>
-          <Td>{data_format_4}</Td>
-          <Td>{data_format_5}</Td>
-          <Td>{data_format_6}</Td>
-          <Td>{data_format_7}</Td>
+          <Td>{ebr.data_format_2}</Td>
+          <Td>{ebr.data_format_3}</Td>
+          <Td>{ebr.data_format_4}</Td>
+          <Td>{ebr.data_format_5}</Td>
+          <Td>{ebr.data_format_6}</Td>
+          <Td>{ebr.data_format_7}</Td>
         </Tr>
       );
     });
