@@ -211,20 +211,18 @@ function BatchRecord() {
             <TableCaption>Imperial to metric conversion factors</TableCaption>
             <Thead>
               <Tr>
-                <Th>Operator</Th>
-                <Th>Product</Th>
-                <Th>No.Batch</Th>
+                <Th>No</Th>
+                <Th>Batch-ID</Th>
+                <Th>Process</Th>
                 <Th>Date</Th>
-                <Th>Time</Th>
-                <Th>No.Test</Th>
-                <Th>Thickness</Th>
-                <Th>Diameter</Th>
-                <Th>Hardness</Th>
-                <Th>Ref. Thickness min</Th>
-                <Th>Ref. Thickness max</Th>
-                <Th>Ref. Diameter </Th>
-                <Th>Ref. Hardness min</Th>
-                <Th>Ref. Hardness max</Th>
+                <Th>Data1</Th>
+                <Th>Data2</Th>
+                <Th>Data3</Th>
+                <Th>Data4</Th>
+                <Th>Data5</Th>
+                <Th>Data6</Th>
+                <Th>Data7</Th>
+                <Th>Data8</Th>
               </Tr>
             </Thead>
             <Tbody></Tbody>
