@@ -205,7 +205,7 @@ function BatchRecord() {
           </div>
         </div>
       </div>
-      <div>
+      <div className="mt-8">
         <TableContainer>
           <Table variant="simple">
             <TableCaption>Imperial to metric conversion factors</TableCaption>
