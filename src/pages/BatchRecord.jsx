@@ -171,7 +171,7 @@ function BatchRecord() {
               //onChange={dateStart}
               placeholder="Select Date and Time"
               size="md"
-              type="dateTime"
+              type="datetime-local"
             />
           </div>
           <div>
@@ -185,7 +185,7 @@ function BatchRecord() {
               //onChange={dateFinish}
               placeholder="Select Date and Time"
               size="md"
-              type="dateTime"
+              type="datetime-local"
             />
           </div>
 
