@@ -25,6 +25,7 @@ function BatchRecord() {
   const [newProces, setNewProces] = useState("");
   const [newMachine, setNewMachine] = useState("");
   const [noBatch, setNoBatch] = useState("");
+  const [mainData, setMainData] = useState([]);
 
   const fetchLine = async () => {
     let response = await axios.get("http://10.126.15.141:8002/part/lineData");
@@ -69,6 +70,7 @@ function BatchRecord() {
     );
 
     console.log(response.data);
+    setMainData(response.data);
   };
 
   const renderLine = () => {
@@ -95,6 +97,25 @@ function BatchRecord() {
         <option value={machineCategory.machine_name}>
           {machineCategory.machine_name}
         </option>
+      );
+    });
+  };
+
+  const renderData = () => {
+    return mainData.map((ebr) => {
+      return (
+        <Tr>
+          <Td>{ebr.data_index}</Td>
+          <Td>{ebr.data_format_0_string}</Td>
+          <Td>{ebr.data_format_1_string}</Td>
+          <Td>{ebr.label}</Td>
+          <Td>{data_format_2}</Td>
+          <Td>{data_format_3}</Td>
+          <Td>{data_format_4}</Td>
+          <Td>{data_format_5}</Td>
+          <Td>{data_format_6}</Td>
+          <Td>{data_format_7}</Td>
+        </Tr>
       );
     });
   };
