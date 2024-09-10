@@ -204,32 +204,32 @@ function BatchRecord() {
             </Button>
           </div>
         </div>
-        <div>
-          <TableContainer>
-            <Table variant="simple">
-              <TableCaption>Imperial to metric conversion factors</TableCaption>
-              <Thead>
-                <Tr>
-                  <Th>Operator</Th>
-                  <Th>Product</Th>
-                  <Th>No.Batch</Th>
-                  <Th>Date</Th>
-                  <Th>Time</Th>
-                  <Th>No.Test</Th>
-                  <Th>Thickness</Th>
-                  <Th>Diameter</Th>
-                  <Th>Hardness</Th>
-                  <Th>Ref. Thickness min</Th>
-                  <Th>Ref. Thickness max</Th>
-                  <Th>Ref. Diameter </Th>
-                  <Th>Ref. Hardness min</Th>
-                  <Th>Ref. Hardness max</Th>
-                </Tr>
-              </Thead>
-              <Tbody></Tbody>
-            </Table>
-          </TableContainer>
-        </div>
+      </div>
+      <div>
+        <TableContainer>
+          <Table variant="simple">
+            <TableCaption>Imperial to metric conversion factors</TableCaption>
+            <Thead>
+              <Tr>
+                <Th>Operator</Th>
+                <Th>Product</Th>
+                <Th>No.Batch</Th>
+                <Th>Date</Th>
+                <Th>Time</Th>
+                <Th>No.Test</Th>
+                <Th>Thickness</Th>
+                <Th>Diameter</Th>
+                <Th>Hardness</Th>
+                <Th>Ref. Thickness min</Th>
+                <Th>Ref. Thickness max</Th>
+                <Th>Ref. Diameter </Th>
+                <Th>Ref. Hardness min</Th>
+                <Th>Ref. Hardness max</Th>
+              </Tr>
+            </Thead>
+            <Tbody></Tbody>
+          </Table>
+        </TableContainer>
       </div>
     </>
   );
