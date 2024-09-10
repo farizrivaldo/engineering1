@@ -246,7 +246,7 @@ function BatchRecord() {
                 <Th>Data8</Th>
               </Tr>
             </Thead>
-            <Tbody></Tbody>
+            <Tbody>{renderData()}</Tbody>
           </Table>
         </TableContainer>
       </div>
