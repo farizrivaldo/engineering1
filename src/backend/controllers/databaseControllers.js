@@ -2794,4 +2794,43 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+  //==============VIBRATE========================================VIBRATE==========================================
+
+  GetDataEBR_PMA: async (request, response) => {
+    const { batch, date, machine } = request.query;
+    console.log(batch);
+
+    if (machine == "Wetmill") {
+      var querryGet = ` SELECT data_index, 
+       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
+       REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') AS data_format_0_string,
+       data_format_1,
+       data_format_2,
+       data_format_3
+FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\`
+WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') LIKE '%${batch}%'`;
+      console.log("wetmill", querryGet);
+    } else {
+      var querryGet = ` SELECT data_index, 
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
+REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') AS data_format_0_string,
+      REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_1 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') AS data_format_1_string,
+      data_format_2,
+      data_format_3,
+      data_format_4,
+      data_format_5,
+      data_format_6,
+      data_format_7
+FROM ems_saka.\`cMT-FHDGEA1_EBR_${machine}_data\`
+WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', ''), '\b', ''), '$', ''), CHAR(0x00), '') LIKE '%${batch}%'`;
+      console.log("yglain", querryGet);
+    }
+
+    db2.query(querryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+  
+
 };
