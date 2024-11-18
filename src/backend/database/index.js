@@ -17,18 +17,6 @@ const db2 = mysql.createConnection({
   port: process.env.DB_PORT,
 });
 
-// host: "10.126.15.141",
-// user: "root",
-// password: "s4k4f4rmA",
-// database: "parammachine_saka",
-// port: 3306,
-
-// host: "10.126.15.138",
-// user: "ems_saka",
-// password: "s4k4f4rmA",
-// database: "parammachine_saka",
-// port: 3306,
-
 db.connect((err) => {
   if (err) {
     return console.log(`error : ${err.message}`);
