@@ -31,6 +31,8 @@ routers.post("/thickness", databaseControllers.fetchDataTickness);
 routers.post("/diameter", databaseControllers.fetchDataDiameter);
 
 routers.get("/oee", databaseControllers.fetchOee);
+routers.get("/vibrate", databaseControllers.fetchVibrate);
+
 routers.get("/variableoee", databaseControllers.fetchVariableOee);
 
 routers.get("/emsN14", databaseControllers.fetchEMSn14);
