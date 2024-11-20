@@ -125,6 +125,7 @@ routers.get("/BuildingWH1RH", databaseControllers.BuildingWH1RH);
 routers.get("/BuildingWH1All", databaseControllers.BuildingWH1All);
 
 routers.get("/AlarmList", databaseControllers.AlarmList);
+routers.get("/138", databaseControllers.fetch138);
 
 //=====================EBR==========================================================
 routers.get("/PmaGetData", databaseControllers.GetDataEBR_PMA);

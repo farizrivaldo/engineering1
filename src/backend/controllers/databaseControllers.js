@@ -1,4 +1,4 @@
-const { db2, db, query } = require("../database");
+const { db3, db2, db, query } = require("../database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("../helpers/nodemailers");
@@ -2813,6 +2813,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       request.query.finish;
 
     db.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  fetch138: async (request, response) => {
+    let fetchQuerry = "select * from `Alarm_Loopo_Event_Log`";
+
+    db3.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
