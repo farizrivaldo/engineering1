@@ -32,6 +32,7 @@ routers.post("/diameter", databaseControllers.fetchDataDiameter);
 
 routers.get("/oee", databaseControllers.fetchOee);
 routers.get("/vibrate", databaseControllers.fetchVibrate);
+routers.get("/vibrateChart", databaseControllers.vibrateChart);
 
 routers.get("/variableoee", databaseControllers.fetchVariableOee);
 
