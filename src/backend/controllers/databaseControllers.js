@@ -2827,7 +2827,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   vibrateChart: async (request, response) => {
     let fetchQuerry =
-      "SELECT COALESCE(`data_index`, 0) as 'x', DATE_FORMAT(FROM_UNIXTIME(`time@timestamp`)- INTERVAL 7 HOUR, '%Y-%m-%d %H:%i:%s') as 'label', `data_format_0` as 'y' FROM " +
+      "SELECT COALESCE(`data_index`, 0) as 'x', DATE_FORMAT(FROM_UNIXTIME(`time@timestamp`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') as 'label', `data_format_0` as 'y' FROM " +
       " " +
       "`" +
       request.query.machine +
@@ -2839,7 +2839,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       "and" +
       ` ` +
       request.query.finish;
-    
+
     db.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
