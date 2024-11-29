@@ -112,6 +112,7 @@ routers.get("/ChillerData6", databaseControllers.ChillerData6);
 routers.get("/ChillerData7", databaseControllers.ChillerData7);
 routers.get("/ChillerData8", databaseControllers.ChillerData8);
 routers.get("/ChillerData9", databaseControllers.ChillerData9);
+routers.get("/trialChiller", databaseControllers.trialChiller);
 
 routers.get("/BuildingRNDSuhu", databaseControllers.BuildingRNDSuhu);
 routers.get("/BuildingRNDRH", databaseControllers.BuildingRNDRH);

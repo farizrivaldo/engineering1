@@ -18,11 +18,19 @@ const db2 = mysql.createConnection({
 });
 
 const db3 = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST2,
+  user: process.env.DB_USER2,
+  password: process.env.DB_PASSWORD2,
   database: process.env.DB_DATABASE3,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT2,
+});
+
+const db4 = mysql.createConnection({
+  host: process.env.DB_HOST2,
+  user: process.env.DB_USER2,
+  password: process.env.DB_PASSWORD2,
+  database: process.env.DB_DATABASE4,
+  port: process.env.DB_PORT2,
 });
 
 db.connect((err) => {
@@ -46,8 +54,9 @@ db3.connect((err) => {
   console.log("connect to mysql3");
 });
 
-const query = util.promisify(db.query).bind(db);
-const query2 = util.promisify(db2.query).bind(db2);
-const query3 = util.promisify(db3.query).bind(db3);
+const query   = util.promisify(db.query).bind(db);
+const query2  = util.promisify(db2.query).bind(db2);
+const query3  = util.promisify(db3.query).bind(db3);
+const query4  = util.promisify(db4.query).bind(db4);
 
-module.exports = { db3, db2, db, query };
+module.exports = { db4, db3, db2, db, query, query2, query3, query4 };
