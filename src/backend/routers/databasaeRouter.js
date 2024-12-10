@@ -132,3 +132,8 @@ routers.get("/138", databaseControllers.fetch138);
 //=====================EBR==========================================================
 routers.get("/PmaGetData", databaseControllers.GetDataEBR_PMA);
 module.exports = routers;
+
+//==============INSTRUMENT IPC========================================INSTRUMENT IPC==========================================
+routers.get("/getMoistureData", databaseControllers.getMoistureData);
+routers.get("/getSartoriusData", databaseControllers.getSartoriusData);
+routers.get("/getMettlerData", databaseControllers.getMettlerData);

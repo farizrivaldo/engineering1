@@ -2864,4 +2864,27 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+  //==============INSTRUMENT IPC========================================INSTRUMENT IPC==========================================
+
+  getMoistureData: async (request, response) => {
+    let fetchQuerry = "select * from `Moisture`";
+    db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  getSartoriusData: async (request, response) => {
+    let fetchQuerry = "select * from `Sartorius_Scales`";
+    db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  getMettlerData: async (request, response) => {
+    let fetchQuerry = "select * from `Mettler_Scales`";
+    db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 };
