@@ -137,3 +137,7 @@ module.exports = routers;
 routers.get("/getMoistureData", databaseControllers.getMoistureData);
 routers.get("/getSartoriusData", databaseControllers.getSartoriusData);
 routers.get("/getMettlerData", databaseControllers.getMettlerData);
+
+//==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
+routers.get("/getHardnessData", databaseControllers.getHardnessData);
+routers.get("/getHardnessGraph", databaseControllers.getHardnessGraph);

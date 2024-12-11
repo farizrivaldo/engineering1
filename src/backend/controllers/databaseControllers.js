@@ -1,4 +1,5 @@
 const {
+  post,
   db4,
   db3,
   db2,
@@ -7,6 +8,7 @@ const {
   query2,
   query3,
   query4,
+  query5,
 } = require("../database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -2865,7 +2867,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
-  //==============INSTRUMENT IPC========================================INSTRUMENT IPC==========================================
+  //==============INSTRUMENT IPC ========================================INSTRUMENT IPC==========================================
 
   getMoistureData: async (request, response) => {
     let fetchQuerry = "select * from `Moisture`";
@@ -2884,6 +2886,30 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   getMettlerData: async (request, response) => {
     let fetchQuerry = "select * from `Mettler_Scales`";
     db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  //==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
+  getHardnessData: async (request, response) => {
+    let fetchQuerry =
+      "SELECT * FROM sakaplant_prod_ipc_staging ORDER BY id_setup DESC LIMIT 10;";
+    post.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  getHardnessGraph: async (request, response) => {
+    let fetchQuerry = `
+    SELECT 
+      created_date AS label, 
+      id_setup AS x, 
+      h_value AS y 
+    FROM sakaplant_prod_ipc_staging 
+    ORDER BY id_setup DESC 
+    LIMIT 10;
+  `;
+    post.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
