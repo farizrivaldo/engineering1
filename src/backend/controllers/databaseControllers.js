@@ -636,7 +636,7 @@ module.exports = {
       "'";
     console.log(queryData);
 
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -662,7 +662,7 @@ module.exports = {
       finish +
       "  GROUP BY      MONTH(label)  ORDER BY      MONTH(label);  ";
     console.log(queryData);
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -679,7 +679,7 @@ module.exports = {
       finish +
       ";";
 
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -696,14 +696,14 @@ module.exports = {
       finish +
       " ;";
 
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   getRangeSet: async (request, response) => {
     let queryData = "SELECT * FROM power_setpoint";
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1544,7 +1544,7 @@ LEFT JOIN
     WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     `;
 
-    db.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1563,7 +1563,7 @@ LEFT JOIN
     GROUP BY YEAR(date(FROM_UNIXTIME(s1.\`time@timestamp\`))), 
     MONTH(date(FROM_UNIXTIME(s1.\`time@timestamp\`)))`;
 
-    db.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -2031,7 +2031,7 @@ LEFT JOIN
           where kwh51>0) as total51
     `;
 
-    db.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -2828,13 +2828,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ` ` +
       request.query.finish;
 
-    db.query(fetchQuerry, (err, result) => {
+    db4.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   fetch138: async (request, response) => {
-    let fetchQuerry = "select * from `Moisture` ORDER BY id DESC";
+    let fetchQuerry =
+      "select * from `cMT-VibrasiHVAC_CMH AHU E 1.01_data` ORDER BY id DESC";
     db4.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
@@ -2855,7 +2856,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ` ` +
       request.query.finish;
 
-    db.query(fetchQuerry, (err, result) => {
+    db4.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -2910,6 +2911,48 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     LIMIT 10;
   `;
     post.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  //==============POWER METER MEZANINE ========================================POWER METER MEZANINE ==========================================
+
+  fetchPower: async (request, response) => {
+    let fetchQuerry =
+      "SELECT COALESCE(`data_index`, 0) as 'id',`time@timestamp` as 'time', `data_format_0` FROM " +
+      " " +
+      "`" +
+      request.query.machine +
+      "`" +
+      "WHERE `time@timestamp` BETWEEN" +
+      " " +
+      request.query.start +
+      ` ` +
+      "and" +
+      ` ` +
+      request.query.finish;
+
+    db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  PowerMeterGraph: async (request, response) => {
+    let fetchQuerry =
+      "SELECT COALESCE(`data_index`, 0) as 'x', `time@timestamp` as 'label', `data_format_0` as 'y' FROM " +
+      " " +
+      "`" +
+      request.query.machine +
+      "`" +
+      "WHERE `time@timestamp` BETWEEN" +
+      " " +
+      request.query.start +
+      ` ` +
+      "and" +
+      ` ` +
+      request.query.finish;
+
+    db4.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },

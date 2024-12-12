@@ -141,3 +141,7 @@ routers.get("/getMettlerData", databaseControllers.getMettlerData);
 //==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
 routers.get("/getHardnessData", databaseControllers.getHardnessData);
 routers.get("/getHardnessGraph", databaseControllers.getHardnessGraph);
+
+//==============POWER METER MEZANINE ========================================POWER METER MEZANINE ==========================================
+routers.get("/fetchPower", databaseControllers.fetchPower);
+routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
