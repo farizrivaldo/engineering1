@@ -1533,20 +1533,49 @@ LEFT JOIN
   // Power Management 2 Backend
   PowerDaily: async (request, response) => {
     const { area, start, finish } = request.query;
-    const queryGet = `SELECT
-    s1.data_index as x,
-    DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m-%d') AS label,
-    round(s1.data_format_0 -
-      (select s2.data_format_0 as previous from
-      ems_saka.\`${area}\` as s2
-      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1),2) as y
-    From ems_saka.\`${area}\` as s1
-    WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
+
+    // Query untuk menggabungkan data dari dua database
+    const queryGet = `
+    SELECT
+        data_index AS x,
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%Y-%m-%d') AS label,
+        ROUND(data_format_0 - 
+            (SELECT data_format_0 AS previous
+             FROM ems_saka.\`${area}\` 
+             WHERE data_index < main_table.data_index AND data_format_0 > 0
+             ORDER BY data_index DESC 
+             LIMIT 1), 2) AS y
+    FROM (
+        SELECT data_index, \`time@timestamp\`, data_format_0
+        FROM ems_saka.\`${area}\`
+        WHERE DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
+          AND data_format_0 > 0
+        UNION ALL
+        SELECT data_index, \`time@timestamp\`, data_format_0
+        FROM parammachine_saka.\`${area}\`
+        WHERE DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
+          AND data_format_0 > 0
+    ) AS main_table
+    ORDER BY \`time@timestamp\`;
     `;
 
-    db4.query(queryGet, (err, result) => {
-      return response.status(200).send(result);
-    });
+    // Jalankan query
+    try {
+      const results = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) reject(err);
+          resolve(result);
+        });
+      });
+
+      // Kirim hasil query ke client
+      return response.status(200).send(results);
+    } catch (error) {
+      console.error("Error while retrieving data: ", error);
+      return response
+        .status(500)
+        .send({ error: `Failed to retrieve data: ${error.message}` });
+    }
   },
 
   PowerMonthly: async (request, response) => {
