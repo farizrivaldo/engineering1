@@ -20,7 +20,7 @@ const { data } = require("jquery");
 module.exports = {
   fetchOee: async (request, response) => {
     let fetchQuerry =
-      " SELECT`data_index` as 'id', `time@timestamp` as 'time',COALESCE(`data_format_0`, 0) AS 'avability',  COALESCE(`data_format_1`, 0) AS 'performance',  COALESCE(`data_format_2`, 0) AS 'quality',  COALESCE(`data_format_3`, 0) AS 'oee',  COALESCE(`data_format_4`, 0) AS 'output',  COALESCE(`data_format_5`, 0) AS 'runTime',  COALESCE(`data_format_6`, 0) AS 'stopTime',COALESCE(`data_format_7`, 0) AS 'idleTime' FROM " +
+      " SELECT `data_index` as 'id', `time@timestamp` as 'time',COALESCE(`data_format_0`, 0) AS 'avability',  COALESCE(`data_format_1`, 0) AS 'performance',  COALESCE(`data_format_2`, 0) AS 'quality',  COALESCE(`data_format_3`, 0) AS 'oee',  COALESCE(`data_format_4`, 0) AS 'output',  COALESCE(`data_format_5`, 0) AS 'runTime',  COALESCE(`data_format_6`, 0) AS 'stopTime',COALESCE(`data_format_7`, 0) AS 'idleTime' FROM " +
       " " +
       "`" +
       request.query.machine +
@@ -1538,9 +1538,9 @@ LEFT JOIN
     DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m-%d') AS label,
     round(s1.data_format_0 -
       (select s2.data_format_0 as previous from
-      parammachine_saka.\`${area}\` as s2
+      ems_saka.\`${area}\` as s2
       where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1),2) as y
-    From parammachine_saka.\`${area}\` as s1 
+    From ems_saka.\`${area}\` as s1
     WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     `;
 
@@ -1556,9 +1556,9 @@ LEFT JOIN
     DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m') AS label,
     round(sum(s1.data_format_0 -
       (select s2.data_format_0 as previous from
-      parammachine_saka.\`${area}\` as s2
+      ems_saka.\`${area}\` as s2
       where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1)),2) as y
-    From parammachine_saka.\`${area}\` as s1 
+    From ems_saka.\`${area}\` as s1 
     where  DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`), '%Y-%m') BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     GROUP BY YEAR(date(FROM_UNIXTIME(s1.\`time@timestamp\`))), 
     MONTH(date(FROM_UNIXTIME(s1.\`time@timestamp\`)))`;
@@ -1567,6 +1567,7 @@ LEFT JOIN
       return response.status(200).send(result);
     });
   },
+
   PowerSankey: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `select MVMDP as "MVMDP",
