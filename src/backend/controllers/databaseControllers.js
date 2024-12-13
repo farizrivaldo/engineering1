@@ -1531,52 +1531,67 @@ LEFT JOIN
   },
 
   // Power Management 2 Backend
-  PowerDaily: async (request, response) => {
+PowerDaily: async (request, response) => {
     const { area, start, finish } = request.query;
 
-    // Query untuk menggabungkan data dari dua database
-    const queryGet = `
+    // Define queries for both databases
+    const queryGetDB4 = `
     SELECT
-        data_index AS x,
-        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%Y-%m-%d') AS label,
-        ROUND(data_format_0 - 
-            (SELECT data_format_0 AS previous
-             FROM ems_saka.\`${area}\` 
-             WHERE data_index < main_table.data_index AND data_format_0 > 0
-             ORDER BY data_index DESC 
-             LIMIT 1), 2) AS y
-    FROM (
-        SELECT data_index, \`time@timestamp\`, data_format_0
-        FROM ems_saka.\`${area}\`
-        WHERE DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
-          AND data_format_0 > 0
-        UNION ALL
-        SELECT data_index, \`time@timestamp\`, data_format_0
-        FROM parammachine_saka.\`${area}\`
-        WHERE DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
-          AND data_format_0 > 0
-    ) AS main_table
-    ORDER BY \`time@timestamp\`;
+      data_index AS x,
+      data_format_0 AS y,
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+    FROM \`ems_saka\`.\`${area}\`
+    WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+    AND data_format_0 > 0
+    ORDER BY data_index;
     `;
 
-    // Jalankan query
-    try {
-      const results = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) reject(err);
-          resolve(result);
-        });
-      });
+    const queryGetDB3 = `
+    SELECT
+      data_index AS x,
+      data_format_0 AS y,
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+    FROM \`parammachine_saka\`.\`${area}\`
+    WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+    AND data_format_0 > 0
+    ORDER BY data_index;
+    `;
 
-      // Kirim hasil query ke client
-      return response.status(200).send(results);
+    try {
+        // Use Promise.all to fetch data from both databases concurrently
+        const [resultDB4, resultDB3] = await Promise.all([
+            new Promise((resolve, reject) => {
+                db4.query(queryGetDB4, (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result);
+                });
+            }),
+            new Promise((resolve, reject) => {
+                db3.query(queryGetDB3, (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result);
+                });
+            }),
+        ]);
+
+        // Debugging: Log the results
+        console.log('Result from db4:', resultDB4);
+        console.log('Result from db3:', resultDB3);
+
+        // Combine and sort the results by data_index
+        const combinedResults = [...resultDB4, ...resultDB3].sort((a, b) => a.x - b.x);
+
+        // Debugging: Log the combined results
+        console.log('Combined Results:', combinedResults);
+
+        // Send the combined and sorted results
+        return response.status(200).send(combinedResults);
     } catch (error) {
-      console.error("Error while retrieving data: ", error);
-      return response
-        .status(500)
-        .send({ error: `Failed to retrieve data: ${error.message}` });
+        // Handle any errors from either database query
+        console.error('Error fetching data:', error);
+        return response.status(500).send({ error: 'Error fetching data', details: error });
     }
-  },
+},
 
   PowerMonthly: async (request, response) => {
     const { area, start, finish } = request.query;
@@ -2987,3 +3002,4 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 };
+
