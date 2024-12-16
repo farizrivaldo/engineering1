@@ -135,14 +135,17 @@ module.exports = routers;
 
 //==============INSTRUMENT IPC========================================INSTRUMENT IPC==========================================
 routers.get("/getMoistureData", databaseControllers.getMoistureData);
+routers.get("/getMoistureGraph", databaseControllers.getMoistureGraph);
 routers.get("/getSartoriusData", databaseControllers.getSartoriusData);
+routers.get("/getSartoriusGraph", databaseControllers.getSartoriusGraph);
 routers.get("/getMettlerData", databaseControllers.getMettlerData);
 
 //==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
 routers.get("/getHardnessData", databaseControllers.getHardnessData);
 routers.get("/getHardnessGraph", databaseControllers.getHardnessGraph);
+routers.get("/getThicknessGraph", databaseControllers.getThicknessGraph);
+routers.get("/getDiameterGraph", databaseControllers.getDiameterGraph);
 
 //==============POWER METER MEZANINE ========================================POWER METER MEZANINE ==========================================
 routers.get("/fetchPower", databaseControllers.fetchPower);
 routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
-

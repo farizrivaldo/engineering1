@@ -2952,9 +2952,48 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
+  getMoistureGraph: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT
+          STR_TO_DATE(Date, '%d.%m.%Y') AS label,
+          id AS x, 
+          Result AS y 
+        FROM Moisture
+        WHERE STR_TO_DATE(Date, '%d.%m.%Y') 
+          BETWEEN '${start}' AND '${finish}' 
+        ORDER BY STR_TO_DATE(Date, '%d.%m.%Y') ASC; 
+    `;
+    db4.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
   getSartoriusData: async (request, response) => {
     let fetchQuerry = "select * from `Sartorius_Scales`";
     db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  getSartoriusGraph: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+    SELECT 
+      STR_TO_DATE(Date, '%d-%b-%Y') AS label, 
+      id AS x, 
+      weight AS y 
+    FROM Sartorius_Scales 
+    WHERE STR_TO_DATE(Date, '%d-%b-%Y') 
+    BETWEEN '${start}' AND '${finish}' 
+    ORDER BY STR_TO_DATE(Date, '%d-%b-%Y') ASC;
+
+  `;
+    db4.query(queryGet, (err, result) => {
+      if (err) {
+        console.error(err);
+        return response.status(500).send({ error: "Failed to fetch data" });
+      }
       return response.status(200).send(result);
     });
   },
@@ -2969,23 +3008,50 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
   getHardnessData: async (request, response) => {
     let fetchQuerry =
-      "SELECT * FROM sakaplant_prod_ipc_staging ORDER BY id_setup DESC LIMIT 10;";
+      "SELECT * FROM sakaplant_prod_ipc_staging ORDER BY id_setup DESC;";
     post.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   getHardnessGraph: async (request, response) => {
-    let fetchQuerry = `
-    SELECT 
-      created_date AS label, 
-      id_setup AS x, 
-      h_value AS y 
-    FROM sakaplant_prod_ipc_staging 
-    ORDER BY id_setup DESC 
-    LIMIT 10;
-  `;
-    post.query(fetchQuerry, (err, result) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT
+          created_date AS label,
+          id_setup AS x, 
+          h_value AS y 
+          FROM sakaplant_prod_ipc_staging 
+          WHERE created_date BETWEEN '${start}' AND '${finish}'
+          ORDER BY created_date ASC;`;
+    post.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  getThicknessGraph: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT
+          created_date AS label,
+          id_setup AS x, 
+          t_value AS y 
+          FROM sakaplant_prod_ipc_staging 
+          WHERE created_date BETWEEN '${start}' AND '${finish}'
+          ORDER BY created_date ASC;`;
+    post.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  getDiameterGraph: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT
+          created_date AS label,
+          id_setup AS x, 
+          d_value AS y 
+          FROM sakaplant_prod_ipc_staging 
+          WHERE created_date BETWEEN '${start}' AND '${finish}'
+          ORDER BY created_date ASC;`;
+    post.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
