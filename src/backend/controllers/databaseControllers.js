@@ -1534,77 +1534,94 @@ LEFT JOIN
   // Power Management 2 Backend
   PowerDaily: async (request, response) => {
     const { area, start, finish } = request.query;
-
-    // Konversi tanggal untuk logika pemilihan database
-    const startDate = new Date(start);
-    const finishDate = new Date(finish);
-    const startYear = startDate.getFullYear();
-    const finishYear = finishDate.getFullYear();
-
-    let queryGet;
-    let db;
-
-    if (
-      startYear === 2024 &&
-      finishYear === 2024 &&
-      startDate >= new Date("2024-01-01") &&
-      finishDate <= new Date("2024-07-15")
-    ) {
-      // Jika tanggal antara 1 Januari 2024 - 15 Juli 2024, gunakan db3
-      db = db3;
-      queryGet = `
-      SELECT
-        data_index AS x,
-        data_format_0 AS y,
-        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
-      FROM \`parammachine_saka\`.\`${area}\`
-      WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-      AND data_format_0 > 0
-      ORDER BY data_index;
+    const queryGet = `SELECT
+    s1.data_index as x,
+    DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m-%d') AS label,
+    round(s1.data_format_0 -
+      (select s2.data_format_0 as previous from
+      ems_saka.\`${area}\` as s2
+      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1),2) as y
+    From parammachine_saka.\`${area}\` as s1 
+    WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
     `;
-    } else if (
-      startYear === 2024 &&
-      finishYear === 2024 &&
-      startDate >= new Date("2024-07-16") &&
-      finishDate <= new Date("2024-12-31")
-    ) {
-      // Jika tanggal antara 16 Juli 2024 - 31 Desember 2024, gunakan db4
-      db = db4;
-      queryGet = `
-      SELECT
-        data_index AS x,
-        data_format_0 AS y,
-        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
-      FROM \`ems_saka\`.\`${area}\`
-      WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-      AND data_format_0 > 0
-      ORDER BY data_index;
-    `;
-    } else {
-      // Jika input selain di atas (tahun >= 2024), gunakan db4 sebagai default
-      db = db4;
-      queryGet = `
-      SELECT
-        data_index AS x,
-        data_format_0 AS y,
-        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
-      FROM \`ems_saka\`.\`${area}\`
-      WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-      AND data_format_0 > 0
-      ORDER BY data_index;
-    `;
-    }
 
-    // Eksekusi query ke database
-    db.query(queryGet, (err, result) => {
-      if (err) {
-        console.error(err);
-        return response.status(500).send({ error: "Failed to fetch data" });
-      }
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
-    console.log(queryGet);
   },
+  // PowerDaily: async (request, response) => {
+  //   const { area, start, finish } = request.query;
+
+  //   // Konversi tanggal untuk logika pemilihan database
+  //   const startDate = new Date(start);
+  //   const finishDate = new Date(finish);
+  //   const startYear = startDate.getFullYear();
+  //   const finishYear = finishDate.getFullYear();
+
+  //   let queryGet;
+  //   let db;
+
+  //   if (
+  //     startYear === 2024 &&
+  //     finishYear === 2024 &&
+  //     startDate >= new Date("2024-01-01") &&
+  //     finishDate <= new Date("2024-07-15")
+  //   ) {
+  //     // Jika tanggal antara 1 Januari 2024 - 15 Juli 2024, gunakan db3
+  //     db = db3;
+  //     queryGet = `
+  //     SELECT
+  //       data_index AS x,
+  //       data_format_0 AS y,
+  //       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+  //     FROM \`parammachine_saka\`.\`${area}\`
+  //     WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+  //     AND data_format_0 > 0
+  //     ORDER BY data_index;
+  //   `;
+  //   } else if (
+  //     startYear === 2024 &&
+  //     finishYear === 2024 &&
+  //     startDate >= new Date("2024-07-16") &&
+  //     finishDate <= new Date("2024-12-31")
+  //   ) {
+  //     // Jika tanggal antara 16 Juli 2024 - 31 Desember 2024, gunakan db4
+  //     db = db4;
+  //     queryGet = `
+  //     SELECT
+  //       data_index AS x,
+  //       data_format_0 AS y,
+  //       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+  //     FROM \`ems_saka\`.\`${area}\`
+  //     WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+  //     AND data_format_0 > 0
+  //     ORDER BY data_index;
+  //   `;
+  //   } else {
+  //     // Jika input selain di atas (tahun >= 2024), gunakan db4 sebagai default
+  //     db = db4;
+  //     queryGet = `
+  //     SELECT
+  //       data_index AS x,
+  //       data_format_0 AS y,
+  //       DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+  //     FROM \`ems_saka\`.\`${area}\`
+  //     WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+  //     AND data_format_0 > 0
+  //     ORDER BY data_index;
+  //   `;
+  //   }
+
+  //   // Eksekusi query ke database
+  //   db.query(queryGet, (err, result) => {
+  //     if (err) {
+  //       console.error(err);
+  //       return response.status(500).send({ error: "Failed to fetch data" });
+  //     }
+  //     return response.status(200).send(result);
+  //   });
+  //   console.log(queryGet);
+  // },
 
   PowerMonthly: async (request, response) => {
     const { area, start, finish } = request.query;
