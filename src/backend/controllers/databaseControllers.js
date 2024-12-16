@@ -16,6 +16,7 @@ const nodemailer = require("../helpers/nodemailers");
 const { request, response } = require("express");
 const { log } = require("util");
 const { data } = require("jquery");
+const { timestamp } = require("node-opcua");
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -1531,67 +1532,79 @@ LEFT JOIN
   },
 
   // Power Management 2 Backend
-PowerDaily: async (request, response) => {
+  PowerDaily: async (request, response) => {
     const { area, start, finish } = request.query;
 
-    // Define queries for both databases
-    const queryGetDB4 = `
-    SELECT
-      data_index AS x,
-      data_format_0 AS y,
-      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
-    FROM \`ems_saka\`.\`${area}\`
-    WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-    AND data_format_0 > 0
-    ORDER BY data_index;
+    // Konversi tanggal untuk logika pemilihan database
+    const startDate = new Date(start);
+    const finishDate = new Date(finish);
+    const startYear = startDate.getFullYear();
+    const finishYear = finishDate.getFullYear();
+
+    let queryGet;
+    let db;
+
+    if (
+      startYear === 2024 &&
+      finishYear === 2024 &&
+      startDate >= new Date("2024-01-01") &&
+      finishDate <= new Date("2024-07-15")
+    ) {
+      // Jika tanggal antara 1 Januari 2024 - 15 Juli 2024, gunakan db3
+      db = db3;
+      queryGet = `
+      SELECT
+        data_index AS x,
+        data_format_0 AS y,
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+      FROM \`parammachine_saka\`.\`${area}\`
+      WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+      AND data_format_0 > 0
+      ORDER BY data_index;
     `;
-
-    const queryGetDB3 = `
-    SELECT
-      data_index AS x,
-      data_format_0 AS y,
-      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
-    FROM \`parammachine_saka\`.\`${area}\`
-    WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-    AND data_format_0 > 0
-    ORDER BY data_index;
+    } else if (
+      startYear === 2024 &&
+      finishYear === 2024 &&
+      startDate >= new Date("2024-07-16") &&
+      finishDate <= new Date("2024-12-31")
+    ) {
+      // Jika tanggal antara 16 Juli 2024 - 31 Desember 2024, gunakan db4
+      db = db4;
+      queryGet = `
+      SELECT
+        data_index AS x,
+        data_format_0 AS y,
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+      FROM \`ems_saka\`.\`${area}\`
+      WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+      AND data_format_0 > 0
+      ORDER BY data_index;
     `;
-
-    try {
-        // Use Promise.all to fetch data from both databases concurrently
-        const [resultDB4, resultDB3] = await Promise.all([
-            new Promise((resolve, reject) => {
-                db4.query(queryGetDB4, (err, result) => {
-                    if (err) reject(err);
-                    else resolve(result);
-                });
-            }),
-            new Promise((resolve, reject) => {
-                db3.query(queryGetDB3, (err, result) => {
-                    if (err) reject(err);
-                    else resolve(result);
-                });
-            }),
-        ]);
-
-        // Debugging: Log the results
-        console.log('Result from db4:', resultDB4);
-        console.log('Result from db3:', resultDB3);
-
-        // Combine and sort the results by data_index
-        const combinedResults = [...resultDB4, ...resultDB3].sort((a, b) => a.x - b.x);
-
-        // Debugging: Log the combined results
-        console.log('Combined Results:', combinedResults);
-
-        // Send the combined and sorted results
-        return response.status(200).send(combinedResults);
-    } catch (error) {
-        // Handle any errors from either database query
-        console.error('Error fetching data:', error);
-        return response.status(500).send({ error: 'Error fetching data', details: error });
+    } else {
+      // Jika input selain di atas (tahun >= 2024), gunakan db4 sebagai default
+      db = db4;
+      queryGet = `
+      SELECT
+        data_index AS x,
+        data_format_0 AS y,
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') AS label
+      FROM \`ems_saka\`.\`${area}\`
+      WHERE date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+      AND data_format_0 > 0
+      ORDER BY data_index;
+    `;
     }
-},
+
+    // Eksekusi query ke database
+    db.query(queryGet, (err, result) => {
+      if (err) {
+        console.error(err);
+        return response.status(500).send({ error: "Failed to fetch data" });
+      }
+      return response.status(200).send(result);
+    });
+    console.log(queryGet);
+  },
 
   PowerMonthly: async (request, response) => {
     const { area, start, finish } = request.query;
@@ -3002,4 +3015,3 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 };
-
