@@ -149,3 +149,7 @@ routers.get("/getDiameterGraph", databaseControllers.getDiameterGraph);
 //==============POWER METER MEZANINE ========================================POWER METER MEZANINE ==========================================
 routers.get("/fetchPower", databaseControllers.fetchPower);
 routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
+
+//==============BATCH RECORD ========================================BATCH RECORD ==========================================
+routers.get("/BatchRecord1", databaseControllers.BatchRecord1);
+routers.get("/BatchRecord3", databaseControllers.BatchRecord3);

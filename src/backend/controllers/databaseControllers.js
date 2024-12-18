@@ -3007,9 +3007,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   //==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
   getHardnessData: async (request, response) => {
-    let fetchQuerry =
-      "SELECT * FROM sakaplant_prod_ipc_staging ORDER BY id_setup DESC;";
-    post.query(fetchQuerry, (err, result) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT * FROM sakaplant_prod_ipc_staging 
+      WHERE created_date BETWEEN '${start}' AND '${finish}'
+      ORDER BY created_date ASC;`;
+    post.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -3094,6 +3096,57 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       request.query.finish;
 
     db4.query(fetchQuerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  //==============BATCH RECORD ========================================BATCH RECORD ==========================================
+  BatchRecord1: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`ems_saka\`.\`${area}\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    db2.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+
+  BatchRecord3: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`${area}\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    db2.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
       return response.status(200).send(result);
     });
   },
