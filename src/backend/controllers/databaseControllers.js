@@ -3019,7 +3019,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   getHardnessGraph: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `SELECT
-          created_date AS label,
           id_setup AS x, 
           h_value AS y 
           FROM sakaplant_prod_ipc_staging 
