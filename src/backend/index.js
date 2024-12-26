@@ -9,6 +9,8 @@ const { body, validationResult } = require("express-validator");
 const { log } = require("console");
 const { db, query } = require("./database");
 const upload = require("./middleware/multer");
+const mqtt = require('mqtt');
+const WebSocket = require('ws');
 
 app.use(cors());
 app.use(express.json());
@@ -59,6 +61,63 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
   });
 });
+
+//========================MQTT===============================================================================
+// Konfigurasi broker MQTT
+const mqttBroker = 'mqtt://10.126.15.7'; // Alamat broker Anda
+const mqttTopic = 'trialMQTT';         // Topik yang ingin di-subscribe
+
+// Hubungkan ke broker MQTT
+const mqttClient = mqtt.connect(mqttBroker);
+
+mqttClient.on('connect', () => {
+    console.log('Terhubung ke broker MQTT');
+    // Subscribe ke topik
+    mqttClient.subscribe(mqttTopic, (err) => {
+        if (!err) {
+            console.log(`Berhasil subscribe ke topik: ${mqttTopic}`);
+        } else {
+            console.error('Gagal subscribe ke topik:', err);
+        }
+    });
+});
+
+mqttClient.on('error', (err) => {
+    console.error('Error MQTT:', err);
+});
+
+// Buat server WebSocket
+const wss = new WebSocket.Server({ host: '10.126.15.141', port: 8081 });
+
+
+wss.on('connection', (ws) => {
+    console.log('Klien WebSocket terhubung');
+
+    // Kirim pesan selamat datang
+    ws.send('Terhubung ke WebSocket server!');
+
+    // Kirim pesan MQTT yang diterima ke klien WebSocket
+    mqttClient.on('message', (topic, message) => {
+        if (topic === mqttTopic) {
+            console.log(`Pesan dari MQTT: ${message.toString()}`);
+            ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+        }
+    });
+
+    // Tangkap pesan dari klien WebSocket
+    ws.on('message', (msg) => {
+        console.log(`Pesan dari klien WebSocket: ${msg}`);
+    });
+
+    // Tangkap koneksi yang ditutup
+    ws.on('close', () => {
+        console.log('Klien WebSocket terputus');
+    });
+});
+
+console.log('Server WebSocket berjalan di ws://localhost:8080');
+
+
 
 app.use("/part", databaseRouter);
 

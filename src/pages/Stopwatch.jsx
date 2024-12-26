@@ -5,6 +5,8 @@ const Stopwatch = () => {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isTen, setTen] = useState();
+  const [messages, setMessages] = useState([]); // Menyimpan pesan dari WebSocket
+  const [singleMessages, setSingleMessages] = useState()
   const intervalRef = useRef(null);
 
   const formatTime = (milliseconds) => {
@@ -74,6 +76,34 @@ const Stopwatch = () => {
     setTime(0);
   };
 
+  // WebSocket setup
+  useEffect(() => {
+    const socket = new WebSocket("ws://10.126.15.141:8081");
+
+    socket.onopen = () => {
+      console.log("WebSocket terhubung");
+    };
+
+    socket.onmessage = (event) => {
+      const message = event.data;
+      setMessages((prevMessages) => [...prevMessages, message]);
+      setSingleMessages(message)
+
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket terputus");
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-9xl font-bold">{formatTime(time)}</h1>
@@ -106,6 +136,10 @@ const Stopwatch = () => {
             <option value={20}>20 Menit</option>
           </Select>
         </button>
+      </div>
+      <div className="mt-4 p-4 border border-gray-300 w-full max-w-md">
+        <h2 className="text-lg font-bold mb-2">Pesan WebSocket:</h2>
+        <h2>{singleMessages}</h2>
       </div>
     </div>
   );
