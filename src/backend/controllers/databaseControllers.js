@@ -18,6 +18,19 @@ const { log } = require("util");
 const { data } = require("jquery");
 const { timestamp } = require("node-opcua");
 
+const cors = require("cors");
+const express = require("express");
+
+const app = express(); // Tambahkan ini jika belum ada
+
+const corsOptions = {
+  origin: "http://http://10.126.15.7:3000/", // Ganti dengan domain Grafana Anda
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
 module.exports = {
   fetchOee: async (request, response) => {
     let fetchQuerry =

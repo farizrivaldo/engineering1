@@ -63,9 +63,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 //========================MQTT===============================================================================
-// Konfigurasi broker MQTT
+//========================MQTT===============================================================================
+// Konfigurasi broker MQT // Pastikan Anda telah menginstal package 'mqtt' dengan `npm install mqtt`
 const mqttBroker = 'mqtt://10.126.15.7'; // Alamat broker Anda
-const mqttTopic = 'trialMQTT';         // Topik yang ingin di-subscribe
+const mqttTopic = 'kwhmeter'; // Topik yang ingin di-subscribe
 
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
@@ -82,12 +83,19 @@ mqttClient.on('connect', () => {
     });
 });
 
+// Tangani error jika ada
 mqttClient.on('error', (err) => {
     console.error('Error MQTT:', err);
 });
 
+// Event ketika menerima pesan dari topik
+mqttClient.on('message', (topic, message) => {
+    console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
+});
+
+
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: '10.126.15.141', port: 8081 });
+const wss = new WebSocket.Server({ host: '127.0.0.1', port: 8081 });
 
 
 wss.on('connection', (ws) => {
