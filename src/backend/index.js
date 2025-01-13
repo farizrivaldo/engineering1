@@ -112,7 +112,7 @@ mqttClient.on("message", (topic, message) => {
 });
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: "127.0.0.1", port: 8081 });
+const wss = new WebSocket.Server({ host: "10.126.15.141", port: 8081 });
 
 wss.on("connection", (ws) => {
   console.log("Klien WebSocket terhubung");
@@ -120,48 +120,72 @@ wss.on("connection", (ws) => {
   // Kirim pesan selamat datang
   ws.send("Terhubung ke WebSocket server!");
 
-  // Kirim pesan MQTT yang diterima ke klien WebSocket
-  mqttClient.on("message", (topic, message) => {
-    if (topic === mqttTopic1) {
-      console.log(`Pesan dari MQTT: ${message.toString()}`);
-      ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-    }
-  });
+  // // Kirim pesan MQTT yang diterima ke klien WebSocket
+  // mqttClient.on("message", (topic, message) => {
+  //   if (topic === mqttTopic1) {
+  //     console.log(`Pesan dari MQTT: ${message.toString()}`);
+  //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+  //   }
+  // });
 
-  mqttClient.on("message", (topic, message) => {
-    if (topic === mqttTopic2) {
-      //console.log(`Pesan dari MQTT: ${message.toString()}`);
-      ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-    }
-  });
+  // mqttClient.on("message", (topic, message) => {
+  //   if (topic === mqttTopic2) {
+  //     //console.log(`Pesan dari MQTT: ${message.toString()}`);
+  //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+  //   }
+  // });
 
-  mqttClient.on("message", (topic, message) => {
-    if (topic === mqttTopic3) {
-      // console.log(`Pesan dari MQTT: ${message.toString()}`);
-      ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-    }
-  });
+  // mqttClient.on("message", (topic, message) => {
+  //   if (topic === mqttTopic3) {
+  //     // console.log(`Pesan dari MQTT: ${message.toString()}`);
+  //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+  //   }
+  // });
 
-  let previousValues = {
+  const previousValues = {
     [mqttTopic1]: null,
     [mqttTopic2]: null,
     [mqttTopic3]: null,
   };
 
   mqttClient.on("message", (topic, message) => {
-    const messageString = message.toString();
+    try {
+      // Bersihkan pesan dari karakter tak diinginkan
+      const cleanedMessage = message
+        .toString()
+        .replace(/\\x0B|\+/g, "")
+        .replace(/\s|\+/g, "")
+        .replace(/\t/g, "")
+        .replace(/\f/g, "");
 
-    if (topic in previousValues) {
-      // Jika pesan adalah 0, gunakan nilai sebelumnya
-      if (messageString === "0" && previousValues[topic] !== null) {
-        ws.send(`Pesan dari MQTT [${topic}]: ${previousValues[topic]}`);
-        console.log(`Pesan dari MQTT: ${message.toString()}`);
-      } else {
-        // Perbarui nilai sebelumnya dan kirim pesan baru
-        previousValues[topic] = messageString;
-        ws.send(`Pesan dari MQTT [${topic}]: ${messageString}`);
-        console.log(`Pesan dari MQTT: ${message.toString()}`);
+      // Parse pesan menjadi JSON
+      const parsedMessage = JSON.parse(cleanedMessage);
+
+      if (parsedMessage && parsedMessage.d) {
+        // Ambil nilai sebelumnya jika ada
+        const previousData = previousValues[topic] || {};
+
+        // Proses data di dalam properti `d`
+        for (const [key, value] of Object.entries(parsedMessage.d)) {
+          const newValue = value[0];
+
+          // Gunakan nilai sebelumnya jika `newValue` adalah 0
+          if (newValue === 0 && previousData[key] !== undefined) {
+            parsedMessage.d[key] = [previousData[key]];
+          } else {
+            // Simpan nilai baru ke `previousValues`
+            previousData[key] = newValue;
+          }
+        }
+
+        // Perbarui nilai sebelumnya untuk topik ini
+        previousValues[topic] = previousData;
+
+        // Kirim data ke WebSocket
+        ws.send(`Pesan dari MQTT [${topic}]: ${JSON.stringify(parsedMessage)}`);
       }
+    } catch (error) {
+      console.error(`Error processing MQTT message for topic ${topic}:`, error);
     }
   });
 
