@@ -9,8 +9,8 @@ const { body, validationResult } = require("express-validator");
 const { log } = require("console");
 const { db, query } = require("./database");
 const upload = require("./middleware/multer");
-const mqtt = require('mqtt');
-const WebSocket = require('ws');
+const mqtt = require("mqtt");
+const WebSocket = require("ws");
 
 app.use(cors());
 app.use(express.json());
@@ -65,67 +65,95 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 //========================MQTT===============================================================================
 //========================MQTT===============================================================================
 // Konfigurasi broker MQT // Pastikan Anda telah menginstal package 'mqtt' dengan `npm install mqtt`
-const mqttBroker = 'mqtt://10.126.15.7'; // Alamat broker Anda
-const mqttTopic = 'kwhmeter'; // Topik yang ingin di-subscribe
+const mqttBroker = "mqtt://10.126.15.7"; // Alamat broker Anda
+const mqttTopic1 = "kwhmeter"; // Topik yang ingin di-subscribe
+const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
+const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
 
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
 
-mqttClient.on('connect', () => {
-    console.log('Terhubung ke broker MQTT');
-    // Subscribe ke topik
-    mqttClient.subscribe(mqttTopic, (err) => {
-        if (!err) {
-            console.log(`Berhasil subscribe ke topik: ${mqttTopic}`);
-        } else {
-            console.error('Gagal subscribe ke topik:', err);
-        }
-    });
+mqttClient.on("connect", () => {
+  console.log("Terhubung ke broker MQTT");
+  // Subscribe ke topik
+  mqttClient.subscribe(mqttTopic1, (err) => {
+    if (!err) {
+      console.log(`Berhasil subscribe ke topik: ${mqttTopic1}`);
+    } else {
+      console.error("Gagal subscribe ke topik:", err);
+    }
+  });
+
+  mqttClient.subscribe(mqttTopic2, (err) => {
+    if (!err) {
+      console.log(`Berhasil subscribe ke topik: ${mqttTopic2}`);
+    } else {
+      console.error("Gagal subscribe ke topik:", err);
+    }
+  });
+
+  mqttClient.subscribe(mqttTopic3, (err) => {
+    if (!err) {
+      console.log(`Berhasil subscribe ke topik: ${mqttTopic3}`);
+    } else {
+      console.error("Gagal subscribe ke topik:", err);
+    }
+  });
 });
 
 // Tangani error jika ada
-mqttClient.on('error', (err) => {
-    console.error('Error MQTT:', err);
+mqttClient.on("error", (err) => {
+  console.error("Error MQTT:", err);
 });
 
 // Event ketika menerima pesan dari topik
-mqttClient.on('message', (topic, message) => {
-    console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
+mqttClient.on("message", (topic, message) => {
+  console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
 });
-
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: '127.0.0.1', port: 8081 });
+const wss = new WebSocket.Server({ host: "10.15.126.141", port: 8081 });
 
+wss.on("connection", (ws) => {
+  console.log("Klien WebSocket terhubung");
 
-wss.on('connection', (ws) => {
-    console.log('Klien WebSocket terhubung');
+  // Kirim pesan selamat datang
+  ws.send("Terhubung ke WebSocket server!");
 
-    // Kirim pesan selamat datang
-    ws.send('Terhubung ke WebSocket server!');
+  // Kirim pesan MQTT yang diterima ke klien WebSocket
+  mqttClient.on("message", (topic, message) => {
+    if (topic === mqttTopic1) {
+      console.log(`Pesan dari MQTT: ${message.toString()}`);
+      ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+    }
+  });
 
-    // Kirim pesan MQTT yang diterima ke klien WebSocket
-    mqttClient.on('message', (topic, message) => {
-        if (topic === mqttTopic) {
-            console.log(`Pesan dari MQTT: ${message.toString()}`);
-            ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-        }
-    });
+  mqttClient.on("message", (topic, message) => {
+    if (topic === mqttTopic2) {
+      console.log(`Pesan dari MQTT: ${message.toString()}`);
+      ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+    }
+  });
 
-    // Tangkap pesan dari klien WebSocket
-    ws.on('message', (msg) => {
-        console.log(`Pesan dari klien WebSocket: ${msg}`);
-    });
+  mqttClient.on("message", (topic, message) => {
+    if (topic === mqttTopic3) {
+      console.log(`Pesan dari MQTT: ${message.toString()}`);
+      ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+    }
+  });
 
-    // Tangkap koneksi yang ditutup
-    ws.on('close', () => {
-        console.log('Klien WebSocket terputus');
-    });
+  // Tangkap pesan dari klien WebSocket
+  ws.on("message", (msg) => {
+    console.log(`Pesan dari klien WebSocket: ${msg}`);
+  });
+
+  // Tangkap koneksi yang ditutup
+  ws.on("close", () => {
+    console.log("Klien WebSocket terputus");
+  });
 });
 
-console.log('Server WebSocket berjalan di ws://localhost:8080');
-
-
+console.log("Server WebSocket berjalan di ws://localhost:8080");
 
 app.use("/part", databaseRouter);
 
