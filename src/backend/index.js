@@ -112,7 +112,7 @@ mqttClient.on("message", (topic, message) => {
 });
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: "10.126.15.141", port: 8081 });
+const wss = new WebSocket.Server({ host: "127.0.0.1", port: 8081 });
 
 wss.on("connection", (ws) => {
   console.log("Klien WebSocket terhubung");
@@ -123,7 +123,7 @@ wss.on("connection", (ws) => {
   // Kirim pesan MQTT yang diterima ke klien WebSocket
   mqttClient.on("message", (topic, message) => {
     if (topic === mqttTopic1) {
-      //console.log(`Pesan dari MQTT: ${message.toString()}`);
+      console.log(`Pesan dari MQTT: ${message.toString()}`);
       ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
     }
   });
@@ -139,6 +139,29 @@ wss.on("connection", (ws) => {
     if (topic === mqttTopic3) {
       // console.log(`Pesan dari MQTT: ${message.toString()}`);
       ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+    }
+  });
+
+  let previousValues = {
+    [mqttTopic1]: null,
+    [mqttTopic2]: null,
+    [mqttTopic3]: null,
+  };
+
+  mqttClient.on("message", (topic, message) => {
+    const messageString = message.toString();
+
+    if (topic in previousValues) {
+      // Jika pesan adalah 0, gunakan nilai sebelumnya
+      if (messageString === "0" && previousValues[topic] !== null) {
+        ws.send(`Pesan dari MQTT [${topic}]: ${previousValues[topic]}`);
+        console.log(`Pesan dari MQTT: ${message.toString()}`);
+      } else {
+        // Perbarui nilai sebelumnya dan kirim pesan baru
+        previousValues[topic] = messageString;
+        ws.send(`Pesan dari MQTT [${topic}]: ${messageString}`);
+        console.log(`Pesan dari MQTT: ${message.toString()}`);
+      }
     }
   });
 
