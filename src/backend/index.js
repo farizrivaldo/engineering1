@@ -108,11 +108,11 @@ mqttClient.on("error", (err) => {
 
 // Event ketika menerima pesan dari topik
 mqttClient.on("message", (topic, message) => {
-  console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
+  //console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
 });
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: "10.15.126.141", port: 8081 });
+const wss = new WebSocket.Server({ host: "10.126.15.141", port: 8081 });
 
 wss.on("connection", (ws) => {
   console.log("Klien WebSocket terhubung");
@@ -123,28 +123,28 @@ wss.on("connection", (ws) => {
   // Kirim pesan MQTT yang diterima ke klien WebSocket
   mqttClient.on("message", (topic, message) => {
     if (topic === mqttTopic1) {
-      console.log(`Pesan dari MQTT: ${message.toString()}`);
+      //console.log(`Pesan dari MQTT: ${message.toString()}`);
       ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
     }
   });
 
   mqttClient.on("message", (topic, message) => {
     if (topic === mqttTopic2) {
-      console.log(`Pesan dari MQTT: ${message.toString()}`);
+      //console.log(`Pesan dari MQTT: ${message.toString()}`);
       ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
     }
   });
 
   mqttClient.on("message", (topic, message) => {
     if (topic === mqttTopic3) {
-      console.log(`Pesan dari MQTT: ${message.toString()}`);
+      // console.log(`Pesan dari MQTT: ${message.toString()}`);
       ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
     }
   });
 
   // Tangkap pesan dari klien WebSocket
   ws.on("message", (msg) => {
-    console.log(`Pesan dari klien WebSocket: ${msg}`);
+    //console.log(`Pesan dari klien WebSocket: ${msg}`);
   });
 
   // Tangkap koneksi yang ditutup
