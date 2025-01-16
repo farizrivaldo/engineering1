@@ -69,6 +69,7 @@ const mqttBroker = "mqtt://10.126.15.7"; // Alamat broker Anda
 const mqttTopic1 = "kwhmeter"; // Topik yang ingin di-subscribe
 const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
 const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
+const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
 
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
@@ -99,6 +100,14 @@ mqttClient.on("connect", () => {
       console.error("Gagal subscribe ke topik:", err);
     }
   });
+
+  mqttClient.subscribe(mqttTopic4, (err) => {
+    if (!err) {
+      console.log(`Berhasil subscribe ke topik: ${mqttTopic4}`);
+    } else {
+      console.error("Gagal subscribe ke topik:", err);
+    }
+  });
 });
 
 // Tangani error jika ada
@@ -108,11 +117,11 @@ mqttClient.on("error", (err) => {
 
 // Event ketika menerima pesan dari topik
 mqttClient.on("message", (topic, message) => {
-  //console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
+  // console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
 });
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: "10.126.15.141", port: 8081 });
+const wss = new WebSocket.Server({ host: "127.0.0.1", port: 8081 });
 
 wss.on("connection", (ws) => {
   console.log("Klien WebSocket terhubung");
@@ -142,10 +151,18 @@ wss.on("connection", (ws) => {
   //   }
   // });
 
+  // mqttClient.on("message", (topic, message) => {
+  //   if (topic === mqttTopic4) {
+  //     // console.log(`Pesan dari MQTT: ${message.toString()}`);
+  //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
+  //   }
+  // });
+
   const previousValues = {
     [mqttTopic1]: null,
     [mqttTopic2]: null,
     [mqttTopic3]: null,
+    [mqttTopic4]: null,
   };
 
   mqttClient.on("message", (topic, message) => {
