@@ -30,7 +30,7 @@ export default function BuildingRnD() {
 
          const fetchRNDSuhu = async () => {
             let response = await axios.get(
-              "http://10.126.15.138:8002/part/BuildingRNDSuhu", 
+              "http://10.126.15.137:8002/part/BuildingRNDSuhu", 
               {
                 params: {
                   area: Area,
@@ -42,7 +42,7 @@ export default function BuildingRnD() {
               setSuhuData(response.data);
 
               let response1 = await axios.get(
-                "http://10.126.15.138:8002/part/BuildingRNDRH",
+                "http://10.126.15.137:8002/part/BuildingRNDRH",
                 {
                   params: {
                     area: Area,
@@ -54,7 +54,7 @@ export default function BuildingRnD() {
                 setRHData(response1.data);
 
                 let response2 = await axios.get(
-                  "http://10.126.15.138:8002/part/BuildingRNDDP",
+                  "http://10.126.15.137:8002/part/BuildingRNDDP",
                   {
                     params: {
                       area: Area,
@@ -66,7 +66,7 @@ export default function BuildingRnD() {
                   setDPData(response2.data);
                 
                   let response3 = await axios.get(
-                    "http://10.126.15.138:8002/part/BuildingRNDAll",
+                    "http://10.126.15.137:8002/part/BuildingRNDAll",
                     {
                       params: {
                         area: Area,

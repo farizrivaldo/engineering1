@@ -78,7 +78,7 @@ const Stopwatch = () => {
 
   // WebSocket setup
   useEffect(() => {
-    const socket = new WebSocket("ws://10.126.15.138:8081");
+    const socket = new WebSocket("ws://10.126.15.137:8081");
 
     socket.onopen = () => {
       console.log("WebSocket terhubung");

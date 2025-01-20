@@ -38,7 +38,7 @@ function MaintenanceBreakdown() {
   const dateValue = useSelector((state) => state.prod.date);
 
   // const fetchDataPLC = async () => {
-  //   let response = await axios.get("http://10.126.15.138:8002/plc");
+  //   let response = await axios.get("http://10.126.15.137:8002/plc");
   //   let ava = response.data
   //     .replace(/455|(\r\n|\n|\r)/g, "")
   //     .replace(/(\w+)\s*:/g, '"$1":')

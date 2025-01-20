@@ -28,13 +28,13 @@ function BatchRecord() {
   const [mainData, setMainData] = useState([]);
 
   const fetchLine = async () => {
-    let response = await axios.get("http://10.126.15.138:8002/part/lineData");
+    let response = await axios.get("http://10.126.15.137:8002/part/lineData");
     setFetchLineData(response.data);
   };
 
   const fetchProces = async (line) => {
     let response = await axios.get(
-      "http://10.126.15.138:8002/part/procesData",
+      "http://10.126.15.137:8002/part/procesData",
       {
         params: {
           line_name: line,
@@ -47,7 +47,7 @@ function BatchRecord() {
 
   const fetchMachine = async (line, proces) => {
     let response = await axios.get(
-      "http://10.126.15.138:8002/part/machineData",
+      "http://10.126.15.137:8002/part/machineData",
       {
         params: {
           line_name: line,
@@ -60,7 +60,7 @@ function BatchRecord() {
 
   const getDataWithMachine = async () => {
     let response = await axios.get(
-      "http://10.126.15.138:8002/part/PmaGetData",
+      "http://10.126.15.137:8002/part/PmaGetData",
       {
         params: {
           machine: newMachine,

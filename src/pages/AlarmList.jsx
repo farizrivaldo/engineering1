@@ -24,7 +24,7 @@ function AlarmList() {
 
     const fetchAlarm = async () => {
         let response = await axios.get(
-            "http://10.126.15.138:8002/part/AlarmList", 
+            "http://10.126.15.137:8002/part/AlarmList", 
             {
               params: {
                 type: AlarmType,
