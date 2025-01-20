@@ -303,7 +303,7 @@ module.exports = {
       from: `Admin <khaerul.fariz98@gmail.com>`,
       to: `${email}`,
       subject: `Acount Verification`,
-      html: `<a href="http://10.126.15.141:3000/" > Verification Click here</a>`,
+      html: `<a href="http://10.126.15.138:3000/" > Verification Click here</a>`,
     };
 
     let response = await nodemailer.sendMail(mail);

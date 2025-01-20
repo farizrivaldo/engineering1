@@ -243,7 +243,7 @@ function HVACchiller() {
 
   const submitDataCompare = async () => {
     let response1 = await axios.get(
-      "http://10.126.15.141:8002/part/getChillerData",
+      "http://10.126.15.138:8002/part/getChillerData",
       {
         params: {
           chiller: chillerCompair,
@@ -341,7 +341,7 @@ function HVACchiller() {
     setCompresor(setCompresor1);
 
     let response = await axios.get(
-      "http://10.126.15.141:8002/part/getChillerData",
+      "http://10.126.15.138:8002/part/getChillerData",
       {
         params: {
           chiller: setChiller1,

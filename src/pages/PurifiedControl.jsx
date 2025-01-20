@@ -20,7 +20,7 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
         const fetchPurified = async () => {
             let response = await axios.get(
-              "http://10.126.15.141:8002/part/PurifiedWater",
+              "http://10.126.15.138:8002/part/PurifiedWater",
               {
                 params: {
                   area: purifiedArea,

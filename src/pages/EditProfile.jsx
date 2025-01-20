@@ -29,7 +29,7 @@ function EditProfile() {
       formData.append("data", JSON.stringify(obj));
       //console.log(formData);
       const response = await axios.post(
-        "http://10.126.15.141:8002/upload",
+        "http://10.126.15.138:8002/upload",
         formData
       );
       //console.log(response);
@@ -40,7 +40,7 @@ function EditProfile() {
   var imageData = ``;
 
   if (userGlobal.imagePath) {
-    imageData = `http://10.126.15.141:8002${userGlobal.imagePath}`;
+    imageData = `http://10.126.15.138:8002${userGlobal.imagePath}`;
   } else {
     imageData =
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";

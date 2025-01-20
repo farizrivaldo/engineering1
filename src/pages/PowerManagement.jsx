@@ -71,7 +71,7 @@ export default function PowerManagement() {
 
   const fetchDataDayly = async () => {
     let response = await axios.get(
-      "http://10.126.15.141:8002/part/getpowerdata",
+      "http://10.126.15.138:8002/part/getpowerdata",
       {
         params: {
           area: powerArea,
@@ -118,7 +118,7 @@ export default function PowerManagement() {
 
   const fetchDataMonthly = async () => {
     let response = await axios.get(
-      "http://10.126.15.141:8002/part/getpowermonthly",
+      "http://10.126.15.138:8002/part/getpowermonthly",
       {
         params: {
           area: areaMonth,
@@ -160,7 +160,7 @@ export default function PowerManagement() {
 
   const fetchSec = async () => {
     let response = await axios.get(
-      "http://10.126.15.141:8002/part/getPowerSec",
+      "http://10.126.15.138:8002/part/getPowerSec",
       {
         params: {
           area: secArea,
@@ -170,7 +170,7 @@ export default function PowerManagement() {
       }
     );
     let response2 = await axios.get(
-      "http://10.126.15.141:8002/part/getavgpower",
+      "http://10.126.15.138:8002/part/getavgpower",
       {
         params: {
           area: secArea,
@@ -198,7 +198,7 @@ export default function PowerManagement() {
     const SNdata = (Number(response2.data[0].SN) / totalLN) * 100;
     const TNdata = (Number(response2.data[0].TN) / totalLN) * 100;
 
-    // let response1 = await axios.get("http://10.126.15.141:8002/part/getRangeSet");
+    // let response1 = await axios.get("http://10.126.15.138:8002/part/getRangeSet");
 
     setPercentRR(RRdata);
     setPercentSS(SSdata);

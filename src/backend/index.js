@@ -121,7 +121,7 @@ mqttClient.on("message", (topic, message) => {
 });
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: "10.126.15.141", port: 8081 });
+const wss = new WebSocket.Server({ host: "10.126.15.138", port: 8081 });
 
 wss.on("connection", (ws) => {
   console.log("Klien WebSocket terhubung");
