@@ -3165,8 +3165,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   SearchBatchRecord: async (request, response) => {
-    const { area, start, finish, data } = request.query;
-    if (!area || !start || !finish) {
+    const { area, data } = request.query;
+    if (!area) {
       return response.status(400).send("Missing required query parameters");
     }
 
@@ -3174,11 +3174,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return new Promise((resolve, reject) => {
         const query = `
           SELECT COLUMN_NAME
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_SCHEMA = 'ems_saka'
-  AND TABLE_NAME = '${area}'
-  AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
-    `;
+          FROM INFORMATION_SCHEMA.COLUMNS
+          WHERE TABLE_SCHEMA = 'ems_saka'
+          AND TABLE_NAME = '${area}'
+          AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+        `;
         db2.query(query, (err, results) => {
           if (err) return reject(err);
           const columns = results.map((result) => result.COLUMN_NAME);
@@ -3190,7 +3190,7 @@ WHERE TABLE_SCHEMA = 'ems_saka'
     // Pastikan area, start, dan finish tidak kosong
 
     const columns = await getAllColumns(area);
-  const columnsWithBackticks = columns.map((col) => `\`${col}\``);
+    const columnsWithBackticks = columns.map((col) => `\`${col}\``);
     // Query SQL dengan parameterization
     const queryGet = `
     SELECT 
@@ -3204,10 +3204,6 @@ WHERE TABLE_SCHEMA = 'ems_saka'
     ORDER BY 
       \`time@timestamp\` ASC;
   `;
-console.log('====================================');
-console.log(queryGet);
-console.log('====================================');
-    //================================================================================
 
     // Eksekusi query dengan parameter
     db.query(queryGet, (err, result) => {
