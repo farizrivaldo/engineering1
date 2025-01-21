@@ -3202,7 +3202,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     WHERE 
       CONVERT(\`data_format_0\` USING utf8) LIKE '%${data}%'
     ORDER BY 
-      \`time@timestamp\` ASC;
+      DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
   `;
 
     // Eksekusi query dengan parameter
