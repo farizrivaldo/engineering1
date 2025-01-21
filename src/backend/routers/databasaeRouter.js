@@ -153,3 +153,4 @@ routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
 //==============BATCH RECORD ========================================BATCH RECORD ==========================================
 routers.get("/BatchRecord1", databaseControllers.BatchRecord1);
 routers.get("/BatchRecord3", databaseControllers.BatchRecord3);
+routers.get("/SearchBatchRecord", databaseControllers.SearchBatchRecord);
