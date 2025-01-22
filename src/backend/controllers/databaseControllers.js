@@ -3221,8 +3221,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       const queryGet = `
       SELECT
         ${mappedColumns.join(", ")},
-        CONVERT(\`data_format_0\` USING utf8) AS \`data_format_0_str\`,
-        CONVERT(\`data_format_1\` USING utf8) AS \`data_format_1_str\`
+        CONVERT(\`data_format_0\` USING utf8) AS \` BATCH\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
       FROM
         \`ems_saka\`.\`${area}\`
       WHERE
