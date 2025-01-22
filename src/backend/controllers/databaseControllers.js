@@ -17,7 +17,7 @@ const { request, response } = require("express");
 const { log } = require("util");
 const { data } = require("jquery");
 const { timestamp } = require("node-opcua");
-
+const mysql = require("mysql2/promise");
 const cors = require("cors");
 const express = require("express");
 
@@ -3173,13 +3173,13 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const getAllColumns = (area) => {
       return new Promise((resolve, reject) => {
         const query = `
-          SELECT COLUMN_NAME
-          FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_SCHEMA = 'ems_saka'
-          AND TABLE_NAME = '${area}'
-          AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
-        `;
-        db2.query(query, (err, results) => {
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'ems_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+      `;
+        db2.query(query, [area], (err, results) => {
           if (err) return reject(err);
           const columns = results.map((result) => result.COLUMN_NAME);
           resolve(columns);
@@ -3187,31 +3187,60 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       });
     };
 
-    // Pastikan area, start, dan finish tidak kosong
+    const getColumnMappings = (area) => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db2.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
 
-    const columns = await getAllColumns(area);
-    const columnsWithBackticks = columns.map((col) => `\`${col}\``);
-    // Query SQL dengan parameterization
-    const queryGet = `
-    SELECT 
-    ${columnsWithBackticks.join(", ")},
-    CONVERT(\`data_format_0\` USING utf8) AS \`data_format_0_str\`,
-    CONVERT(\`data_format_1\` USING utf8) AS \`data_format_1_str\`
-    FROM 
-      \`ems_saka\`.\`${area}\`
-    WHERE 
-      CONVERT(\`data_format_0\` USING utf8) LIKE '%${data}%'
-    ORDER BY 
-      DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
-  `;
+    try {
+      const columns = await getAllColumns(area);
+      const columnMappings = await getColumnMappings(area);
 
-    // Eksekusi query dengan parameter
-    db.query(queryGet, (err, result) => {
-      if (err) {
-        console.log(err);
-        return response.status(500).send("Database query failed");
-      }
-      return response.status(200).send(result);
-    });
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`data_format_0_str\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`data_format_1_str\`
+      FROM
+        \`ems_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
   },
 };
