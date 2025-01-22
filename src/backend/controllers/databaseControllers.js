@@ -47,7 +47,7 @@ module.exports = {
       " " +
       request.query.finish;
 
-    db.query(fetchQuerry, (err, result) => {
+    db3.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -68,7 +68,7 @@ module.exports = {
       " " +
       request.query.finish;
 
-    db.query(fetchQuerry, (err, result) => {
+    db3.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
