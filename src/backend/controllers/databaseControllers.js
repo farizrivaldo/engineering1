@@ -939,7 +939,7 @@ LEFT JOIN
       ORDER BY
       \`time@timestamp\``;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1025,7 +1025,7 @@ LEFT JOIN
     from parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum19`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1108,7 +1108,7 @@ LEFT JOIN
     where  date(FROM_UNIXTIME(d.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
     order by date(FROM_UNIXTIME(d.\`time@timestamp\`));`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1191,7 +1191,7 @@ LEFT JOIN
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
     where  date(FROM_UNIXTIME(d.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1276,7 +1276,7 @@ LEFT JOIN
     GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`))), 
     MONTH(date(FROM_UNIXTIME(d.\`time@timestamp\`)))`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1366,7 +1366,7 @@ LEFT JOIN
     where DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') = Tgld and
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m') BETWEEN '${start}' AND '${finish}'`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1450,7 +1450,7 @@ LEFT JOIN
       where  DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') BETWEEN '${start}' AND '${finish}' 
       GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`)))`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -1539,7 +1539,7 @@ LEFT JOIN
       where DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') = Tgld and
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') BETWEEN '${start}' AND '${finish}'`;
 
-    db3.query(queryGet, (err, result) => {
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
