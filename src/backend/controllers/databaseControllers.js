@@ -2768,8 +2768,10 @@ LEFT JOIN
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
           \`time@timestamp\``;
-
-    db.query(queryGet, (err, result) => {
+    console.log("====================================");
+    console.log(queryGet);
+    console.log("====================================");
+    db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
