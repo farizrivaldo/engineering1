@@ -3132,13 +3132,21 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         ORDER BY
             label;
     `;
-    db2.query(queryGet, (err, result) => {
-      if (err) {
-        console.log(err);
-        return response.status(500).send("Database query failed");
-      }
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db2.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
       return response.status(200).send(result);
-    });
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
   },
 
   BatchRecord3: async (request, response) => {
