@@ -73,7 +73,7 @@ const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
 const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
 const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
 
-EventEmitter.defaultMaxListeners = 30;
+EventEmitter.defaultMaxListeners = 100;
 
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
