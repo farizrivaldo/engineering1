@@ -315,7 +315,7 @@ module.exports = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      console.log(req.body);
+      //console.log(req.body);
       const isEmailExist = await query(
         `SELECT * FROM users WHERE email = ${db.escape(email)}`
       );
