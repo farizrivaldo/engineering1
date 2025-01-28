@@ -11,15 +11,32 @@ const veryfyToken = (req, res, next) => {
     return res.status(401).send("access dnied");
   }
 
-  let verifiedUser = jwt.verify(token, "khaerul");
-  console.log(verifiedUser);
-  if (!verifiedUser) {
-    return res.status(401).send("access dnied");
+  //==============================================================
+  try {
+    // Verifikasi token
+    const verifiedUser = jwt.verify(token, "khaerul");
+    req.user = verifiedUser;
+    console.log(verifiedUser); // Log user yang diverifikasi
+    next();
+  } catch (err) {
+    // Tangani error token, termasuk jika expired
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).send("Token expired. Please login again.");
+    }
+    return res.status(401).send("Access denied. Invalid token.");
   }
 
-  req.user = verifiedUser;
-  console.log(verifiedUser);
-  next();
+  //==============================================================
+
+  // let verifiedUser = jwt.verify(token, "khaerul");
+  // console.log(verifiedUser);
+  // if (!verifiedUser) {
+  //   return res.status(401).send("access dnied");
+  // }
+
+  // req.user = verifiedUser;
+  // console.log(verifiedUser);
+  // next();
 };
 
 const checkRole = async (req, res, next) => {
