@@ -124,7 +124,7 @@ mqttClient.on("message", (topic, message) => {
 const wss = new WebSocket.Server({ host: "10.126.15.137", port: 8081 });
 
 wss.on("connection", (ws) => {
-  console.log("Klien WebSocket terhubung");
+  //console.log("Klien WebSocket terhubung");
 
   // Kirim pesan selamat datang
   ws.send("Terhubung ke WebSocket server!");
@@ -213,7 +213,7 @@ wss.on("connection", (ws) => {
 
   // Tangkap koneksi yang ditutup
   ws.on("close", () => {
-    console.log("Klien WebSocket terputus");
+    //console.log("Klien WebSocket terputus");
   });
 });
 
