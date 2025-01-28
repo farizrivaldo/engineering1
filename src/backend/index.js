@@ -73,7 +73,6 @@ const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
 const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
 const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
 
-EventEmitter.defaultMaxListeners = 100;
 
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
@@ -122,6 +121,7 @@ mqttClient.on("error", (err) => {
 // Event ketika menerima pesan dari topik
 mqttClient.on("message", (topic, message) => {
   // console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
+  console.log(mqttClient.listenerCount("message"));
 });
 
 // Buat server WebSocket
