@@ -210,16 +210,40 @@ wss.on("connection", (ws) => {
     }
   });
 
-  // Tangkap pesan dari klien WebSocket
-  ws.on("message", (msg) => {
-    //console.log(`Pesan dari klien WebSocket: ${msg}`);
+
+  //=====================================================================
+
+  // ws.on("message", (msg) => {
+  //   //console.log(`Pesan dari klien WebSocket: ${msg}`);
+  // });
+
+  // ws.on("close", () => {
+  //   //console.log("Klien WebSocket terputus");
+  // });
+  //================================================================================
+  wss.on("connection", (ws) => {
+    console.log("Klien WebSocket terhubung");
+  
+    ws.send("Terhubung ke WebSocket server!");
+  
+    if (mqttClient.listenerCount("message") === 0) {
+      mqttClient.on("message", mqttMessageHandler);
+    }
+  
+    ws.on("close", () => {
+      console.log("Klien WebSocket terputus");
+      mqttClient.removeListener("message", mqttMessageHandler);
+    });
   });
 
-  // Tangkap koneksi yang ditutup
-  ws.on("close", () => {
-    //console.log("Klien WebSocket terputus");
-  });
 });
+
+setInterval(() => {
+  console.log(`Jumlah listener aktif untuk 'message': ${mqttClient.listenerCount("message")}`);
+}, 5000);
+
+
+
 
 console.log("Server WebSocket berjalan di ws://localhost:8080");
 
