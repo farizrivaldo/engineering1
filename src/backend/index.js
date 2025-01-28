@@ -213,28 +213,28 @@ wss.on("connection", (ws) => {
 
   //=====================================================================
 
-  // ws.on("message", (msg) => {
-  //   //console.log(`Pesan dari klien WebSocket: ${msg}`);
-  // });
-
-  // ws.on("close", () => {
-  //   //console.log("Klien WebSocket terputus");
-  // });
-  //================================================================================
-  wss.on("connection", (ws) => {
-    console.log("Klien WebSocket terhubung");
-  
-    ws.send("Terhubung ke WebSocket server!");
-  
-    if (mqttClient.listenerCount("message") === 0) {
-      mqttClient.on("message", mqttMessageHandler);
-    }
-  
-    ws.on("close", () => {
-      console.log("Klien WebSocket terputus");
-      mqttClient.removeListener("message", mqttMessageHandler);
-    });
+  ws.on("message", (msg) => {
+    //console.log(`Pesan dari klien WebSocket: ${msg}`);
   });
+
+  ws.on("close", () => {
+    //console.log("Klien WebSocket terputus");
+  });
+  //================================================================================
+  // wss.on("connection", (ws) => {
+  //   console.log("Klien WebSocket terhubung");
+  
+  //   ws.send("Terhubung ke WebSocket server!");
+  
+  //   if (mqttClient.listenerCount("message") === 0) {
+  //     mqttClient.on("message", mqttMessageHandler);
+  //   }
+  
+  //   ws.on("close", () => {
+  //     console.log("Klien WebSocket terputus");
+  //     mqttClient.removeListener("message", mqttMessageHandler);
+  //   });
+  // });
 
 });
 
