@@ -236,12 +236,26 @@ wss.on("connection", (ws) => {
   //   });
   // });
 
+
 });
 
-setInterval(() => {
-  console.log(`Jumlah listener aktif untuk 'message': ${mqttClient.listenerCount("message")}`);
-}, 5000);
 
+setInterval(() => {
+  const listenerCount = mqttClient.listenerCount("message");
+  console.log(`Jumlah listener: ${listenerCount}`);
+
+  if (listenerCount >= 300) {
+    console.warn("Listener melebihi batas, melakukan reset...");
+
+    // Hapus semua listener
+    mqttClient.removeAllListeners("message");
+
+    // Tambahkan listener baru
+    mqttClient.on("message", handleMessage);
+
+    console.log("Listener telah direset ke 1.");
+  }
+}, 5000); // Periksa setiap 5 detik
 
 
 
