@@ -11,6 +11,8 @@ const { db, query } = require("./database");
 const upload = require("./middleware/multer");
 const mqtt = require("mqtt");
 const WebSocket = require("ws");
+const EventEmitter = require('events');
+
 
 app.use(cors());
 app.use(express.json());
@@ -71,9 +73,11 @@ const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
 const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
 const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
 
+EventEmitter.defaultMaxListeners = 30;
+
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
-
+EventEmitter.defaultMaxListeners = 20;
 mqttClient.on("connect", () => {
   console.log("Terhubung ke broker MQTT");
   // Subscribe ke topik
