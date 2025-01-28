@@ -252,6 +252,7 @@ setInterval(() => {
 
     // Tambahkan listener baru
     mqttClient.on("message", handleMessage);
+    ws.on("message")
 
     console.log("Listener telah direset ke 1.");
   }
