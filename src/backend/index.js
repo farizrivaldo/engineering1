@@ -11,8 +11,7 @@ const { db, query } = require("./database");
 const upload = require("./middleware/multer");
 const mqtt = require("mqtt");
 const WebSocket = require("ws");
-const EventEmitter = require('events');
-
+const EventEmitter = require("events");
 
 app.use(cors());
 app.use(express.json());
@@ -72,7 +71,6 @@ const mqttTopic1 = "kwhmeter"; // Topik yang ingin di-subscribe
 const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
 const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
 const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
-
 
 // Hubungkan ke broker MQTT
 const mqttClient = mqtt.connect(mqttBroker);
@@ -210,7 +208,6 @@ wss.on("connection", (ws) => {
     }
   });
 
-
   //=====================================================================
 
   ws.on("message", (msg) => {
@@ -223,22 +220,19 @@ wss.on("connection", (ws) => {
   //================================================================================
   // wss.on("connection", (ws) => {
   //   console.log("Klien WebSocket terhubung");
-  
+
   //   ws.send("Terhubung ke WebSocket server!");
-  
+
   //   if (mqttClient.listenerCount("message") === 0) {
   //     mqttClient.on("message", mqttMessageHandler);
   //   }
-  
+
   //   ws.on("close", () => {
   //     console.log("Klien WebSocket terputus");
   //     mqttClient.removeListener("message", mqttMessageHandler);
   //   });
   // });
-
-
 });
-
 
 setInterval(() => {
   const listenerCount = mqttClient.listenerCount("message");
@@ -252,13 +246,11 @@ setInterval(() => {
 
     // Tambahkan listener baru
     mqttClient.on("message", handleMessage);
-    ws.on("message")
+    ws.on("message");
 
     console.log("Listener telah direset ke 1.");
   }
 }, 5000); // Periksa setiap 5 detik
-
-
 
 console.log("Server WebSocket berjalan di ws://localhost:8080");
 

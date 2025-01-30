@@ -2958,8 +2958,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //==============INSTRUMENT IPC ========================================INSTRUMENT IPC==========================================
 
   getMoistureData: async (request, response) => {
-    let fetchQuerry = "select * from `sakaplant_prod_ipc_ma_staging`";
-    db4.query(fetchQuerry, (err, result) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT * FROM sakaplant_prod_ipc_ma_staging 
+    WHERE created_date BETWEEN '${start}' AND '${finish}'
+    ORDER BY id_setup ASC;`;
+    db4.query(queryGet, (err, result) => {
+      console.log(queryGet);
       return response.status(200).send(result);
     });
   },
@@ -2967,23 +2971,29 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   getMoistureGraph: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `
-        SELECT
-          STR_TO_DATE(Date, '%d.%m.%Y') AS label,
-          id AS x, 
-          Result AS y 
-        FROM sakaplant_prod_ipc_ma_staging
-        WHERE STR_TO_DATE(Date, '%d.%m.%Y') 
-          BETWEEN '${start}' AND '${finish}' 
-        ORDER BY id ASC; 
-    `;
+      SELECT
+      created_date AS label,
+      id_setup AS x, 
+      end_weight AS y 
+      FROM sakaplant_prod_ipc_ma_staging
+      WHERE created_date BETWEEN '${start}' AND '${finish}'
+      ORDER BY id_setup ASC;`;
+
+    console.log(queryGet);
     db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
 
   getSartoriusData: async (request, response) => {
-    let fetchQuerry = "select * from `Sartorius_Scales`";
-    db4.query(fetchQuerry, (err, result) => {
+    const { start, finish } = request.query;
+    const queryGet = `SELECT * FROM Sartorius_Scales 
+    WHERE STR_TO_DATE(date, '%d-%b-%Y') 
+    BETWEEN '${start}' AND '${finish}' 
+    ORDER BY id ASC;`;
+    console.log(queryGet);
+
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -2992,11 +3002,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { start, finish } = request.query;
     const queryGet = `
     SELECT 
-      STR_TO_DATE(Date, '%d-%b-%Y') AS label, 
+      date AS label, 
       id AS x, 
       weight AS y 
     FROM Sartorius_Scales 
-    WHERE STR_TO_DATE(Date, '%d-%b-%Y') 
+    WHERE STR_TO_DATE(date, '%d-%b-%Y') 
     BETWEEN '${start}' AND '${finish}' 
     ORDER BY id ASC;
 
