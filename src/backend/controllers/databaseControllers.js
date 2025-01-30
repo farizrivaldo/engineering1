@@ -2958,7 +2958,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //==============INSTRUMENT IPC ========================================INSTRUMENT IPC==========================================
 
   getMoistureData: async (request, response) => {
-    let fetchQuerry = "select * from `Moisture`";
+    let fetchQuerry = "select * from `sakaplant_prod_ipc_ma_staging`";
     db4.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
@@ -2971,7 +2971,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           STR_TO_DATE(Date, '%d.%m.%Y') AS label,
           id AS x, 
           Result AS y 
-        FROM Moisture
+        FROM sakaplant_prod_ipc_ma_staging
         WHERE STR_TO_DATE(Date, '%d.%m.%Y') 
           BETWEEN '${start}' AND '${finish}' 
         ORDER BY id ASC; 
