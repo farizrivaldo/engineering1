@@ -2974,7 +2974,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         FROM Moisture
         WHERE STR_TO_DATE(Date, '%d.%m.%Y') 
           BETWEEN '${start}' AND '${finish}' 
-        ORDER BY STR_TO_DATE(Date, '%d.%m.%Y') ASC; 
+        ORDER BY id ASC; 
     `;
     db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
@@ -2998,7 +2998,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     FROM Sartorius_Scales 
     WHERE STR_TO_DATE(Date, '%d-%b-%Y') 
     BETWEEN '${start}' AND '${finish}' 
-    ORDER BY STR_TO_DATE(Date, '%d-%b-%Y') ASC;
+    ORDER BY id ASC;
 
   `;
     db4.query(queryGet, (err, result) => {
