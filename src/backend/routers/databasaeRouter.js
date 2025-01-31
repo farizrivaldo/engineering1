@@ -68,12 +68,30 @@ routers.get("/getAllDataEMS", databaseControllers.getAllDataEMS);
 
 routers.get("/waterSystem", databaseControllers.waterSystem);
 routers.get("/waterSankey", databaseControllers.waterSankey);
-routers.get("/ExportWaterConsumptionDaily",databaseControllers.ExportWaterConsumptionDaily);
-routers.get("/ExportWaterTotalizerDaily",databaseControllers.ExportWaterTotalizerDaily);
-routers.get("/ExportWaterConsumptionMonthly",databaseControllers.ExportWaterConsumptionMonthly);
-routers.get("/ExportWaterTotalizerMonthly",databaseControllers.ExportWaterTotalizerMonthly);
-routers.get("/ExportWaterConsumptionYearly",databaseControllers.ExportWaterConsumptionYearly);
-routers.get("/ExportWaterTotalizerYearly",databaseControllers.ExportWaterTotalizerYearly);
+routers.get(
+  "/ExportWaterConsumptionDaily",
+  databaseControllers.ExportWaterConsumptionDaily
+);
+routers.get(
+  "/ExportWaterTotalizerDaily",
+  databaseControllers.ExportWaterTotalizerDaily
+);
+routers.get(
+  "/ExportWaterConsumptionMonthly",
+  databaseControllers.ExportWaterConsumptionMonthly
+);
+routers.get(
+  "/ExportWaterTotalizerMonthly",
+  databaseControllers.ExportWaterTotalizerMonthly
+);
+routers.get(
+  "/ExportWaterConsumptionYearly",
+  databaseControllers.ExportWaterConsumptionYearly
+);
+routers.get(
+  "/ExportWaterTotalizerYearly",
+  databaseControllers.ExportWaterTotalizerYearly
+);
 
 routers.get("/PowerDaily", databaseControllers.PowerDaily);
 routers.get("/PowerMonthly", databaseControllers.PowerMonthly);
@@ -113,7 +131,6 @@ routers.get("/138", databaseControllers.fetch138);
 
 //=====================EBR==========================================================
 routers.get("/PmaGetData", databaseControllers.GetDataEBR_PMA);
-module.exports = routers;
 
 //==============INSTRUMENT IPC========================================INSTRUMENT IPC==========================================
 routers.get("/getMoistureData", databaseControllers.getMoistureData);
@@ -136,3 +153,12 @@ routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
 routers.get("/BatchRecord1", databaseControllers.BatchRecord1);
 routers.get("/BatchRecord3", databaseControllers.BatchRecord3);
 routers.get("/SearchBatchRecord", databaseControllers.SearchBatchRecord);
+
+routers.post("/CreateParameter", databaseControllers.CreateParameter);
+routers.get("/GetParameter", databaseControllers.GetParameter);
+routers.post("/CreateJam", databaseControllers.CreateJam);
+routers.get("/GetJam", databaseControllers.GetJam);
+routers.post("/CreateLimit", databaseControllers.CreateLimit);
+routers.get("/GetLimit", databaseControllers.GetLimit);
+
+module.exports = routers;

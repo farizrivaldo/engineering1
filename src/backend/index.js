@@ -1,17 +1,17 @@
 const fetch = require("isomorphic-fetch");
-const { request } = require("express");
+// const { request } = require("express");
 const express = require("express");
 const cors = require("cors");
 const port = 8002;
 const app = express();
 const { databaseRouter } = require("./routers");
 const { body, validationResult } = require("express-validator");
-const { log } = require("console");
+// const { log } = require("console");
 const { db, query } = require("./database");
 const upload = require("./middleware/multer");
-const mqtt = require("mqtt");
-const WebSocket = require("ws");
-const EventEmitter = require("events");
+// const mqtt = require("mqtt");
+// const WebSocket = require("ws");
+// const EventEmitter = require("events");
 
 app.use(cors());
 app.use(express.json());

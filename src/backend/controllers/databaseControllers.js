@@ -3261,5 +3261,184 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  //==============BATCH RECORD ========================================BATCH RECORD ==========================================
+  //==============CRUD CRUD PORTAL========================================CRUD CRUD PORTAL==========================================
+  //PARAMETER PORTAL ENJOY
+
+  //create
+  CreateParameter: async (request, response) => {
+    const {
+      Parameter_Air,
+      Parameter_Gas,
+      Parameter_Listrik,
+      Parameter_Out_1,
+      Parameter_Out_2,
+      Parameter_Out_3,
+      Parameter_Out_4,
+      Parameter_Out_5,
+      Created_date,
+      Created_time,
+      User,
+    } = request.body;
+
+    const insertQuery = `INSERT INTO ems_saka.Parameter_Portal 
+                       (Parameter_Air, Parameter_Gas, Parameter_Listrik, 
+                        Parameter_Out_1, Parameter_Out_2, Parameter_Out_3, 
+                        Parameter_Out_4, Parameter_Out_5, Created_date, Created_time, User) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const insertValues = [
+      Parameter_Air,
+      Parameter_Gas,
+      Parameter_Listrik,
+      Parameter_Out_1,
+      Parameter_Out_2,
+      Parameter_Out_3,
+      Parameter_Out_4,
+      Parameter_Out_5,
+      Created_date,
+      Created_time,
+      User,
+    ];
+
+    db4.query(insertQuery, insertValues, (err, result) => {
+      if (err) {
+        return response.status(400).send(err.message);
+      } else {
+        // Query untuk fetch data
+        const fetchQuery = "SELECT * FROM ems_saka.Parameter_Portal";
+        db4.query(fetchQuery, (err, result) => {
+          if (err) {
+            return response.status(400).send(err.message);
+          } else {
+            return response
+              .status(200)
+              .send({ message: "Data successfully added" });
+          }
+        });
+      }
+    });
+  },
+
+  //GET
+  GetParameter: async (request, response) => {
+    var fatchquerry = `SELECT * FROM ems_saka.Parameter_Portal ORDER BY id DESC LIMIT 1;`;
+
+    db4.query(fatchquerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  //JAM PORTAL ENJOY
+
+  //create
+  CreateJam: async (request, response) => {
+    const {
+      Jam_Listrik_1,
+      Jam_Listrik_2,
+      Jam_Listrik_3,
+      Jam_Listrik_4,
+      Jam_Gas,
+      Jam_Air,
+      Created_date,
+      Created_time,
+      User,
+    } = request.body;
+
+    const insertQuery = `INSERT INTO ems_saka.Jam_Portal 
+                       (Jam_Listrik_1, Jam_Listrik_2, Jam_Listrik_3, 
+                        Jam_Listrik_4, Jam_Gas, Jam_Air, 
+                        Created_date, Created_time, User) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    const insertValues = [
+      Jam_Listrik_1,
+      Jam_Listrik_2,
+      Jam_Listrik_3,
+      Jam_Listrik_4,
+      Jam_Gas,
+      Jam_Air,
+      Created_date,
+      Created_time,
+      User,
+    ];
+    db4.query(insertQuery, insertValues, (err, result) => {
+      if (err) {
+        return response.status(400).send(err.message);
+      } else {
+        // Query untuk fetch data
+        const fetchQuery = "SELECT * FROM ems_saka.Jam_Portal";
+        db4.query(fetchQuery, (err, result) => {
+          if (err) {
+            return response.status(400).send(err.message);
+          } else {
+            return response
+              .status(200)
+              .send({ message: "Data successfully added" });
+          }
+        });
+      }
+    });
+  },
+
+  //GET
+  GetJam: async (request, response) => {
+    var fatchquerry = `SELECT * FROM ems_saka.Jam_Portal ORDER BY id DESC LIMIT 1;`;
+
+    db4.query(fatchquerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+  //LIMIT PORTAL ENJOY
+
+  //create
+  CreateLimit: async (request, response) => {
+    const {
+      Limit_Listrik,
+      Limit_Gas,
+      Limit_Air,
+      Created_date,
+      Created_time,
+      User,
+    } = request.body;
+
+    const insertQuery = `INSERT INTO ems_saka.Limit_Portal 
+                       (Limit_Listrik, Limit_Gas, Limit_Air, 
+                        Created_date, Created_time, User) 
+                       VALUES (?, ?, ?, ?, ?, ?)`;
+
+    const insertValues = [
+      Limit_Listrik,
+      Limit_Gas,
+      Limit_Air,
+      Created_date,
+      Created_time,
+      User,
+    ];
+    db4.query(insertQuery, insertValues, (err, result) => {
+      if (err) {
+        return response.status(400).send(err.message);
+      } else {
+        // Query untuk fetch data
+        const fetchQuery = "SELECT * FROM ems_saka.Limit_Portal";
+        db4.query(fetchQuery, (err, result) => {
+          if (err) {
+            return response.status(400).send(err.message);
+          } else {
+            return response
+              .status(200)
+              .send({ message: "Data successfully added" });
+          }
+        });
+      }
+    });
+  },
+
+  //GET
+  GetLimit: async (request, response) => {
+    var fatchquerry = `SELECT * FROM ems_saka.Limit_Portal ORDER BY id DESC LIMIT 1;`;
+
+    db4.query(fatchquerry, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
 };
