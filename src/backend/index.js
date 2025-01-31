@@ -72,7 +72,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 // const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
 // const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
 
-// // Hubungkan ke broker MQTT
+// Hubungkan ke broker MQTT
 // const mqttClient = mqtt.connect(mqttBroker);
 // EventEmitter.defaultMaxListeners = 20;
 // mqttClient.on("connect", () => {
@@ -252,10 +252,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 //   }
 // }, 5000); // Periksa setiap 5 detik
 
-// // console.log("Server WebSocket berjalan di ws://localhost:8080");
+// console.log("Server WebSocket berjalan di ws://localhost:8080");
 
-// app.use("/part", databaseRouter);
+app.use("/part", databaseRouter);
 
-// app.listen(port, () => {
-//   console.log("SERVER RUNNING IN PORT" + port);
-// });
+app.listen(port, () => {
+  console.log("SERVER RUNNING IN PORT" + port);
+});
