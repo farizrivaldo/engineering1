@@ -1,0 +1,468 @@
+ PowerSankey: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `select MVMDP as "MVMDP",
+    lvmdp1 as  "LVMDP1",
+    lvmdp2 as  "LVMDP2",
+    SP16 as  "SolarPanel16",
+    SP712 as  "SolarPanel712",
+    utility as  "SDP1Utility",
+    utilitylt2 as  "PPLP1UtilityLt2",
+    chiller as  "PP1Chiller",
+    utilitylt1 as  "PPLP1UtilityLt1",
+    genset as "PP1Genset",
+    boilerPW as  "PP1BoilerPW",
+    kompressor as  "PP1Kompressor",
+    HWP as  "PP1HWP",
+    pump as  "PP1PUMPS",
+    lift as  "PP1Lift",
+    ac11 as  "PP1AC11",
+    ac12 as  "PP1AC12",
+    ac13 as  "PP1AC13",
+    ac23 as  "PP1AC23",
+    produksi1 as  "SDP1Produksi",
+    produksi2 as  "SDP2Produksi",
+    hydrant as  "PP2Hydrant",
+    puyer as  "PP2Puyer",
+    fatigon as  "PP2Fatigon",
+    mixagrib as  "PP2Mixagrib",
+    lablt2 as  "PP2LabLt2",
+    fasilitas as  "PP2Fasilitas",
+    packwh as  "PP2PackWH",
+    pro11 as  "LP2PRO11",
+    pro12 as  "LP2PRO12",
+    pro13 as  "LP2PRO13",
+    pro23 as  "LP2PRO23",
+    pro31 as  "LP2PRO31",
+    pro41 as  "LP2PRO41",
+    wh11 as  "LP2WH11",
+    mezz11 as  "PPLP2Mezz11",
+    posjaga1 as  "PPLP1PosJaga1",
+    PosJaga2 as  "PPLP1PosJaga2",
+    koperasi as  "PPLP1Koperasi",
+    gcpgenset as  "GCPGenset",
+    sdpgenset as  "SDPGenset",
+    chiller1 as  "PPChiller1",
+    chiller2 as  "PPChiller2",
+    chiller3 as  "PPChiller3",
+    ac31rnd as "PP2AC31RND",
+    pro31rnd as "LP2PRO31RND"
+    from
+      (SELECT sum(kwh1) as MVMDP from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl1,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_MVMDP_data\` as s2
+		where s2.data_index < l1.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh1 
+      from ems_saka.\`cMT-Gedung-UTY_MVMDP_data\` as l1 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'AND data_format_0>0)  as table1
+      where kwh1>0) as total1, 
+
+      (SELECT sum(kwh2) as lvmdp1 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl2,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LVMDP1_data\` as s2
+		where s2.data_index < l2.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh2
+      from ems_saka.\`cMT-Gedung-UTY_LVMDP1_data\` as l2 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table2
+      where kwh2>0) as total2, 
+
+      (SELECT sum(kwh3) as lvmdp2 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl3,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LVMDP2_data\` as s2
+		where s2.data_index < l3.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh3
+      from ems_saka.\`cMT-Gedung-UTY_LVMDP2_data\` as l3 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table3
+      where kwh3>0) as total3,
+
+      (SELECT sum(kwh4) as SP16 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl4,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_Inverter1-6_SP_data\` as s2
+		where s2.data_index < l4.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh4
+      from ems_saka.\`cMT-Gedung-UTY_Inverter1-6_SP_data\` as l4 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table4
+      where kwh4>0) as total4, 
+      
+      (SELECT sum(kwh5) as SP712 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl5,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_Inverter7-12_SP_data\` as s2
+		where s2.data_index < l5.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh5
+      from ems_saka.\`cMT-Gedung-UTY_Inverter7-12_SP_data\` as l5 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table5
+      where kwh5>0) as total5, 
+
+      (SELECT sum(kwh6) as utility from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl6,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_SDP.1-Utility_data\` as s2
+		where s2.data_index < l6.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh6
+      from ems_saka.\`cMT-Gedung-UTY_SDP.1-Utility_data\` as l6 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table6
+      where kwh6>0) as total6, 
+
+      (SELECT sum(kwh7) as utilitylt2 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl7,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PPLP.1-UTY_Lt.2_data\` as s2
+		where s2.data_index < l7.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh7
+      from ems_saka.\`cMT-Gedung-UTY_PPLP.1-UTY_Lt.2_data\` as l7 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table7
+      where kwh7>0) as total7, 
+
+      (SELECT sum(kwh8) as chiller from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl8,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-Chiller_data\` as s2
+		where s2.data_index < l8.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh8
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-Chiller_data\` as l8 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table8
+      where kwh8>0) as total8, 
+
+      (SELECT sum(kwh9) as utilitylt1 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl9,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PPLP.1-UTY_Lt.1_data\` as s2
+		where s2.data_index < l9.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh9
+      from ems_saka.\`cMT-Gedung-UTY_PPLP.1-UTY_Lt.1_data\` as l9 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table9
+      where kwh9>0) as total9, 
+
+      (SELECT sum(kwh10) as genset from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl10,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-Genset_data\` as s2
+		where s2.data_index < l10.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh10
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-Genset_data\` as l10 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table10
+      where kwh10>0) as total10, 
+
+      (SELECT sum(kwh11) as boilerPW from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl11,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-Boiler&PW_data\` as s2
+		where s2.data_index < l11.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh11
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-Boiler&PW_data\` as l11 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table11
+      where kwh11>0) as total11, 
+
+      (SELECT sum(kwh12) as kompressor from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl12,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-Kompressor_data\` as s2
+		where s2.data_index < l12.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh12
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-Kompressor_data\` as l12 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table12
+      where kwh12>0) as total12, 
+
+      (SELECT sum(kwh13) as HWP from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl13,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-HWP_data\` as s2
+		where s2.data_index < l13.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh13
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-HWP_data\` as l13 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table13
+      where kwh13>0) as total13, 
+
+      (SELECT sum(kwh14) as pump from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl14,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-PUMPS_data\` as s2
+		where s2.data_index < l14.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh14
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-PUMPS_data\` as l14 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table14
+      where kwh14>0) as total14, 
+
+      (SELECT sum(kwh15) as lift from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl15,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-Lift_data\` as s2
+		where s2.data_index < l15.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh15
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-Lift_data\` as l15 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table15
+      where kwh15>0) as total15, 
+
+      (SELECT sum(kwh16) as ac11 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl16,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.1_data\` as s2
+		where s2.data_index < l16.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh16
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.1_data\` as l16 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table16
+      where kwh16>0) as total16, 
+
+      (SELECT sum(kwh17) as ac12 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl17,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.2_data\` as s2
+		where s2.data_index < l17.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh17
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.2_data\` as l17 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table17
+      where kwh17>0) as total17, 
+
+      (SELECT sum(kwh18) as ac13 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl18,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.3_data\` as s2
+		where s2.data_index < l18.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh18
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.3_data\` as l18 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table18
+      where kwh18>0) as total18, 
+
+      (SELECT sum(kwh19) as ac23 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl19,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.1-AC2.3_data\` as s2
+		where s2.data_index < l19.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh19
+      from ems_saka.\`cMT-Gedung-UTY_PP.1-AC2.3_data\` as l19 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table19
+      where kwh19>0) as total19, 
+
+      (SELECT sum(kwh20) as produksi1 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl20,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_SDP.1-Produksi_data\` as s2
+		where s2.data_index < l20.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh20
+      from ems_saka.\`cMT-Gedung-UTY_SDP.1-Produksi_data\` as l20 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table20
+      where kwh20>0) as total20, 
+
+      (SELECT sum(kwh21) as produksi2 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl21,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_SDP.2-Produksi_data\` as s2
+		where s2.data_index < l21.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh21
+      from ems_saka.\`cMT-Gedung-UTY_SDP.2-Produksi_data\` as l21 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table21
+      where kwh21>0) as total21, 
+
+      (SELECT sum(kwh22) as hydrant from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl22,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-Hydrant_data\` as s2
+		where s2.data_index < l22.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh22
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-Hydrant_data\` as l22 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table22
+      where kwh22>0) as total22, 
+
+      (SELECT sum(kwh23) as fatigon from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl23,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-Fatigon_data\` as s2
+		where s2.data_index < l23.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh23
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-Fatigon_data\` as l23 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table23
+      where kwh23>0) as total23, 
+
+      (SELECT sum(kwh24) as puyer from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl24,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-Puyer_data\` as s2
+		where s2.data_index < l24.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh24
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-Puyer_data\` as l24 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table24
+      where kwh24>0) as total24, 
+
+      (SELECT sum(kwh25) as mixagrib from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl25,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-Mixagrib_data\` as s2
+		where s2.data_index < l25.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh25
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-Mixagrib_data\` as l25 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table25
+      where kwh25>0) as total25, 
+
+      (SELECT sum(kwh26) as lablt2 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl26,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-LabLt.2_data\` as s2
+		where s2.data_index < l26.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh26
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-LabLt.2_data\` as l26 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table26
+      where kwh26>0) as total26, 
+
+      (SELECT sum(kwh27) as fasilitas from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl27,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-Fasilitas_data\` as s2
+		where s2.data_index < l27.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh27
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-Fasilitas_data\` as l27 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table27
+      where kwh27>0) as total27, 
+
+      (SELECT sum(kwh28) as packwh from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl28,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PP.2-PackWH_data\` as s2
+		where s2.data_index < l28.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh28
+      from ems_saka.\`cMT-Gedung-UTY_PP.2-PackWH_data\` as l28 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table28
+      where kwh28>0) as total28, 
+
+      (SELECT sum(kwh29) as pro11 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl29,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.1_data\` as s2
+		where s2.data_index < l29.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh29
+      from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.1_data\` as l29 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table29
+      where kwh29>0) as total29, 
+
+      (SELECT sum(kwh30) as pro12 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl30,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.2_data\` as s2
+		where s2.data_index < l30.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh30
+      from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.2_data\` as l30 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table30
+      where kwh30>0) as total30, 
+
+      (SELECT sum(kwh31) as pro13 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl31,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.3_data\` as s2
+		where s2.data_index < l31.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh31
+      from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.3_data\` as l31 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table31
+      where kwh31>0) as total31, 
+
+      (SELECT sum(kwh32) as pro23 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl32,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2-PRO2.3_data\` as s2
+		where s2.data_index < l32.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh32
+      from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO2.3_data\` as l32 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table32
+      where kwh32>0) as total32, 
+
+      (SELECT sum(kwh33) as pro31 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl33,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2-PRO3.1_data\` as s2
+		where s2.data_index < l33.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh33
+      from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO3.1_data\` as l33 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table33
+      where kwh33>0) as total33, 
+
+      (SELECT sum(kwh34) as pro41 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl34,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2-PRO4.1_data\` as s2
+		where s2.data_index < l34.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh34
+      from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO4.1_data\` as l34 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table34
+      where kwh34>0) as total34, 
+
+      (SELECT sum(kwh35) as wh11 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl35,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2WH1.1_data\` as s2
+		where s2.data_index < l35.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh35
+      from ems_saka.\`cMT-Gedung-UTY_LP.2WH1.1_data\` as l35 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table35
+      where kwh35>0) as total35, 
+
+      (SELECT sum(kwh36) as mezz11 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl36,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_LP.2MEZZ1.1_data\` as s2
+		where s2.data_index < l36.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh36
+      from ems_saka.\`cMT-Gedung-UTY_LP.2MEZZ1.1_data\` as l36 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table36
+      where kwh36>0) as total36, 
+
+      (SELECT sum(kwh37) as posjaga1 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl37,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PPLP.2-PosJaga1_data\` as s2
+		where s2.data_index < l37.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh37
+      from ems_saka.\`cMT-Gedung-UTY_PPLP.2-PosJaga1_data\` as l37 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table37
+      where kwh37>0) as total37, 
+
+      (SELECT sum(kwh38) as PosJaga2 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl38,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PPLP.2-PosJaga2_data\` as s2
+		where s2.data_index < l38.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh38
+      from ems_saka.\`cMT-Gedung-UTY_PPLP.2-PosJaga2_data\` as l38 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table38
+      where kwh38>0) as total38, 
+
+      (SELECT sum(kwh40) as koperasi from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl40,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_PPLP.2-Koperasi_data\` as s2
+		where s2.data_index < l40.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh40
+      from ems_saka.\`cMT-Gedung-UTY_PPLP.2-Koperasi_data\` as l40 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table40
+      where kwh40>0) as total40, 
+
+      (SELECT sum(kwh41) as gcpgenset from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl41,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_GCP_Genset_data\` as s2
+		where s2.data_index < l41.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh41
+      from ems_saka.\`cMT-Gedung-UTY_GCP_Genset_data\` as l41 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table41
+      where kwh41>0) as total41, 
+
+      (SELECT sum(kwh42) as sdpgenset from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl42,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_SDP_Genset_data\` as s2
+		where s2.data_index < l42.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh42
+      from ems_saka.\`cMT-Gedung-UTY_SDP_Genset_data\` as l42 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table42
+      where kwh42>0) as total42, 
+
+      (SELECT sum(kwh47) as chiller1 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl47,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_Chiller1_data\` as s2
+		where s2.data_index < l47.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh47
+      from ems_saka.\`cMT-Gedung-UTY_Chiller1_data\` as l47 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table47
+      where kwh47>0) as total47, 
+
+      (SELECT sum(kwh48) as chiller2 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl48,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_Chiller2_data\` as s2
+		where s2.data_index < l48.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh48
+      from ems_saka.\`cMT-Gedung-UTY_Chiller2_data\` as l48 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table48
+      where kwh48>0) as total48, 
+
+      (SELECT sum(kwh49) as chiller3 from (SELECT
+      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl49,
+      data_format_0-(select s2.data_format_0 as previous from
+		ems_saka.\`cMT-Gedung-UTY_Chiller3_data\` as s2
+		where s2.data_index < l49.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh49
+      from ems_saka.\`cMT-Gedung-UTY_Chiller3_data\` as l49 WHERE
+      date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table49
+      where kwh49>0) as total49,
+
+      (SELECT sum(kwh50) as ac31rnd from (SELECT
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl50,
+        data_format_0-(select s2.data_format_0 as previous from
+      ems_saka.\`cMT-Gedung-UTY_PP.2-AC 3.1 RND_data\` as s2
+      where s2.data_index < l50.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh50
+        from ems_saka.\`cMT-Gedung-UTY_PP.2-AC 3.1 RND_data\` as l50 WHERE
+        date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' AND data_format_0>0)  as table50
+        where kwh50>0) as total50,
+
+        (SELECT sum(kwh51) as pro31rnd from (SELECT
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) , '%Y-%m-%d') AS tgl51,
+          data_format_0-(select s2.data_format_0 as previous from
+        ems_saka.\`cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data\` as s2
+        where s2.data_index < l51.data_index and s2.data_format_0 order by s2.data_index  desc limit 1) as kwh51
+          from ems_saka.\`cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data\` as l51 WHERE
+          date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '2024-06-01' AND '2024-06-05' AND data_format_0>0)  as table51
+          where kwh51>0) as total51
+    `;
+
+    db4.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },

@@ -119,11 +119,11 @@ mqttClient.on("error", (err) => {
 // Event ketika menerima pesan dari topik
 mqttClient.on("message", (topic, message) => {
   // console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
-  console.log(mqttClient.listenerCount("message"));
+  // console.log(mqttClient.listenerCount("message"));
 });
 
 // Buat server WebSocket
-const wss = new WebSocket.Server({ host: "10.126.15.137", port: 8081 });
+const wss = new WebSocket.Server({ host: "127.0.0.1", port: 8081 });
 
 wss.on("connection", (ws) => {
   //console.log("Klien WebSocket terhubung");
@@ -236,7 +236,7 @@ wss.on("connection", (ws) => {
 
 setInterval(() => {
   const listenerCount = mqttClient.listenerCount("message");
-  console.log(`Jumlah listener: ${listenerCount}`);
+  // console.log(`Jumlah listener: ${listenerCount}`);
 
   if (listenerCount >= 300) {
     console.warn("Listener melebihi batas, melakukan reset...");
@@ -248,11 +248,11 @@ setInterval(() => {
     mqttClient.on("message", handleMessage);
     ws.on("message");
 
-    console.log("Listener telah direset ke 1.");
+    // console.log("Listener telah direset ke 1.");
   }
 }, 5000); // Periksa setiap 5 detik
 
-console.log("Server WebSocket berjalan di ws://localhost:8080");
+// console.log("Server WebSocket berjalan di ws://localhost:8080");
 
 app.use("/part", databaseRouter);
 
