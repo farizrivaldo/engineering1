@@ -3304,7 +3304,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         return response.status(400).send(err.message);
       } else {
         // Query untuk fetch data
-        const fetchQuery = "SELECT * FROM ems_saka.Parameter_Portal";
+        const fetchQuery =
+          "SELECT * FROM ems_saka.Parameter_Portal ORDER BY id DESC LIMIT 1;";
         db4.query(fetchQuery, (err, result) => {
           if (err) {
             return response.status(400).send(err.message);
