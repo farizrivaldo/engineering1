@@ -3342,8 +3342,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       Jam_Listrik_2,
       Jam_Listrik_3,
       Jam_Listrik_4,
-      Jam_Gas,
-      Jam_Air,
+      Jam_Gas_1,
+      Jam_Gas_2,
+      Jam_Gas_3,
+      Jam_Gas_4,
+      Jam_Air_1,
+      Jam_Air_2,
+      Jam_Air_3,
+      Jam_Air_4,
       Created_date,
       Created_time,
       User,
@@ -3351,7 +3357,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     const insertQuery = `INSERT INTO ems_saka.Jam_Portal 
                        (Jam_Listrik_1, Jam_Listrik_2, Jam_Listrik_3, 
-                        Jam_Listrik_4, Jam_Gas, Jam_Air, 
+                        Jam_Listrik_4, Jam_Gas_1, Jam_Gas_2, Jam_Gas_3, Jam_Gas_4, Jam_Air_1, Jam_Air_2, Jam_Air_3, Jam_Air_4,  
                         Created_date, Created_time, User) 
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -3360,8 +3366,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       Jam_Listrik_2,
       Jam_Listrik_3,
       Jam_Listrik_4,
-      Jam_Gas,
-      Jam_Air,
+      Jam_Gas_1,
+      Jam_Gas_2,
+      Jam_Gas_3,
+      Jam_Gas_4,
+      Jam_Air_1,
+      Jam_Air_2,
+      Jam_Air_3,
+      Jam_Air_4,
       Created_date,
       Created_time,
       User,
@@ -3442,55 +3454,128 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //GET
   GetLimit: async (request, response) => {
     var fatchquerry = `SELECT * FROM ems_saka.Limit_Portal ORDER BY id DESC LIMIT 1;`;
-    
+
     db4.query(fatchquerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
-  
+
   //==============TEST VALUE DATA DAILY========================================TEST VALUE DATA DAILY==========================================
-  GetDailyData138: async (request, response) => {
-  var fatchquerry = `
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU F 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU G 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU G 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU LA 2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.03_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU RND 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU RND 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH DCU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH DCU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH TFU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH TFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_M_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_M_Temp_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_XaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_ZaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+  GetDailyVibrasi138: async (request, response) => {
+    const fatchquerry = `
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_E_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_F_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_F_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU F 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_FT_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_FT_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_G_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU G 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_G_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU G 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_LA_2.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU LA 2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_MG_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_MG_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_MG_1.03_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.03_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_RND_3.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU RND 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_RND_3.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU RND 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_WG_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_WG_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_WH1_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_DCU_FT_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH DCU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_DCU_WG_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH DCU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_E_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_FT_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_FT_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_MG_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_MG_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_WG_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_WG_1.02_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_TFU_F_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH TFU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_TFU_WG_1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_CMH TFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_M_Current_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_M_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_M_Temp_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_M_Temp_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_XaxisRMS-S1_data\` FROM ems_saka.\`cMT-VibrasiHVAC_XaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` FROM ems_saka.\`cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_ZaxisRMS-S1_data\` FROM ems_saka.\`cMT-VibrasiHVAC_ZaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
   `;
-    
+
+    db4.query(fatchquerry, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+
+  GetDailyGedung138: async (request, response) => {
+    const fatchquerry = `
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Chiller1_data\` FROM ems_saka.\`cMT-Gedung-UTY_Chiller1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Chiller2_data\` FROM ems_saka.\`cMT-Gedung-UTY_Chiller2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Chiller3_data\` FROM ems_saka.\`cMT-Gedung-UTY_Chiller3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Fatigon_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_Fatigon_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_GCP_Genset_data\` FROM ems_saka.\`cMT-Gedung-UTY_GCP_Genset_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Inverter1-6_SP_data\` FROM ems_saka.\`cMT-Gedung-UTY_Inverter1-6_SP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Inverter7-12_SP_data\` FROM ems_saka.\`cMT-Gedung-UTY_Inverter7-12_SP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO1.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO1.2_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO1.3_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO1.3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO2.3_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO2.3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO3.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO3.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO4.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO4.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2-PRO_3.1_RND_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2MEZZ1.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2MEZZ1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LP.2WH1.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_LP.2WH1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LVMDP1_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_LVMDP1_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LVMDP1_data\` FROM ems_saka.\`cMT-Gedung-UTY_LVMDP1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LVMDP2_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_LVMDP2_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_LVMDP2_data\` FROM ems_saka.\`cMT-Gedung-UTY_LVMDP2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_MVMDP_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_MVMDP_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_MVMDP_data\` FROM ems_saka.\`cMT-Gedung-UTY_MVMDP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Mixagrip_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_Mixagrip_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-AC1.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-AC1.2_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-AC1.3_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-AC1.3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-AC2.3_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-AC2.3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-Boiler&PW_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-Boiler&PW_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-Chiller_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-Chiller_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-Genset_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-Genset_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-HWP_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-HWP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-Kompressor_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-Kompressor_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-Lift_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-Lift_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1-PUMPS_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1-PUMPS_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1AGV_WH1_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1AGV_WH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1AGV_WH2_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1AGV_WH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.1WWTP_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.1WWTP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-AC_3.1_RND_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-AC 3.1 RND_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-Fasilitas_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-Fasilitas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-Fatigon_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-Fatigon_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-Hydrant_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-Hydrant_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-LabLt.2_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-LabLt.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-Mixagrib_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-Mixagrib_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-PackWH_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-PackWH_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2-Puyer_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2-Puyer_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2DumbWaiter_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2DumbWaiter_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.2Pumpit_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.2Pumpit_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PP.Lab.Lt2_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_PP.Lab.Lt2_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.1-UTY_Lt.1_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.1-UTY_Lt.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.1-UTY_Lt.2_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.1-UTY_Lt.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.2-Koperasi_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.2-Koperasi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.2-PosJaga1_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.2-PosJaga1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.2-PosJaga2_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.2-PosJaga2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.2-Workshop_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.2-Workshop_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_PPLP.2OfficeLt1_data\` FROM ems_saka.\`cMT-Gedung-UTY_PPLP.2OfficeLt1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Puyer_Detik_data\` FROM ems_saka.\`cMT-Gedung-UTY_Puyer_Detik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_SDP.1-Produksi_data\` FROM ems_saka.\`cMT-Gedung-UTY_SDP.1-Produksi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_SDP.1-Utility_data\` FROM ems_saka.\`cMT-Gedung-UTY_SDP.1-Utility_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_SDP.2-Produksi_data\` FROM ems_saka.\`cMT-Gedung-UTY_SDP.2-Produksi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_SDP_Genset_data\` FROM ems_saka.\`cMT-Gedung-UTY_SDP_Genset_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    `;
+
     db4.query(fatchquerry, (err, result) => {
       if (err) {
         console.log(err);

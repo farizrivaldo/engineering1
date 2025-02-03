@@ -160,6 +160,9 @@ routers.post("/CreateJam", databaseControllers.CreateJam);
 routers.get("/GetJam", databaseControllers.GetJam);
 routers.post("/CreateLimit", databaseControllers.CreateLimit);
 routers.get("/GetLimit", databaseControllers.GetLimit);
-routers.get("/GetDailyData138", databaseControllers.GetDailyData138);
+
+//==============BATCH RECORD========================================BATCH RECORD==========================================
+routers.get("/GetDailyVibrasi138", databaseControllers.GetDailyVibrasi138);
+routers.get("/GetDailyGedung138", databaseControllers.GetDailyGedung138);
 
 module.exports = routers;
