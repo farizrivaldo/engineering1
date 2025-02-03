@@ -164,5 +164,7 @@ routers.get("/GetLimit", databaseControllers.GetLimit);
 //==============BATCH RECORD========================================BATCH RECORD==========================================
 routers.get("/GetDailyVibrasi138", databaseControllers.GetDailyVibrasi138);
 routers.get("/GetDailyGedung138", databaseControllers.GetDailyGedung138);
+routers.get("/GetDailyChiller138", databaseControllers.GetDailyChiller138);
+routers.get("/GetDailyBoiler138", databaseControllers.GetDailyBoiler138);
 
 module.exports = routers;

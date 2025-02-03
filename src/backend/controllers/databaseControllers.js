@@ -3286,10 +3286,10 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     } = request.body;
 
     const insertQuery = `INSERT INTO ems_saka.Parameter_Portal 
-                       (Parameter_Air, Parameter_Gas, Parameter_Listrik, 
+                       (Parameter_Air, Parameter_Gas, Parameter_Listrik, Parameter_Air_2, Parameter_Gas_2, Parameter_Listrik_2, 
                         Parameter_Out_1, Parameter_Out_2, Parameter_Out_3, 
                         Parameter_Out_4, Parameter_Out_5, Created_date, Created_time, User) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const insertValues = [
       Parameter_Air,
       Parameter_Gas,
@@ -3577,6 +3577,274 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
 
     db4.query(fatchquerry, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+  
+  GetDailyChiller138: async (request, response) => {
+    const fetchquery = `
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-BodiChillerCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-BodiChillerCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-BodiChillerCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-BodiChillerCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-BodiChillerCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-BodiChillerCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-FanOutdorK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-FanOutdorK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-FanOutdorK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-FanOutdorK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-FanOutdorK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-FanOutdorK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-FanOutdrK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-FanOutdrK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-FanOutdrK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-FanOutdrK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-FanOutdrK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-FanOutdrK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GroundAmperCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GroundAmperCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GroundAmperCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GroundAmperCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-GroundAmperCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-GroundAmperCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-InletSoftCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-InletSoftCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-InletSoftCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-InletSoftCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-InletSoftCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-InletSoftCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-JamMonitorCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-JamMonitorCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-JamMonitorCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-JamMonitorCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-JamMonitorCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-JamMonitorCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-KisiKondenCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-KisiKondenCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-KisiKondenCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-KisiKondenCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-KisiKondenCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-KisiKondenCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaOperCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaOperCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaOperCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaOperCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaOperCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaOperCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaSpvCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaSpvCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaSpvCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaSpvCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaSpvCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaSpvCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaTekCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaTekCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaTekCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaTekCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-NamaTekCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-NamaTekCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PrSesPomRetCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PrSesPomRetCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PrSesPomRetCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PrSesPomRetCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PrSesPomRetCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PrSesPomRetCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSebPmSupCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSebPmSupCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSebPmSupCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSebPmSupCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSebPmSupCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSebPmSupCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSebPomRtCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSebPomRtCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSebPomRtCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSebPomRtCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSebPomRtCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSebPomRtCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSesPomSpCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSesPomSpCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSesPomSpCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSesPomSpCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-PreSesPomSpCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-PreSesPomSpCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-ShuSebPmSupCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-ShuSebPmSupCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-ShuSebPmSupCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-ShuSebPmSupCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-ShuSebPmSupCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-ShuSebPmSupCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-ShuSesPmSupCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-ShuSesPmSupCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-ShuSesPmSupCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-ShuSesPmSupCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-ShuSesPmSupCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-ShuSesPmSupCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-StatFanKondCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-StatFanKondCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-StatFanKondCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-StatFanKondCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-StatFanKondCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-StatFanKondCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-SuhSbPomRetCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-SuhSbPomRetCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-SuhSbPomRetCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-SuhSbPomRetCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-SuhSbPomRetCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-SuhSbPomRetCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-SuhSesPmRetCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-SuhSesPmRetCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-SuhSesPmRetCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-SuhSesPmRetCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-SuhSesPmRetCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-SuhSesPmRetCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-TknReturnCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-TknReturnCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-TknReturnCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-TknReturnCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-TknReturnCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-TknReturnCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-TknSupplyCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-TknSupplyCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-TknSupplyCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-TknSupplyCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-TknSupplyCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-TknSupplyCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_O-StatONPR1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_O-StatONPR1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_O-StatONPR2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_O-StatONPR2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_O-StatONPR3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_O-StatONPR3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_O-StatONPS1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_O-StatONPS1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_O-StatONPS2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_O-StatONPS2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_O-StatONPS3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_O-StatONPS3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ActiSetpoiCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ActiSetpoiCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ActiSetpoiCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ActiSetpoiCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ActiSetpoiCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ActiSetpoiCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AlarmCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AlarmCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AlarmCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AlarmCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AlarmCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AlarmCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AmpereK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AmpereK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AmpereK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AmpereK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AmpereK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AmpereK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AmpereK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AmpereK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AmpereK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AmpereK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-AmpereK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-AmpereK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CapacityK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CapacityK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CapacityK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CapacityK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CapacityK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CapacityK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CapacityK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CapacityK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CapacityK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CapacityK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CapacityK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CapacityK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ConSatTemK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ConSatTemK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ConSatTemK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ConSatTemK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ConSatTemK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ConSatTemK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ConSatTemK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ConSatTemK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ConSatTemK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ConSatTemK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-ConSatTemK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-ConSatTemK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondApproK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondApproK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondApproK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondApproK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondApproK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondApproK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondApproK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondApproK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondApproK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondApproK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondApproK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondApproK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondPressK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondPressK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondPressK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondPressK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondPressK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondPressK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondPressK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondPressK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondPressK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondPressK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-CondPressK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-CondPressK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischTempK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischTempK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischTempK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischTempK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischTempK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischTempK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischTempK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischTempK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischTempK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischTempK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischTempK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischTempK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischarSHK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischarSHK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischarSHK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischarSHK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischarSHK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischarSHK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischarSHK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischarSHK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischarSHK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischarSHK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-DischarSHK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-DischarSHK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EXVPositiK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EXVPositiK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EXVPositiK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EXVPositiK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EXVPositiK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EXVPositiK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EXVPositiK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EXVPositiK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EXVPositiK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EXVPositiK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EXVPositiK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EXVPositiK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapApproK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapApproK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapApproK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapApproK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapApproK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapApproK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapApproK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapApproK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapApproK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapApproK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapApproK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapApproK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapEWTCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapEWTCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapEWTCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapEWTCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapEWTCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapEWTCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapLWTCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapLWTCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapLWTCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapLWTCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapLWTCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapLWTCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapPressK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapPressK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapPressK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapPressK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapPressK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapPressK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapPressK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapPressK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapPressK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapPressK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapPressK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapPressK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapSatTeK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapSatTeK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapSatTeK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapSatTeK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapSatTeK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapSatTeK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapSatTeK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapSatTeK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapSatTeK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapSatTeK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-EvapSatTeK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-EvapSatTeK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-No.StartK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-No.StartK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-No.StartK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-No.StartK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-No.StartK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-No.StartK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-No.StartK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-No.StartK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-No.StartK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-No.StartK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-No.StartK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-No.StartK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPresDfK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPresDfK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPresDfK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPresDfK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPresDfK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPresDfK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPresDfK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPresDfK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPresDfK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPresDfK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPresDfK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPresDfK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPressK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPressK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPressK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPressK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPressK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPressK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPressK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPressK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPressK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPressK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OilPressK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OilPressK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OutTempCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OutTempCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OutTempCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OutTempCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-OutTempCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-OutTempCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-RunHourK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-RunHourK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-RunHourK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-RunHourK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-RunHourK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-RunHourK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-RunHourK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-RunHourK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-RunHourK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-RunHourK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-RunHourK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-RunHourK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-StatusK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-StatusK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctiTempK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctiTempK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctiTempK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctiTempK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctiTempK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctiTempK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctiTempK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctiTempK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctiTempK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctiTempK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctiTempK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctiTempK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctionSHK1CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctionSHK1CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctionSHK1CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctionSHK1CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctionSHK1CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctionSHK1CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctionSHK2CH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctionSHK2CH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctionSHK2CH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctionSHK2CH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-SuctionSHK2CH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-SuctionSHK2CH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-UnitCapCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-UnitCapCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-UnitCapCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-UnitCapCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_R-UnitCapCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_R-UnitCapCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpR-SCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpR-SCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpR-SCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpR-SCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpR-SCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpR-SCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpS-TCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpS-TCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpS-TCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpS-TCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpS-TCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpS-TCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpT-RCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpT-RCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpT-RCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpT-RCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-AmpT-RCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-AmpT-RCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegR-SCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegR-SCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegR-SCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegR-SCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegR-SCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegR-SCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegS-TCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegS-TCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegS-TCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegS-TCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegS-TCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegS-TCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegT-RCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegT-RCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegT-RCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegT-RCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegT-RCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegT-RCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_test_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_test_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    `
+
+    db3.query(fetchquery, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+
+  GetDailyBoiler138: async (request, response) => {
+    const fetchquery = 
+    `
+    
+    `
+    db3.query(fetchquery, (err, result) => {
       if (err) {
         console.log(err);
         return response.status(500).send("Database query failed");
