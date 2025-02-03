@@ -1,8 +1,12 @@
-{
-    "Limit_Listrik" : 10,
-    "Limit_Gas" : 10,
-    "Limit_Air" : 10,
-    "Created_date" : 10102025,
-    "Created_time" : 1010,
-    "User" : "Test"
-}
+SELECT  FROM ems_saka.cMT-Gedung-UTY ORDER BY ID? DESC LIMIT 1
+SELECT  FROM ems_saka.cMT-VibrasiHVAC ORDER BY ID? DESC LIMIT 1
+
+SELECT  FROM parammachine_saka.CMT-DB-Chiller-UTY ORDER BY ID? DESC LIMIT 1
+SELECT  FROM parammachine_saka.cMT-DB-BOILER-UTY ORDER BY ID? DESC LIMIT 1
+SELECT  FROM parammachine_saka.cMT-DB-EMS-UTY ORDER BY ID? DESC LIMIT 1
+SELECT  FROM parammachine_saka.cMT-DB-WATER-UTY ORDER BY ID? DESC LIMIT 1
+SELECT  FROM parammachine_saka.cMT-DehumRNDLt3danWH1 ORDER BY ID? DESC LIMIT 1
+
+SELECT  FROM parammachine_saka.CMT-DB-INV-HVAC-UTY ORDER BY ID? DESC LIMIT 1
+SELECT  FROM parammachine_saka.cMT-PowerMeterMezzanine ORDER BY ID? DESC LIMIT 1
+SELECT  FROM parammachine_saka.cMT-HVAC-RND-Lt.3 ORDER BY ID? DESC LIMIT 1

@@ -316,6 +316,11 @@ module.exports = {
     try {
       const { email, password } = req.body;
       //console.log(req.body);
+      if (db.connection.state === "disconnected") {
+        await db.connection.connect();
+      }
+      console.log(db.connection.state);
+
       const isEmailExist = await query(
         `SELECT * FROM users WHERE email = ${db.escape(email)}`
       );
@@ -3442,4 +3447,13 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+  //==============TEST VALUE DATA DAILY========================================TEST VALUE DATA DAILY==========================================
+  // GetDailyData: async (request, response) => {
+  //   var fatchquerry = `SELECT * FROM ems_saka.Jam_Portal ORDER BY id DESC LIMIT 1;`;
+
+  //   db4.query(fatchquerry, (err, result) => {
+  //     return response.status(200).send(result);
+  //   });
+  // },
 };
