@@ -3359,7 +3359,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
                        (Jam_Listrik_1, Jam_Listrik_2, Jam_Listrik_3, 
                         Jam_Listrik_4, Jam_Gas_1, Jam_Gas_2, Jam_Gas_3, Jam_Gas_4, Jam_Air_1, Jam_Air_2, Jam_Air_3, Jam_Air_4,  
                         Created_date, Created_time, User) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const insertValues = [
       Jam_Listrik_1,
