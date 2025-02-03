@@ -316,9 +316,9 @@ module.exports = {
     try {
       const { email, password } = req.body;
       //console.log(req.body);
-      if (db.connection.state === "disconnected") {
-        await db.connection.connect();
-      }
+      // if (db.connection.state === "disconnected") {
+      //   await db.connection.connect();
+      // }
       console.log(db.connection.state);
 
       const isEmailExist = await query(
@@ -3442,18 +3442,61 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //GET
   GetLimit: async (request, response) => {
     var fatchquerry = `SELECT * FROM ems_saka.Limit_Portal ORDER BY id DESC LIMIT 1;`;
-
+    
     db4.query(fatchquerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
-
+  
   //==============TEST VALUE DATA DAILY========================================TEST VALUE DATA DAILY==========================================
-  // GetDailyData: async (request, response) => {
-  //   var fatchquerry = `SELECT * FROM ems_saka.Jam_Portal ORDER BY id DESC LIMIT 1;`;
-
-  //   db4.query(fatchquerry, (err, result) => {
-  //     return response.status(200).send(result);
-  //   });
-  // },
+  GetDailyData138: async (request, response) => {
+  var fatchquerry = `
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU F 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU G 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU G 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU LA 2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU MG 1.03_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU RND 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU RND 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH AHU WH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH DCU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH DCU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH RFU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH TFU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_CMH TFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_M_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_M_Temp_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_XaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal FROM ems_saka.\`cMT-VibrasiHVAC_ZaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+  `;
+    
+    db4.query(fatchquerry, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
 };

@@ -1,5 +1,5 @@
-SELECT  FROM ems_saka.cMT-Gedung-UTY ORDER BY ID? DESC LIMIT 1
-SELECT  FROM ems_saka.cMT-VibrasiHVAC ORDER BY ID? DESC LIMIT 1
+SELECT `time@timestamp` FROM ems_saka.cMT-Gedung-UTY ORDER data_index DESC LIMIT 1
+SELECT `time@timestamp` FROM ems_saka.cMT-VibrasiHVAC ORDER data_index DESC LIMIT 1
 
 SELECT  FROM parammachine_saka.CMT-DB-Chiller-UTY ORDER BY ID? DESC LIMIT 1
 SELECT  FROM parammachine_saka.cMT-DB-BOILER-UTY ORDER BY ID? DESC LIMIT 1
@@ -10,3 +10,835 @@ SELECT  FROM parammachine_saka.cMT-DehumRNDLt3danWH1 ORDER BY ID? DESC LIMIT 1
 SELECT  FROM parammachine_saka.CMT-DB-INV-HVAC-UTY ORDER BY ID? DESC LIMIT 1
 SELECT  FROM parammachine_saka.cMT-PowerMeterMezzanine ORDER BY ID? DESC LIMIT 1
 SELECT  FROM parammachine_saka.cMT-HVAC-RND-Lt.3 ORDER BY ID? DESC LIMIT 1
+
+
+VIBRASI
+cMT-VibrasiHVAC_CMH AHU E 1.01_data
+cMT-VibrasiHVAC_CMH AHU F 1.01_data
+cMT-VibrasiHVAC_CMH AHU F 1.02_data
+cMT-VibrasiHVAC_CMH AHU FT1.01_data
+cMT-VibrasiHVAC_CMH AHU FT 1.01_data
+cMT-VibrasiHVAC_CMH AHU FT 1.02_data
+cMT-VibrasiHVAC_CMH AHU G 1.01_data
+cMT-VibrasiHVAC_CMH AHU G 1.02_data
+cMT-VibrasiHVAC_CMH AHU LA 2.01_data
+cMT-VibrasiHVAC_CMH AHU MG 1.01_data
+cMT-VibrasiHVAC_CMH AHU MG 1.02_data
+cMT-VibrasiHVAC_CMH AHU MG 1.03_data
+cMT-VibrasiHVAC_CMH AHU RND 3.01_data
+cMT-VibrasiHVAC_CMH AHU RND 3.02_data
+cMT-VibrasiHVAC_CMH AHU WG 1.01_data
+cMT-VibrasiHVAC_CMH AHU WG 1.02_data
+cMT-VibrasiHVAC_CMH AHU WH1_data
+cMT-VibrasiHVAC_CMH DCU FT 1.02_data
+cMT-VibrasiHVAC_CMH DCU WG 1.02_data
+cMT-VibrasiHVAC_CMH RFU E 1.01_data
+cMT-VibrasiHVAC_CMH RFU FT 1.01_data
+cMT-VibrasiHVAC_CMH RFU FT 1.02_data
+cMT-VibrasiHVAC_CMH RFU MG 1.01_data
+cMT-VibrasiHVAC_CMH RFU MG 1.02_data
+cMT-VibrasiHVAC_CMH RFU WG 1.01_data
+cMT-VibrasiHVAC_CMH RFU WG 1.02_data
+cMT-VibrasiHVAC_CMH TFU F 1.01_data
+cMT-VibrasiHVAC_CMH TFU WG 1.01_data
+cMT-VibrasiHVAC_M_Current_FT1.01_data
+cMT-VibrasiHVAC_M_Temp_FT1.01_data
+cMT-VibrasiHVAC_X_ACC_G_FT1.01_data
+cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data
+cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data
+cMT-VibrasiHVAC_XaxisRMS-S1_data
+cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data
+cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data
+cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data
+cMT-VibrasiHVAC_ZaxisRMS-S1_data
+
+HVAC
+
+CMT-HVAC-RND-Lt.3_1_Current_FT1.01_data
+CMT-HVAC-RND-Lt.3_data_section
+CMT-HVAC-RND-Lt.3_event
+CMT-HVAC-RND-Lt.3_event_log
+cMT-HVAC-RND-Lt.3_ F6 AHU 3.01 His_data
+cMT-HVAC-RND-Lt.3_ F6 AHU 3.02 His_data
+cMT-HVAC-RND-Lt.3_ F9 AHU 3.01 His_data
+cMT-HVAC-RND-Lt.3_ F9 AHU 3.02 His_data
+cMT-HVAC-RND-Lt.3_DP F6 AHU 3.01_data
+cMT-HVAC-RND-Lt.3_DP F6 AHU 3.02_data
+cMT-HVAC-RND-Lt.3_DP F9 AHU 3.01_data
+cMT-HVAC-RND-Lt.3_DP F9 AHU 3.02_data
+cMT-HVAC-RND-Lt.3_DP H13 AHU 3.01_data
+cMT-HVAC-RND-Lt.3_DP H13 AHU 3.02_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-01_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-02_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-03_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-04_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-05_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-06_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-07_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-08_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-09_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-10_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-11_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-12_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-13_data
+cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-14_data
+cMT-HVAC-RND-Lt.3_H13 AHU 3.01 Hi_data
+cMT-HVAC-RND-Lt.3_H13 AHU 3.02 Hi_data
+cMT-HVAC-RND-Lt.3_data_section
+cMT-HVAC-RND-Lt.3_event
+cMT-HVAC-RND-Lt.3_event_log
+
+
+
+
+POWER METERE
+
+
+cMT-PowerMeterMezzanine_ F6 AHU 3.01 His_data
+cMT-PowerMeterMezzanine_ F6 AHU 3.02 His_data
+cMT-PowerMeterMezzanine_ F6 E 1.01 Histo_data
+cMT-PowerMeterMezzanine_ F9 AHU 3.01 His_data
+cMT-PowerMeterMezzanine_ F9 AHU 3.02 His_data
+cMT-PowerMeterMezzanine_DP F6 AHU 3.01_data
+cMT-PowerMeterMezzanine_DP F6 AHU 3.02_data
+cMT-PowerMeterMezzanine_DP F6 E 1.01_data
+cMT-PowerMeterMezzanine_DP F6 F 1.01_data
+cMT-PowerMeterMezzanine_DP F6 F 1.02_data
+cMT-PowerMeterMezzanine_DP F6 FT 1.01_data
+cMT-PowerMeterMezzanine_DP F6 FT 1.02_data
+cMT-PowerMeterMezzanine_DP F6 G 1.01_data
+cMT-PowerMeterMezzanine_DP F6 G 1.02_data
+cMT-PowerMeterMezzanine_DP F6 LA 2.01_data
+cMT-PowerMeterMezzanine_DP F6 MG 1.01_data
+cMT-PowerMeterMezzanine_DP F6 MG 1.02_data
+cMT-PowerMeterMezzanine_DP F6 WG 1.01_data
+cMT-PowerMeterMezzanine_DP F6 WG 1.02_data
+cMT-PowerMeterMezzanine_DP F9 AHU 3.01_data
+cMT-PowerMeterMezzanine_DP F9 AHU 3.02_data
+cMT-PowerMeterMezzanine_DP F9 E 1.01_data
+cMT-PowerMeterMezzanine_DP F9 F 1.01_data
+cMT-PowerMeterMezzanine_DP F9 F 1.02_data
+cMT-PowerMeterMezzanine_DP F9 FT 1.01_data
+cMT-PowerMeterMezzanine_DP F9 FT 1.02_data
+cMT-PowerMeterMezzanine_DP F9 LA 2.01_data
+cMT-PowerMeterMezzanine_DP F9 MG 1.01_data
+cMT-PowerMeterMezzanine_DP F9 MG 1.02_data
+cMT-PowerMeterMezzanine_DP F9 WG 1.01_data
+cMT-PowerMeterMezzanine_DP F9 WG 1.02_data
+cMT-PowerMeterMezzanine_DP H13 AHU 3.01_data
+cMT-PowerMeterMezzanine_DP H13 AHU 3.02_data
+cMT-PowerMeterMezzanine_DP H13 E 1.01_data
+cMT-PowerMeterMezzanine_DP H13 FT 1.01_data
+cMT-PowerMeterMezzanine_DP H13 FT 1.02_data
+cMT-PowerMeterMezzanine_DP H13 MG 1.01_data
+cMT-PowerMeterMezzanine_DP H13 MG 1.02_data
+cMT-PowerMeterMezzanine_DP H13 WG 1.01_data
+cMT-PowerMeterMezzanine_DP H13 WG 1.02_data
+cMT-PowerMeterMezzanine_DetiDP F6 E 1.01_data
+cMT-PowerMeterMezzanine_F6 F 1.01 Histo_data
+cMT-PowerMeterMezzanine_F6 F 1.02 Histo_data
+cMT-PowerMeterMezzanine_F6 FT 1.01 Hist_data
+cMT-PowerMeterMezzanine_F6 FT 1.02 Hist_data
+cMT-PowerMeterMezzanine_F6 G 1.01 Hist_data
+cMT-PowerMeterMezzanine_F6 G 1.02 Hist_data
+cMT-PowerMeterMezzanine_F6 LA2.01 Hist_data
+cMT-PowerMeterMezzanine_F6 MG1.01 Hist_data
+cMT-PowerMeterMezzanine_F6 MG1.02 Hist_data
+cMT-PowerMeterMezzanine_F6 WG1.01 Hist_data
+cMT-PowerMeterMezzanine_F6 WG1.02 Hist_data
+cMT-PowerMeterMezzanine_F9 E 1.01 Histo_data
+cMT-PowerMeterMezzanine_F9 F 1.01 Histo_data
+cMT-PowerMeterMezzanine_F9 F 1.02 Histo_data
+cMT-PowerMeterMezzanine_F9 FT 1.01 Hist_data
+cMT-PowerMeterMezzanine_F9 FT 1.02 Hist_data
+cMT-PowerMeterMezzanine_F9 LA2.01 Hist_data
+cMT-PowerMeterMezzanine_F9 MG1.01 Hist_data
+cMT-PowerMeterMezzanine_F9 MG1.02 Hist_data
+cMT-PowerMeterMezzanine_F9 WG1.01 Hist_data
+cMT-PowerMeterMezzanine_F9 WG1.02 Hist_data
+cMT-PowerMeterMezzanine_H13 AHU 3.01 Hi_data
+cMT-PowerMeterMezzanine_H13 AHU 3.02 Hi_data
+cMT-PowerMeterMezzanine_H13 E 1.01 Histo_data
+cMT-PowerMeterMezzanine_H13 FT 1.01 His_data
+cMT-PowerMeterMezzanine_H13 FT 1.02 His_data
+cMT-PowerMeterMezzanine_H13 MG1.01 His_data
+cMT-PowerMeterMezzanine_H13 MG1.02 His_data
+cMT-PowerMeterMezzanine_H13 WG1.01 His_data
+cMT-PowerMeterMezzanine_H13 WG1.02 His_data
+cMT-PowerMeterMezzanine_M_Curren2_FT1.01_data
+cMT-PowerMeterMezzanine_M_Current_FT1.01_data
+cMT-PowerMeterMezzanine_M_Temp_FT1.01_data
+cMT-PowerMeterMezzanine_Totalizer%Chiler_data
+cMT-PowerMeterMezzanine_X-Z_AX_RM_FT1.01_data
+cMT-PowerMeterMezzanine_XZR_AX_RM_FT1.01_data
+cMT-PowerMeterMezzanine_X_ACC_G_FT1.01_data
+cMT-PowerMeterMezzanine_X_AXISVCF_FT1.01_data
+cMT-PowerMeterMezzanine_X_AXIS_RM_FT1.01_data
+cMT-PowerMeterMezzanine_X_Axis_Ve_FT1.01_data
+cMT-PowerMeterMezzanine_Z_ACC_G_FT1.01_data
+cMT-PowerMeterMezzanine_Z_AXISVCF_FT1.01_data
+cMT-PowerMeterMezzanine_Z_Axis_Ve_FT1.01_data
+cMT-PowerMeterMezzanine_kWh_Chiller_data
+cMT-PowerMeterMezzanine_kWh_Fasilitas_data
+cMT-PowerMeterMezzanine_kWh_Hydrant_data
+cMT-PowerMeterMezzanine_kWh_LVMDP 1_data
+cMT-PowerMeterMezzanine_kWh_LVMDP 2_data
+cMT-PowerMeterMezzanine_kWh_MVMDP_data
+cMT-PowerMeterMezzanine_kWh_SDP2_data
+cMT-PowerMeterMezzanine_m3_ inlet pretre_data
+cMT-PowerMeterMezzanine_m3_Boiler_data
+cMT-PowerMeterMezzanine_m3_Domestik_data
+cMT-PowerMeterMezzanine_m3_Outdoor_data
+cMT-PowerMeterMezzanine_m3_PDAM_data
+
+
+DB-INV-HVAC
+CMT-DB-INV-HVAC-UTY_1_Current_FT1.01_data
+CMT-DB-INV-HVAC-UTY_2_Current_FT1.01_data
+
+
+GEDUNG UTY
+cMT-Gedung-UTY_Chiller1_data
+cMT-Gedung-UTY_Chiller2_data
+cMT-Gedung-UTY_Chiller3_data
+cMT-Gedung-UTY_Fatigon_Detik_data
+cMT-Gedung-UTY_GCP_Genset_data
+cMT-Gedung-UTY_Inverter1-6_SP_data
+cMT-Gedung-UTY_Inverter7-12_SP_data
+cMT-Gedung-UTY_LP.2-PRO1.1_data
+cMT-Gedung-UTY_LP.2-PRO1.2_data
+cMT-Gedung-UTY_LP.2-PRO1.3_data
+cMT-Gedung-UTY_LP.2-PRO2.3_data
+cMT-Gedung-UTY_LP.2-PRO3.1_data
+cMT-Gedung-UTY_LP.2-PRO4.1_data
+cMT-Gedung-UTY_LP.2-PRO 3.1 RND_data
+cMT-Gedung-UTY_LP.2MEZZ1.1_data
+cMT-Gedung-UTY_LP.2WH1.1_data
+cMT-Gedung-UTY_LVMDP1_Detik_data
+cMT-Gedung-UTY_LVMDP1_data
+cMT-Gedung-UTY_LVMDP2_Detik_data
+cMT-Gedung-UTY_LVMDP2_data
+cMT-Gedung-UTY_MVMDP_Detik_data
+cMT-Gedung-UTY_MVMDP_data
+cMT-Gedung-UTY_Mixagrip_Detik_data
+cMT-Gedung-UTY_PP.1-AC1.1_data
+cMT-Gedung-UTY_PP.1-AC1.2_data
+cMT-Gedung-UTY_PP.1-AC1.3_data
+cMT-Gedung-UTY_PP.1-AC2.3_data
+cMT-Gedung-UTY_PP.1-Boiler&PW_data
+cMT-Gedung-UTY_PP.1-Chiller_data
+cMT-Gedung-UTY_PP.1-Genset_data
+cMT-Gedung-UTY_PP.1-HWP_data
+cMT-Gedung-UTY_PP.1-Kompressor_data
+cMT-Gedung-UTY_PP.1-Lift_data
+cMT-Gedung-UTY_PP.1-PUMPS_data
+cMT-Gedung-UTY_PP.1AGV_WH1_data
+cMT-Gedung-UTY_PP.1AGV_WH2_data
+cMT-Gedung-UTY_PP.1WWTP_data
+cMT-Gedung-UTY_PP.2-AC 3.1 RND_data
+cMT-Gedung-UTY_PP.2-Fasilitas_data
+cMT-Gedung-UTY_PP.2-Fatigon_data
+cMT-Gedung-UTY_PP.2-Hydrant_data
+cMT-Gedung-UTY_PP.2-LabLt.2_data
+cMT-Gedung-UTY_PP.2-Mixagrib_data
+cMT-Gedung-UTY_PP.2-PackWH_data
+cMT-Gedung-UTY_PP.2-Puyer_data
+cMT-Gedung-UTY_PP.2DumbWaiter_data
+cMT-Gedung-UTY_PP.2Pumpit_data
+cMT-Gedung-UTY_PP.Lab.Lt2_Detik_data
+cMT-Gedung-UTY_PPLP.1-UTY_Lt.1_data
+cMT-Gedung-UTY_PPLP.1-UTY_Lt.2_data
+cMT-Gedung-UTY_PPLP.2-Koperasi_data
+cMT-Gedung-UTY_PPLP.2-PosJaga1_data
+cMT-Gedung-UTY_PPLP.2-PosJaga2_data
+cMT-Gedung-UTY_PPLP.2-Workshop_data
+cMT-Gedung-UTY_PPLP.2OfficeLt1_data
+cMT-Gedung-UTY_Puyer_Detik_data
+cMT-Gedung-UTY_SDP.1-Produksi_data
+cMT-Gedung-UTY_SDP.1-Utility_data
+cMT-Gedung-UTY_SDP.2-Produksi_data
+cMT-Gedung-UTY_SDP_Genset_data
+
+
+Chiller
+
+
+
+CMT-DB-Chiller-UTY_H-BodiChillerCH1_data
+CMT-DB-Chiller-UTY_H-BodiChillerCH2_data
+CMT-DB-Chiller-UTY_H-BodiChillerCH3_data
+CMT-DB-Chiller-UTY_H-FanOutdorK1CH1_data
+CMT-DB-Chiller-UTY_H-FanOutdorK1CH2_data
+CMT-DB-Chiller-UTY_H-FanOutdorK1CH3_data
+CMT-DB-Chiller-UTY_H-FanOutdrK2CH1_data
+CMT-DB-Chiller-UTY_H-FanOutdrK2CH2_data
+CMT-DB-Chiller-UTY_H-FanOutdrK2CH3_data
+CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH1_data
+CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH2_data
+CMT-DB-Chiller-UTY_H-GlsExpVlvK1CH3_data
+CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH1_data
+CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH2_data
+CMT-DB-Chiller-UTY_H-GlsExpVlvK2CH3_data
+CMT-DB-Chiller-UTY_H-GroundAmperCH1_data
+CMT-DB-Chiller-UTY_H-GroundAmperCH2_data
+CMT-DB-Chiller-UTY_H-GroundAmperCH3_data
+CMT-DB-Chiller-UTY_H-InletSoftCH1_data
+CMT-DB-Chiller-UTY_H-InletSoftCH2_data
+CMT-DB-Chiller-UTY_H-InletSoftCH3_data
+CMT-DB-Chiller-UTY_H-JamMonitorCH1_data
+CMT-DB-Chiller-UTY_H-JamMonitorCH2_data
+CMT-DB-Chiller-UTY_H-JamMonitorCH3_data
+CMT-DB-Chiller-UTY_H-KisiKondenCH1_data
+CMT-DB-Chiller-UTY_H-KisiKondenCH2_data
+CMT-DB-Chiller-UTY_H-KisiKondenCH3_data
+CMT-DB-Chiller-UTY_H-NamaOperCH1_data
+CMT-DB-Chiller-UTY_H-NamaOperCH2_data
+CMT-DB-Chiller-UTY_H-NamaOperCH3_data
+CMT-DB-Chiller-UTY_H-NamaSpvCH1_data
+CMT-DB-Chiller-UTY_H-NamaSpvCH2_data
+CMT-DB-Chiller-UTY_H-NamaSpvCH3_data
+CMT-DB-Chiller-UTY_H-NamaTekCH1_data
+CMT-DB-Chiller-UTY_H-NamaTekCH2_data
+CMT-DB-Chiller-UTY_H-NamaTekCH3_data
+CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH1_data
+CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH2_data
+CMT-DB-Chiller-UTY_H-OlGlasAtsK2CH3_data
+CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH1_data
+CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH2_data
+CMT-DB-Chiller-UTY_H-OliGlsAtsK1CH3_data
+CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH1_data
+CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH2_data
+CMT-DB-Chiller-UTY_H-OliGlsBwhK1CH3_data
+CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH1_data
+CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH2_data
+CMT-DB-Chiller-UTY_H-OliGlsBwhK2CH3_data
+CMT-DB-Chiller-UTY_H-PrSesPomRetCH1_data
+CMT-DB-Chiller-UTY_H-PrSesPomRetCH2_data
+CMT-DB-Chiller-UTY_H-PrSesPomRetCH3_data
+CMT-DB-Chiller-UTY_H-PreSebPmSupCH1_data
+CMT-DB-Chiller-UTY_H-PreSebPmSupCH2_data
+CMT-DB-Chiller-UTY_H-PreSebPmSupCH3_data
+CMT-DB-Chiller-UTY_H-PreSebPomRtCH1_data
+CMT-DB-Chiller-UTY_H-PreSebPomRtCH2_data
+CMT-DB-Chiller-UTY_H-PreSebPomRtCH3_data
+CMT-DB-Chiller-UTY_H-PreSesPomSpCH1_data
+CMT-DB-Chiller-UTY_H-PreSesPomSpCH2_data
+CMT-DB-Chiller-UTY_H-PreSesPomSpCH3_data
+CMT-DB-Chiller-UTY_H-ShuSebPmSupCH1_data
+CMT-DB-Chiller-UTY_H-ShuSebPmSupCH2_data
+CMT-DB-Chiller-UTY_H-ShuSebPmSupCH3_data
+CMT-DB-Chiller-UTY_H-ShuSesPmSupCH1_data
+CMT-DB-Chiller-UTY_H-ShuSesPmSupCH2_data
+CMT-DB-Chiller-UTY_H-ShuSesPmSupCH3_data
+CMT-DB-Chiller-UTY_H-StatFanKondCH1_data
+CMT-DB-Chiller-UTY_H-StatFanKondCH2_data
+CMT-DB-Chiller-UTY_H-StatFanKondCH3_data
+CMT-DB-Chiller-UTY_H-SuhSbPomRetCH1_data
+CMT-DB-Chiller-UTY_H-SuhSbPomRetCH2_data
+CMT-DB-Chiller-UTY_H-SuhSbPomRetCH3_data
+CMT-DB-Chiller-UTY_H-SuhSesPmRetCH1_data
+CMT-DB-Chiller-UTY_H-SuhSesPmRetCH2_data
+CMT-DB-Chiller-UTY_H-SuhSesPmRetCH3_data
+CMT-DB-Chiller-UTY_H-TknReturnCH1_data
+CMT-DB-Chiller-UTY_H-TknReturnCH2_data
+CMT-DB-Chiller-UTY_H-TknReturnCH3_data
+CMT-DB-Chiller-UTY_H-TknSupplyCH1_data
+CMT-DB-Chiller-UTY_H-TknSupplyCH2_data
+CMT-DB-Chiller-UTY_H-TknSupplyCH3_data
+CMT-DB-Chiller-UTY_O-StatONPR1_data
+CMT-DB-Chiller-UTY_O-StatONPR2_data
+CMT-DB-Chiller-UTY_O-StatONPR3_data
+CMT-DB-Chiller-UTY_O-StatONPS1_data
+CMT-DB-Chiller-UTY_O-StatONPS2_data
+CMT-DB-Chiller-UTY_O-StatONPS3_data
+CMT-DB-Chiller-UTY_R-ActiSetpoiCH1_data
+CMT-DB-Chiller-UTY_R-ActiSetpoiCH2_data
+CMT-DB-Chiller-UTY_R-ActiSetpoiCH3_data
+CMT-DB-Chiller-UTY_R-AlarmCH1_data
+CMT-DB-Chiller-UTY_R-AlarmCH2_data
+CMT-DB-Chiller-UTY_R-AlarmCH3_data
+CMT-DB-Chiller-UTY_R-AmpereK1CH1_data
+CMT-DB-Chiller-UTY_R-AmpereK1CH2_data
+CMT-DB-Chiller-UTY_R-AmpereK1CH3_data
+CMT-DB-Chiller-UTY_R-AmpereK2CH1_data
+CMT-DB-Chiller-UTY_R-AmpereK2CH2_data
+CMT-DB-Chiller-UTY_R-AmpereK2CH3_data
+CMT-DB-Chiller-UTY_R-CapacityK1CH1_data
+CMT-DB-Chiller-UTY_R-CapacityK1CH2_data
+CMT-DB-Chiller-UTY_R-CapacityK1CH3_data
+CMT-DB-Chiller-UTY_R-CapacityK2CH1_data
+CMT-DB-Chiller-UTY_R-CapacityK2CH2_data
+CMT-DB-Chiller-UTY_R-CapacityK2CH3_data
+CMT-DB-Chiller-UTY_R-ConSatTemK1CH1_data
+CMT-DB-Chiller-UTY_R-ConSatTemK1CH2_data
+CMT-DB-Chiller-UTY_R-ConSatTemK1CH3_data
+CMT-DB-Chiller-UTY_R-ConSatTemK2CH1_data
+CMT-DB-Chiller-UTY_R-ConSatTemK2CH2_data
+CMT-DB-Chiller-UTY_R-ConSatTemK2CH3_data
+CMT-DB-Chiller-UTY_R-CondApproK1CH1_data
+CMT-DB-Chiller-UTY_R-CondApproK1CH2_data
+CMT-DB-Chiller-UTY_R-CondApproK1CH3_data
+CMT-DB-Chiller-UTY_R-CondApproK2CH1_data
+CMT-DB-Chiller-UTY_R-CondApproK2CH2_data
+CMT-DB-Chiller-UTY_R-CondApproK2CH3_data
+CMT-DB-Chiller-UTY_R-CondPressK1CH1_data
+CMT-DB-Chiller-UTY_R-CondPressK1CH2_data
+CMT-DB-Chiller-UTY_R-CondPressK1CH3_data
+CMT-DB-Chiller-UTY_R-CondPressK2CH1_data
+CMT-DB-Chiller-UTY_R-CondPressK2CH2_data
+CMT-DB-Chiller-UTY_R-CondPressK2CH3_data
+CMT-DB-Chiller-UTY_R-DischTempK1CH1_data
+CMT-DB-Chiller-UTY_R-DischTempK1CH2_data
+CMT-DB-Chiller-UTY_R-DischTempK1CH3_data
+CMT-DB-Chiller-UTY_R-DischTempK2CH1_data
+CMT-DB-Chiller-UTY_R-DischTempK2CH2_data
+CMT-DB-Chiller-UTY_R-DischTempK2CH3_data
+CMT-DB-Chiller-UTY_R-DischarSHK1CH1_data
+CMT-DB-Chiller-UTY_R-DischarSHK1CH2_data
+CMT-DB-Chiller-UTY_R-DischarSHK1CH3_data
+CMT-DB-Chiller-UTY_R-DischarSHK2CH1_data
+CMT-DB-Chiller-UTY_R-DischarSHK2CH2_data
+CMT-DB-Chiller-UTY_R-DischarSHK2CH3_data
+CMT-DB-Chiller-UTY_R-EXVPositiK1CH1_data
+CMT-DB-Chiller-UTY_R-EXVPositiK1CH2_data
+CMT-DB-Chiller-UTY_R-EXVPositiK1CH3_data
+CMT-DB-Chiller-UTY_R-EXVPositiK2CH1_data
+CMT-DB-Chiller-UTY_R-EXVPositiK2CH2_data
+CMT-DB-Chiller-UTY_R-EXVPositiK2CH3_data
+CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH1_data
+CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH2_data
+CMT-DB-Chiller-UTY_R-EvaDsgAppK1CH3_data
+CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH1_data
+CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH2_data
+CMT-DB-Chiller-UTY_R-EvaDsgAppK2CH3_data
+CMT-DB-Chiller-UTY_R-EvapApproK1CH1_data
+CMT-DB-Chiller-UTY_R-EvapApproK1CH2_data
+CMT-DB-Chiller-UTY_R-EvapApproK1CH3_data
+CMT-DB-Chiller-UTY_R-EvapApproK2CH1_data
+CMT-DB-Chiller-UTY_R-EvapApproK2CH2_data
+CMT-DB-Chiller-UTY_R-EvapApproK2CH3_data
+CMT-DB-Chiller-UTY_R-EvapEWTCH1_data
+CMT-DB-Chiller-UTY_R-EvapEWTCH2_data
+CMT-DB-Chiller-UTY_R-EvapEWTCH3_data
+CMT-DB-Chiller-UTY_R-EvapLWTCH1_data
+CMT-DB-Chiller-UTY_R-EvapLWTCH2_data
+CMT-DB-Chiller-UTY_R-EvapLWTCH3_data
+CMT-DB-Chiller-UTY_R-EvapPressK1CH1_data
+CMT-DB-Chiller-UTY_R-EvapPressK1CH2_data
+CMT-DB-Chiller-UTY_R-EvapPressK1CH3_data
+CMT-DB-Chiller-UTY_R-EvapPressK2CH1_data
+CMT-DB-Chiller-UTY_R-EvapPressK2CH2_data
+CMT-DB-Chiller-UTY_R-EvapPressK2CH3_data
+CMT-DB-Chiller-UTY_R-EvapSatTeK1CH1_data
+CMT-DB-Chiller-UTY_R-EvapSatTeK1CH2_data
+CMT-DB-Chiller-UTY_R-EvapSatTeK1CH3_data
+CMT-DB-Chiller-UTY_R-EvapSatTeK2CH1_data
+CMT-DB-Chiller-UTY_R-EvapSatTeK2CH2_data
+CMT-DB-Chiller-UTY_R-EvapSatTeK2CH3_data
+CMT-DB-Chiller-UTY_R-No.StartK1CH1_data
+CMT-DB-Chiller-UTY_R-No.StartK1CH2_data
+CMT-DB-Chiller-UTY_R-No.StartK1CH3_data
+CMT-DB-Chiller-UTY_R-No.StartK2CH1_data
+CMT-DB-Chiller-UTY_R-No.StartK2CH2_data
+CMT-DB-Chiller-UTY_R-No.StartK2CH3_data
+CMT-DB-Chiller-UTY_R-OilPresDfK1CH1_data
+CMT-DB-Chiller-UTY_R-OilPresDfK1CH2_data
+CMT-DB-Chiller-UTY_R-OilPresDfK1CH3_data
+CMT-DB-Chiller-UTY_R-OilPresDfK2CH1_data
+CMT-DB-Chiller-UTY_R-OilPresDfK2CH2_data
+CMT-DB-Chiller-UTY_R-OilPresDfK2CH3_data
+CMT-DB-Chiller-UTY_R-OilPressK1CH1_data
+CMT-DB-Chiller-UTY_R-OilPressK1CH2_data
+CMT-DB-Chiller-UTY_R-OilPressK1CH3_data
+CMT-DB-Chiller-UTY_R-OilPressK2CH1_data
+CMT-DB-Chiller-UTY_R-OilPressK2CH2_data
+CMT-DB-Chiller-UTY_R-OilPressK2CH3_data
+CMT-DB-Chiller-UTY_R-OutTempCH1_data
+CMT-DB-Chiller-UTY_R-OutTempCH2_data
+CMT-DB-Chiller-UTY_R-OutTempCH3_data
+CMT-DB-Chiller-UTY_R-RunHourK1CH1_data
+CMT-DB-Chiller-UTY_R-RunHourK1CH2_data
+CMT-DB-Chiller-UTY_R-RunHourK1CH3_data
+CMT-DB-Chiller-UTY_R-RunHourK2CH1_data
+CMT-DB-Chiller-UTY_R-RunHourK2CH2_data
+CMT-DB-Chiller-UTY_R-RunHourK2CH3_data
+CMT-DB-Chiller-UTY_R-StatusCH1_data
+CMT-DB-Chiller-UTY_R-StatusCH2_data
+CMT-DB-Chiller-UTY_R-StatusCH3_data
+CMT-DB-Chiller-UTY_R-StatusK1CH1_data
+CMT-DB-Chiller-UTY_R-StatusK1CH2_data
+CMT-DB-Chiller-UTY_R-StatusK1CH3_data
+CMT-DB-Chiller-UTY_R-StatusK2CH1_data
+CMT-DB-Chiller-UTY_R-StatusK2CH2_data
+CMT-DB-Chiller-UTY_R-StatusK2CH3_data
+CMT-DB-Chiller-UTY_R-SuctiTempK1CH1_data
+CMT-DB-Chiller-UTY_R-SuctiTempK1CH2_data
+CMT-DB-Chiller-UTY_R-SuctiTempK1CH3_data
+CMT-DB-Chiller-UTY_R-SuctiTempK2CH1_data
+CMT-DB-Chiller-UTY_R-SuctiTempK2CH2_data
+CMT-DB-Chiller-UTY_R-SuctiTempK2CH3_data
+CMT-DB-Chiller-UTY_R-SuctionSHK1CH1_data
+CMT-DB-Chiller-UTY_R-SuctionSHK1CH2_data
+CMT-DB-Chiller-UTY_R-SuctionSHK1CH3_data
+CMT-DB-Chiller-UTY_R-SuctionSHK2CH1_data
+CMT-DB-Chiller-UTY_R-SuctionSHK2CH2_data
+CMT-DB-Chiller-UTY_R-SuctionSHK2CH3_data
+CMT-DB-Chiller-UTY_R-UnitCapCH1_data
+CMT-DB-Chiller-UTY_R-UnitCapCH2_data
+CMT-DB-Chiller-UTY_R-UnitCapCH3_data
+CMT-DB-Chiller-UTY_RP-AmpR-SCH1_data
+CMT-DB-Chiller-UTY_RP-AmpR-SCH2_data
+CMT-DB-Chiller-UTY_RP-AmpR-SCH3_data
+CMT-DB-Chiller-UTY_RP-AmpS-TCH1_data
+CMT-DB-Chiller-UTY_RP-AmpS-TCH2_data
+CMT-DB-Chiller-UTY_RP-AmpS-TCH3_data
+CMT-DB-Chiller-UTY_RP-AmpT-RCH1_data
+CMT-DB-Chiller-UTY_RP-AmpT-RCH2_data
+CMT-DB-Chiller-UTY_RP-AmpT-RCH3_data
+CMT-DB-Chiller-UTY_RP-TegR-SCH1_data
+CMT-DB-Chiller-UTY_RP-TegR-SCH2_data
+CMT-DB-Chiller-UTY_RP-TegR-SCH3_data
+CMT-DB-Chiller-UTY_RP-TegS-TCH1_data
+CMT-DB-Chiller-UTY_RP-TegS-TCH2_data
+CMT-DB-Chiller-UTY_RP-TegS-TCH3_data
+CMT-DB-Chiller-UTY_RP-TegT-RCH1_data
+CMT-DB-Chiller-UTY_RP-TegT-RCH2_data
+CMT-DB-Chiller-UTY_RP-TegT-RCH3_data
+CMT-DB-Chiller-UTY_test_data
+
+
+
+BOILER
+
+
+cMT-DB-BOILER-UTY_BahanBakaBoiler1_data
+cMT-DB-BOILER-UTY_BahanBakaBoiler2_data
+cMT-DB-BOILER-UTY_BahanBakaBoiler3_data
+cMT-DB-BOILER-UTY_BodiBoiler1_data
+cMT-DB-BOILER-UTY_BodiBoiler2_data
+cMT-DB-BOILER-UTY_BodiBoiler3_data
+cMT-DB-BOILER-UTY_Boiler1Gas_data
+cMT-DB-BOILER-UTY_Boiler1Solar_data
+cMT-DB-BOILER-UTY_Boiler2Gas_data
+cMT-DB-BOILER-UTY_Boiler2Solar_data
+cMT-DB-BOILER-UTY_Boiler3Gas_data
+cMT-DB-BOILER-UTY_Boiler3Solar_data
+cMT-DB-BOILER-UTY_CekBocorBoiler1_data
+cMT-DB-BOILER-UTY_CekBocorBoiler2_data
+cMT-DB-BOILER-UTY_CekBocorBoiler3_data
+cMT-DB-BOILER-UTY_ConductivBoiler1_data
+cMT-DB-BOILER-UTY_ConductivBoiler2_data
+cMT-DB-BOILER-UTY_ConductivBoiler3_data
+cMT-DB-BOILER-UTY_FeedWaterBoiler1_data
+cMT-DB-BOILER-UTY_FeedWaterBoiler2_data
+cMT-DB-BOILER-UTY_FeedWaterBoiler3_data
+cMT-DB-BOILER-UTY_GasB-EffBoiler1_data
+cMT-DB-BOILER-UTY_GasB-EffBoiler2_data
+cMT-DB-BOILER-UTY_GasB-EffBoiler3_data
+cMT-DB-BOILER-UTY_GasFuelCoBoiler1_data
+cMT-DB-BOILER-UTY_GasFuelCoBoiler2_data
+cMT-DB-BOILER-UTY_GasFuelCoBoiler3_data
+cMT-DB-BOILER-UTY_HardSoft1Boiler1_data
+cMT-DB-BOILER-UTY_HardSoft1Boiler2_data
+cMT-DB-BOILER-UTY_HardSoft1Boiler3_data
+cMT-DB-BOILER-UTY_HardSoft2Boiler1_data
+cMT-DB-BOILER-UTY_HardSoft2Boiler2_data
+cMT-DB-BOILER-UTY_HardSoft2Boiler3_data
+cMT-DB-BOILER-UTY_HourMeterBoiler1_data
+cMT-DB-BOILER-UTY_HourMeterBoiler2_data
+cMT-DB-BOILER-UTY_HourMeterBoiler3_data
+cMT-DB-BOILER-UTY_IgnicountBoiler1_data
+cMT-DB-BOILER-UTY_IgnicountBoiler2_data
+cMT-DB-BOILER-UTY_IgnicountBoiler3_data
+cMT-DB-BOILER-UTY_JamMonitoBoiler1_data
+cMT-DB-BOILER-UTY_JamMonitoBoiler2_data
+cMT-DB-BOILER-UTY_JamMonitoBoiler3_data
+cMT-DB-BOILER-UTY_LvlChemicBoiler1_data
+cMT-DB-BOILER-UTY_LvlChemicBoiler2_data
+cMT-DB-BOILER-UTY_LvlChemicBoiler3_data
+cMT-DB-BOILER-UTY_NamUtySpvBoiler1_data
+cMT-DB-BOILER-UTY_NamUtySpvBoiler2_data
+cMT-DB-BOILER-UTY_NamUtySpvBoiler3_data
+cMT-DB-BOILER-UTY_NamaOperaBoiler1_data
+cMT-DB-BOILER-UTY_NamaOperaBoiler2_data
+cMT-DB-BOILER-UTY_NamaOperaBoiler3_data
+cMT-DB-BOILER-UTY_NamaOperator4_data
+cMT-DB-BOILER-UTY_NamaTekniBoiler1_data
+cMT-DB-BOILER-UTY_NamaTekniBoiler2_data
+cMT-DB-BOILER-UTY_NamaTekniBoiler3_data
+cMT-DB-BOILER-UTY_OilB-EffBoiler1_data
+cMT-DB-BOILER-UTY_OilB-EffBoiler2_data
+cMT-DB-BOILER-UTY_OilB-EffBoiler3_data
+cMT-DB-BOILER-UTY_OilFuelCoBoiler1_data
+cMT-DB-BOILER-UTY_OilFuelCoBoiler2_data
+cMT-DB-BOILER-UTY_OilFuelCoBoiler3_data
+cMT-DB-BOILER-UTY_OilPressBoiler1_data
+cMT-DB-BOILER-UTY_OilPressBoiler2_data
+cMT-DB-BOILER-UTY_OilPressBoiler3_data
+cMT-DB-BOILER-UTY_PresSoft1Boiler1_data
+cMT-DB-BOILER-UTY_PresSoft1Boiler2_data
+cMT-DB-BOILER-UTY_PresSoft1Boiler3_data
+cMT-DB-BOILER-UTY_PresSoft2Boiler1_data
+cMT-DB-BOILER-UTY_PresSoft2Boiler2_data
+cMT-DB-BOILER-UTY_PresSoft2Boiler3_data
+cMT-DB-BOILER-UTY_RegeSoft1Boiler1_data
+cMT-DB-BOILER-UTY_RegeSoft1Boiler2_data
+cMT-DB-BOILER-UTY_RegeSoft1Boiler3_data
+cMT-DB-BOILER-UTY_RegeSoft2Boiler1_data
+cMT-DB-BOILER-UTY_RegeSoft2Boiler2_data
+cMT-DB-BOILER-UTY_RegeSoft2Boiler3_data
+cMT-DB-BOILER-UTY_StatusBoiler1_data
+cMT-DB-BOILER-UTY_StatusBoiler2_data
+cMT-DB-BOILER-UTY_StatusBoiler3_data
+cMT-DB-BOILER-UTY_SteamOutBoiler1_data
+cMT-DB-BOILER-UTY_SteamOutBoiler2_data
+cMT-DB-BOILER-UTY_SteamOutBoiler3_data
+cMT-DB-BOILER-UTY_SteamPresBoiler1_data
+cMT-DB-BOILER-UTY_SteamPresBoiler2_data
+cMT-DB-BOILER-UTY_SteamPresBoiler3_data
+cMT-DB-BOILER-UTY_StockChemBoiler1_data
+cMT-DB-BOILER-UTY_StockChemBoiler2_data
+cMT-DB-BOILER-UTY_StockChemBoiler3_data
+cMT-DB-BOILER-UTY_SurfaBlowBoiler1_data
+cMT-DB-BOILER-UTY_SurfaBlowBoiler2_data
+cMT-DB-BOILER-UTY_SurfaBlowBoiler3_data
+cMT-DB-BOILER-UTY_TankCondeBoiler1_data
+cMT-DB-BOILER-UTY_TankCondeBoiler2_data
+cMT-DB-BOILER-UTY_TankCondeBoiler3_data
+cMT-DB-BOILER-UTY_TankSolarBoiler1_data
+cMT-DB-BOILER-UTY_TankSolarBoiler2_data
+cMT-DB-BOILER-UTY_TankSolarBoiler3_data
+cMT-DB-BOILER-UTY_TankiSolarBoiler_data
+cMT-DB-BOILER-UTY_TankiSolarGenset_data
+cMT-DB-BOILER-UTY_TankiSolarHydrant_data
+cMT-DB-BOILER-UTY_TankiSolarUtama1_data
+cMT-DB-BOILER-UTY_TankiSolarUtama2_data
+cMT-DB-BOILER-UTY_ToNeBlowBoiler1_data
+cMT-DB-BOILER-UTY_ToNeBlowBoiler2_data
+cMT-DB-BOILER-UTY_ToNeBlowBoiler3_data
+cMT-DB-BOILER-UTY_ToNeSootBoiler1_data
+cMT-DB-BOILER-UTY_ToNeSootBoiler2_data
+cMT-DB-BOILER-UTY_ToNeSootBoiler3_data
+cMT-DB-BOILER-UTY_TotBoilerm3N_data
+cMT-DB-BOILER-UTY_TotBoilermmbtu_data
+cMT-DB-BOILER-UTY_TotEffGasBoil_data
+cMT-DB-BOILER-UTY_TotEffSolarBoi_data
+cMT-DB-BOILER-UTY_TotOutSteamBoil_data
+
+
+
+
+cMT-DB-EMS-UTY_Area_N33_New_data
+cMT-DB-EMS-UTY_Area_P10_New_data
+cMT-DB-EMS-UTY_Area_W25toN33_Nw_data
+cMT-DB-EMS-UTY_Area_W25toP10_Nw_data
+cMT-DB-EMS-UTY_GAC_WH2_New_data
+cMT-DB-EMS-UTY_GBAC1_WH1_New_data
+cMT-DB-EMS-UTY_GBAC2_WH1_New_data
+cMT-DB-EMS-UTY_PackagingF_Ln1_N_data
+cMT-DB-EMS-UTY_PackagingF_Ln2_N_data
+cMT-DB-EMS-UTY_PackagingF_Ln3_N_data
+cMT-DB-EMS-UTY_R.K27_New_data
+cMT-DB-EMS-UTY_R.K30_New_data
+cMT-DB-EMS-UTY_R.K31_New_data
+cMT-DB-EMS-UTY_R.K32_New_data
+cMT-DB-EMS-UTY_R.K33_New_data
+cMT-DB-EMS-UTY_R.K34_New_data
+cMT-DB-EMS-UTY_R.K35_New_data
+cMT-DB-EMS-UTY_R.K36_New_data
+cMT-DB-EMS-UTY_R.N03_New_data
+cMT-DB-EMS-UTY_R.N04_New_data
+cMT-DB-EMS-UTY_R.N05_New_data
+cMT-DB-EMS-UTY_R.N06_New_data
+cMT-DB-EMS-UTY_R.Tools1_WG_New_data
+cMT-DB-EMS-UTY_R.W03_New_data
+cMT-DB-EMS-UTY_R.W04_New_data
+cMT-DB-EMS-UTY_R.W05_New_data
+cMT-DB-EMS-UTY_R.W06-1_New_data
+cMT-DB-EMS-UTY_R.W06-2_New_data
+cMT-DB-EMS-UTY_R.W09_New_data
+cMT-DB-EMS-UTY_R.W17(Spare)_New_data
+cMT-DB-EMS-UTY_R.W18_New_data
+cMT-DB-EMS-UTY_R.W19_New_data
+cMT-DB-EMS-UTY_R.W20_New_data
+cMT-DB-EMS-UTY_R.W21_New_data
+cMT-DB-EMS-UTY_R.W22_New_data
+cMT-DB-EMS-UTY_R.W23_New_data
+cMT-DB-EMS-UTY_R.W24_New_data
+cMT-DB-EMS-UTY_R.W25_New_data
+cMT-DB-EMS-UTY_R_N07_Coridor_Nw_data
+cMT-DB-EMS-UTY_R_N07_Machine_Nw_data
+cMT-DB-EMS-UTY_R_N08_New_data
+cMT-DB-EMS-UTY_R_N10_New_data
+cMT-DB-EMS-UTY_R_N11_New_data
+cMT-DB-EMS-UTY_R_N13_New_data
+cMT-DB-EMS-UTY_R_N14_New_data
+cMT-DB-EMS-UTY_R_N15_New_data
+cMT-DB-EMS-UTY_R_N16_New_data
+cMT-DB-EMS-UTY_R_N18_New_data
+cMT-DB-EMS-UTY_R_N20_New_data
+cMT-DB-EMS-UTY_R_N28_New_data
+cMT-DB-EMS-UTY_R_P01_New_data
+cMT-DB-EMS-UTY_R_P02_New_data
+cMT-DB-EMS-UTY_R_P03_New_data
+cMT-DB-EMS-UTY_R_P05_New_data
+cMT-DB-EMS-UTY_R_P06_New_data
+cMT-DB-EMS-UTY_R_P11_New_data
+cMT-DB-EMS-UTY_R_P12_New_data
+cMT-DB-EMS-UTY_R_P13_New_data
+cMT-DB-EMS-UTY_R_P14_New_data
+cMT-DB-EMS-UTY_R_X01_New_data
+cMT-DB-EMS-UTY_R_X02_New_data
+cMT-DB-EMS-UTY_R_X03_New_data
+cMT-DB-EMS-UTY_R_X04_New_data
+cMT-DB-EMS-UTY_R_X05_New_data
+cMT-DB-EMS-UTY_R_X06_New_data
+cMT-DB-EMS-UTY_R_X09_New_data
+cMT-DB-EMS-UTY_R_X10_New_data
+cMT-DB-EMS-UTY_R_X11_New_data
+
+
+WATER
+
+
+
+cMT-DB-WATER-UTY_AirMancur_Sehari_data
+cMT-DB-WATER-UTY_Atas QC_Sehari_data
+cMT-DB-WATER-UTY_AtsToilet_Sehari_data
+cMT-DB-WATER-UTY_Boiler_sehari_data
+cMT-DB-WATER-UTY_CIP_Sehari_data
+cMT-DB-WATER-UTY_Chiller_sehari_data
+cMT-DB-WATER-UTY_Dom_sehari_data
+cMT-DB-WATER-UTY_FT270A_6.1_data
+cMT-DB-WATER-UTY_Hotwater_Sehari_data
+cMT-DB-WATER-UTY_Inlet_Sehari_data
+cMT-DB-WATER-UTY_Lab_Sehari_data
+cMT-DB-WATER-UTY_Lantai1_Sehari_data
+cMT-DB-WATER-UTY_Loopo_Sehari_data
+cMT-DB-WATER-UTY_Met_Air Mancur_data
+cMT-DB-WATER-UTY_Met_Atas Lab QC_data
+cMT-DB-WATER-UTY_Met_Atas Toilet2_data
+cMT-DB-WATER-UTY_Met_Boiler_data
+cMT-DB-WATER-UTY_Met_CIP_data
+cMT-DB-WATER-UTY_Met_Chiller_data
+cMT-DB-WATER-UTY_Met_Domestik_data
+cMT-DB-WATER-UTY_Met_Hotwater_data
+cMT-DB-WATER-UTY_Met_Inlet_Pt_data
+cMT-DB-WATER-UTY_Met_Lab_data
+cMT-DB-WATER-UTY_Met_Lantai1_data
+cMT-DB-WATER-UTY_Met_Loopo_data
+cMT-DB-WATER-UTY_Met_Osmotron_data
+cMT-DB-WATER-UTY_Met_Outlet_Pt_data
+cMT-DB-WATER-UTY_Met_PDAM_data
+cMT-DB-WATER-UTY_Met_Produksi_data
+cMT-DB-WATER-UTY_Met_RO_data
+cMT-DB-WATER-UTY_Met_Softwater_data
+cMT-DB-WATER-UTY_Met_Taman_data
+cMT-DB-WATER-UTY_Met_Washing_data
+cMT-DB-WATER-UTY_Met_Workshop_data
+cMT-DB-WATER-UTY_Osmotron_Sehari_data
+cMT-DB-WATER-UTY_Outlet_sehari_data
+cMT-DB-WATER-UTY_PDAM_Sehari_data
+cMT-DB-WATER-UTY_Produksi_Sehari_data
+cMT-DB-WATER-UTY_QE845A_6.1_data
+cMT-DB-WATER-UTY_QE845A_8.1_data
+cMT-DB-WATER-UTY_RO_sehari_data
+cMT-DB-WATER-UTY_Softwater_sehari_data
+cMT-DB-WATER-UTY_TE845A_8.1_data
+cMT-DB-WATER-UTY_Taman_sehari_data
+cMT-DB-WATER-UTY_WWTP_Biologi_1d_data
+cMT-DB-WATER-UTY_WWTP_Biologi_data
+cMT-DB-WATER-UTY_WWTP_Kimia_1d_data
+cMT-DB-WATER-UTY_WWTP_Kimia_data
+cMT-DB-WATER-UTY_WWTP_Outlet_1d_data
+cMT-DB-WATER-UTY_WWTP_Outlet_data
+cMT-DB-WATER-UTY_Washing_Sehari_data
+cMT-DB-WATER-UTY_Workshop_Sehari_data
+cMT-DB-WATER-UTY_alarm_airmancur_data
+cMT-DB-WATER-UTY_alarm_boiler_data
+cMT-DB-WATER-UTY_alarm_chiller_data
+cMT-DB-WATER-UTY_alarm_cip_data
+cMT-DB-WATER-UTY_alarm_domestik_data
+cMT-DB-WATER-UTY_alarm_hotwater_data
+cMT-DB-WATER-UTY_alarm_inletpr_data
+cMT-DB-WATER-UTY_alarm_lab_data
+cMT-DB-WATER-UTY_alarm_labqc_data
+cMT-DB-WATER-UTY_alarm_lantai1_data
+cMT-DB-WATER-UTY_alarm_loopo_data
+cMT-DB-WATER-UTY_alarm_osmotron_data
+cMT-DB-WATER-UTY_alarm_outletpr_data
+cMT-DB-WATER-UTY_alarm_pdam_data
+cMT-DB-WATER-UTY_alarm_produksi_data
+cMT-DB-WATER-UTY_alarm_ro_data
+cMT-DB-WATER-UTY_alarm_softwater_data
+cMT-DB-WATER-UTY_alarm_taman_data
+cMT-DB-WATER-UTY_alarm_toiletlt2_data
+cMT-DB-WATER-UTY_alarm_washing_data
+cMT-DB-WATER-UTY_alarm_workshop_data
+cMT-DB-WATER-UTY_alarm_wwtpbio_data
+cMT-DB-WATER-UTY_alarm_wwtpkimia_data
+cMT-DB-WATER-UTY_alarm_wwtpoutlet_data
+cMT-DB-WATER-UTY_event
+cMT-DB-WATER-UTY_lopo_A845A_2.1_data
+cMT-DB-WATER-UTY_lopo_FT845A_8.1_data
+cMT-DB-WATER-UTY_lopo_LT560A_1.1_data
+cMT-DB-WATER-UTY_lopo_P845A_1.1_data
+cMT-DB-WATER-UTY_lopo_PT845A_1.1_data
+cMT-DB-WATER-UTY_lopo_PT845A_8.1_data
+cMT-DB-WATER-UTY_lopo_QE845A_4.1_data
+cMT-DB-WATER-UTY_lopo_QE845A_5.1_data
+cMT-DB-WATER-UTY_lopo_RunHour_data
+cMT-DB-WATER-UTY_lopo_TT845A_3.1_data
+cMT-DB-WATER-UTY_lopo_V845A_3.1_data
+cMT-DB-WATER-UTY_osmo_B270A_6.1_data
+cMT-DB-WATER-UTY_osmo_ET270A_6.11_data
+cMT-DB-WATER-UTY_osmo_ET270A_6.12_data
+cMT-DB-WATER-UTY_osmo_FIT270A_5.2_data
+cMT-DB-WATER-UTY_osmo_FIT270_5.50_data
+cMT-DB-WATER-UTY_osmo_FT270A_5.1_data
+cMT-DB-WATER-UTY_osmo_FT270A_5.51_data
+cMT-DB-WATER-UTY_osmo_FT270A_6.1_data
+cMT-DB-WATER-UTY_osmo_FT270A_6.2_data
+cMT-DB-WATER-UTY_osmo_P270A_11.1_data
+cMT-DB-WATER-UTY_osmo_P270A_12.1_data
+cMT-DB-WATER-UTY_osmo_P270A_13.1_data
+cMT-DB-WATER-UTY_osmo_P270A_1.1_data
+cMT-DB-WATER-UTY_osmo_P270A_5.1_data
+cMT-DB-WATER-UTY_osmo_P270A_5.2_data
+cMT-DB-WATER-UTY_osmo_P270A_6.1_data
+cMT-DB-WATER-UTY_osmo_P270A_7.1_data
+cMT-DB-WATER-UTY_osmo_PDY270A_5.4_data
+cMT-DB-WATER-UTY_osmo_PDY270A_5.7_data
+cMT-DB-WATER-UTY_osmo_PT270A_1.1_data
+cMT-DB-WATER-UTY_osmo_PT270A_5.1_data
+cMT-DB-WATER-UTY_osmo_PT270A_5.4_data
+cMT-DB-WATER-UTY_osmo_PT270A_5.5_data
+cMT-DB-WATER-UTY_osmo_PT270A_5.6_data
+cMT-DB-WATER-UTY_osmo_PT270A_5.7_data
+cMT-DB-WATER-UTY_osmo_PT270A_5.8_data
+cMT-DB-WATER-UTY_osmo_PT270A_6.1_data
+cMT-DB-WATER-UTY_osmo_PT270A_6.2_data
+cMT-DB-WATER-UTY_osmo_PT270A_6.3_data
+cMT-DB-WATER-UTY_osmo_QE270A_11.1_data
+cMT-DB-WATER-UTY_osmo_QE270A_12.1_data
+cMT-DB-WATER-UTY_osmo_QE270A_5.1_data
+cMT-DB-WATER-UTY_osmo_QE270A_6.1_data
+cMT-DB-WATER-UTY_osmo_QE270A_6.2_data
+cMT-DB-WATER-UTY_osmo_TE270A_5.1_data
+cMT-DB-WATER-UTY_osmo_TE270A_6.1_data
+cMT-DB-WATER-UTY_osmo_TT270A_5.2_data
+cMT-DB-WATER-UTY_osmo_V270A_5.10_data
+cMT-DB-WATER-UTY_osmo_V270A_5.50_data
+cMT-DB-WATER-UTY_osmo_V270A_5.51_data
+cMT-DB-WATER-UTY_osmo_V270A_6.2_data
+cMT-DB-WATER-UTY_osmo_V270A_6.5_data
+cMT-DB-WATER-UTY_osmo_W270A_5.1_data
+cMT-DB-WATER-UTY_osmo_WCF_Factor_data
+
+
+
+RND
+cMT-DehumRNDLt3danWH1_PrekursorWH1_data
+cMT-DehumRNDLt3danWH1_RakLayer3-C56WH1_data
+cMT-DehumRNDLt3danWH1_RakLayer3-C64WH1_data
+cMT-DehumRNDLt3danWH1_RakLayer3-C72WH1_data

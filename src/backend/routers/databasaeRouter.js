@@ -160,5 +160,6 @@ routers.post("/CreateJam", databaseControllers.CreateJam);
 routers.get("/GetJam", databaseControllers.GetJam);
 routers.post("/CreateLimit", databaseControllers.CreateLimit);
 routers.get("/GetLimit", databaseControllers.GetLimit);
+routers.get("/GetDailyData138", databaseControllers.GetDailyData138);
 
 module.exports = routers;
