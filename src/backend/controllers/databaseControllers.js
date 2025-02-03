@@ -896,7 +896,7 @@ LEFT JOIN
       \`time@timestamp\`;
     `;
 
-    db3.query(queryData, (err, result) => {
+    db.query(queryData, (err, result) => {
       if (err) {
         console.error("Error executing query:", err);
         return response.status(500).send("Internal Server Error");
@@ -926,7 +926,7 @@ LEFT JOIN
     ORDER BY
       \`time@timestamp\``;
 
-    db3.query(queryData, (err, result) => {
+    db.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -3584,7 +3584,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
-  
+
   GetDailyChiller138: async (request, response) => {
     const fetchquery = `
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_H-BodiChillerCH1_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_H-BodiChillerCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
@@ -3828,22 +3828,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegT-RCH2_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegT-RCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_RP-TegT-RCH3_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_RP-TegT-RCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_test_data\` FROM parammachine_saka.\`CMT-DB-Chiller-UTY_test_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    `
+    `;
 
-    db3.query(fetchquery, (err, result) => {
-      if (err) {
-        console.log(err);
-        return response.status(500).send("Database query failed");
-      }
-      return response.status(200).send(result);
-    });
-  },
-
-  GetDailyBoiler138: async (request, response) => {
-    const fetchquery = 
-    `
-    
-    `
     db3.query(fetchquery, (err, result) => {
       if (err) {
         console.log(err);
