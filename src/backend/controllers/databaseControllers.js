@@ -319,7 +319,7 @@ module.exports = {
       // if (db.connection.state === "disconnected") {
       //   await db.connection.connect();
       // }
-      console.log(db.connection.state);
+      // console.log(db.connection.state);
 
       const isEmailExist = await query(
         `SELECT * FROM users WHERE email = ${db.escape(email)}`
