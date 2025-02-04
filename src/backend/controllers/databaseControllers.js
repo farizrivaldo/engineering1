@@ -3275,6 +3275,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       Parameter_Air,
       Parameter_Gas,
       Parameter_Listrik,
+      Parameter_Air_2,
+      Parameter_Gas_2,
+      Parameter_Listrik_2,
       Parameter_Out_1,
       Parameter_Out_2,
       Parameter_Out_3,
@@ -3294,6 +3297,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       Parameter_Air,
       Parameter_Gas,
       Parameter_Listrik,
+      Parameter_Air_2,
+      Parameter_Gas_2,
+      Parameter_Listrik_2,
       Parameter_Out_1,
       Parameter_Out_2,
       Parameter_Out_3,
@@ -4012,7 +4018,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_H13 AHU 3.02 Hi_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_H13 AHU 3.02 Hi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
   //   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_data_section\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_data_section\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
   //   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_event\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_event\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-  //   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_event_log\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_event_log\` ORDER BY \`time@timestamp\` DESC LIMIT 1;    
+  //   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_event_log\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_event_log\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
   //   `;
   //   db.query(fatchquerry, (err, result) => {
   //     if (err) {
