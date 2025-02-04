@@ -168,6 +168,6 @@ routers.get("/GetDailyChiller138", databaseControllers.GetDailyChiller138);
 routers.get("/GetDailyBoiler138", databaseControllers.GetDailyBoiler138);
 routers.get("/GetDailyInstrumentIPC", databaseControllers.GetDailyInstrumentIPC);
 routers.get("/GetDailyPower55", databaseControllers.GetDailyPower55);
-routers.get("/GetDailyHVAC55", databaseControllers.GetDailyHVAC55);
+// routers.get("/GetDailyHVAC55", databaseControllers.GetDailyHVAC55);
 
 module.exports = routers;
