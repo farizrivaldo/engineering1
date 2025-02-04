@@ -162,9 +162,12 @@ routers.post("/CreateLimit", databaseControllers.CreateLimit);
 routers.get("/GetLimit", databaseControllers.GetLimit);
 
 //==============BATCH RECORD========================================BATCH RECORD==========================================
-// routers.get("/GetDailyVibrasi138", databaseControllers.GetDailyVibrasi138);
-// routers.get("/GetDailyGedung138", databaseControllers.GetDailyGedung138);
-// routers.get("/GetDailyChiller138", databaseControllers.GetDailyChiller138);
-// routers.get("/GetDailyBoiler138", databaseControllers.GetDailyBoiler138);
+routers.get("/GetDailyVibrasi138", databaseControllers.GetDailyVibrasi138);
+routers.get("/GetDailyGedung138", databaseControllers.GetDailyGedung138);
+routers.get("/GetDailyChiller138", databaseControllers.GetDailyChiller138);
+routers.get("/GetDailyBoiler138", databaseControllers.GetDailyBoiler138);
+routers.get("/GetDailyInstrumentIPC", databaseControllers.GetDailyInstrumentIPC);
+routers.get("/GetDailyPower55", databaseControllers.GetDailyPower55);
+routers.get("/GetDailyHVAC55", databaseControllers.GetDailyHVAC55);
 
 module.exports = routers;

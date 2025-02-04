@@ -8,8 +8,8 @@ SELECT  FROM parammachine_saka.cMT-DB-WATER-UTY ORDER BY ID? DESC LIMIT 1
 SELECT  FROM parammachine_saka.cMT-DehumRNDLt3danWH1 ORDER BY ID? DESC LIMIT 1
 
 SELECT  FROM parammachine_saka.CMT-DB-INV-HVAC-UTY ORDER BY ID? DESC LIMIT 1
-SELECT  FROM parammachine_saka.cMT-PowerMeterMezzanine ORDER BY ID? DESC LIMIT 1
-SELECT  FROM parammachine_saka.cMT-HVAC-RND-Lt.3 ORDER BY ID? DESC LIMIT 1
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_SELECT  FROM parammachine_saka.cMT-PowerMeterMezzanine ORDER BY ID? DESC LIMIT 1\` FROM parammachine_saka.\`SELECT  FROM parammachine_saka.cMT-PowerMeterMezzanine ORDER BY ID? DESC LIMIT 1\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_SELECT  FROM parammachine_saka.cMT-HVAC-RND-Lt.3 ORDER BY ID? DESC LIMIT 1\` FROM parammachine_saka.\`SELECT  FROM parammachine_saka.cMT-HVAC-RND-Lt.3 ORDER BY ID? DESC LIMIT 1\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
 
 
 VIBRASI
@@ -54,39 +54,39 @@ cMT-VibrasiHVAC_ZaxisRMS-S1_data
 
 HVAC
 
-CMT-HVAC-RND-Lt.3_1_Current_FT1.01_data
-CMT-HVAC-RND-Lt.3_data_section
-CMT-HVAC-RND-Lt.3_event
-CMT-HVAC-RND-Lt.3_event_log
-cMT-HVAC-RND-Lt.3_ F6 AHU 3.01 His_data
-cMT-HVAC-RND-Lt.3_ F6 AHU 3.02 His_data
-cMT-HVAC-RND-Lt.3_ F9 AHU 3.01 His_data
-cMT-HVAC-RND-Lt.3_ F9 AHU 3.02 His_data
-cMT-HVAC-RND-Lt.3_DP F6 AHU 3.01_data
-cMT-HVAC-RND-Lt.3_DP F6 AHU 3.02_data
-cMT-HVAC-RND-Lt.3_DP F9 AHU 3.01_data
-cMT-HVAC-RND-Lt.3_DP F9 AHU 3.02_data
-cMT-HVAC-RND-Lt.3_DP H13 AHU 3.01_data
-cMT-HVAC-RND-Lt.3_DP H13 AHU 3.02_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-01_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-02_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-03_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-04_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-05_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-06_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-07_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-08_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-09_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-10_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-11_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-12_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-13_data
-cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-14_data
-cMT-HVAC-RND-Lt.3_H13 AHU 3.01 Hi_data
-cMT-HVAC-RND-Lt.3_H13 AHU 3.02 Hi_data
-cMT-HVAC-RND-Lt.3_data_section
-cMT-HVAC-RND-Lt.3_event
-cMT-HVAC-RND-Lt.3_event_log
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-HVAC-RND-Lt.3_1_Current_FT1.01_data\` FROM parammachine_saka.\`CMT-HVAC-RND-Lt.3_1_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-HVAC-RND-Lt.3_data_section\` FROM parammachine_saka.\`CMT-HVAC-RND-Lt.3_data_section\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-HVAC-RND-Lt.3_event\` FROM parammachine_saka.\`CMT-HVAC-RND-Lt.3_event\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-HVAC-RND-Lt.3_event_log\` FROM parammachine_saka.\`CMT-HVAC-RND-Lt.3_event_log\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_ F6 AHU 3.01 His_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_ F6 AHU 3.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_ F6 AHU 3.02 His_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_ F6 AHU 3.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_ F9 AHU 3.01 His_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_ F9 AHU 3.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_ F9 AHU 3.02 His_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_ F9 AHU 3.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_DP F6 AHU 3.01_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_DP F6 AHU 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_DP F6 AHU 3.02_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_DP F6 AHU 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_DP F9 AHU 3.01_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_DP F9 AHU 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_DP F9 AHU 3.02_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_DP F9 AHU 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_DP H13 AHU 3.01_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_DP H13 AHU 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_DP H13 AHU 3.02_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_DP H13 AHU 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-01_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-02_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-03_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-03_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-04_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-04_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-05_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-05_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-06_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-06_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-07_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-07_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-08_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-08_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-09_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-09_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-10_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-10_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-11_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-11_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-12_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-12_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-13_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-13_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-14_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_EMS_RND3_HMI-14_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_H13 AHU 3.01 Hi_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_H13 AHU 3.01 Hi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_H13 AHU 3.02 Hi_data\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_H13 AHU 3.02 Hi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_data_section\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_data_section\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_event\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_event\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-HVAC-RND-Lt.3_event_log\` FROM parammachine_saka.\`cMT-HVAC-RND-Lt.3_event_log\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
 
 
 
@@ -94,102 +94,102 @@ cMT-HVAC-RND-Lt.3_event_log
 POWER METERE
 
 
-cMT-PowerMeterMezzanine_ F6 AHU 3.01 His_data
-cMT-PowerMeterMezzanine_ F6 AHU 3.02 His_data
-cMT-PowerMeterMezzanine_ F6 E 1.01 Histo_data
-cMT-PowerMeterMezzanine_ F9 AHU 3.01 His_data
-cMT-PowerMeterMezzanine_ F9 AHU 3.02 His_data
-cMT-PowerMeterMezzanine_DP F6 AHU 3.01_data
-cMT-PowerMeterMezzanine_DP F6 AHU 3.02_data
-cMT-PowerMeterMezzanine_DP F6 E 1.01_data
-cMT-PowerMeterMezzanine_DP F6 F 1.01_data
-cMT-PowerMeterMezzanine_DP F6 F 1.02_data
-cMT-PowerMeterMezzanine_DP F6 FT 1.01_data
-cMT-PowerMeterMezzanine_DP F6 FT 1.02_data
-cMT-PowerMeterMezzanine_DP F6 G 1.01_data
-cMT-PowerMeterMezzanine_DP F6 G 1.02_data
-cMT-PowerMeterMezzanine_DP F6 LA 2.01_data
-cMT-PowerMeterMezzanine_DP F6 MG 1.01_data
-cMT-PowerMeterMezzanine_DP F6 MG 1.02_data
-cMT-PowerMeterMezzanine_DP F6 WG 1.01_data
-cMT-PowerMeterMezzanine_DP F6 WG 1.02_data
-cMT-PowerMeterMezzanine_DP F9 AHU 3.01_data
-cMT-PowerMeterMezzanine_DP F9 AHU 3.02_data
-cMT-PowerMeterMezzanine_DP F9 E 1.01_data
-cMT-PowerMeterMezzanine_DP F9 F 1.01_data
-cMT-PowerMeterMezzanine_DP F9 F 1.02_data
-cMT-PowerMeterMezzanine_DP F9 FT 1.01_data
-cMT-PowerMeterMezzanine_DP F9 FT 1.02_data
-cMT-PowerMeterMezzanine_DP F9 LA 2.01_data
-cMT-PowerMeterMezzanine_DP F9 MG 1.01_data
-cMT-PowerMeterMezzanine_DP F9 MG 1.02_data
-cMT-PowerMeterMezzanine_DP F9 WG 1.01_data
-cMT-PowerMeterMezzanine_DP F9 WG 1.02_data
-cMT-PowerMeterMezzanine_DP H13 AHU 3.01_data
-cMT-PowerMeterMezzanine_DP H13 AHU 3.02_data
-cMT-PowerMeterMezzanine_DP H13 E 1.01_data
-cMT-PowerMeterMezzanine_DP H13 FT 1.01_data
-cMT-PowerMeterMezzanine_DP H13 FT 1.02_data
-cMT-PowerMeterMezzanine_DP H13 MG 1.01_data
-cMT-PowerMeterMezzanine_DP H13 MG 1.02_data
-cMT-PowerMeterMezzanine_DP H13 WG 1.01_data
-cMT-PowerMeterMezzanine_DP H13 WG 1.02_data
-cMT-PowerMeterMezzanine_DetiDP F6 E 1.01_data
-cMT-PowerMeterMezzanine_F6 F 1.01 Histo_data
-cMT-PowerMeterMezzanine_F6 F 1.02 Histo_data
-cMT-PowerMeterMezzanine_F6 FT 1.01 Hist_data
-cMT-PowerMeterMezzanine_F6 FT 1.02 Hist_data
-cMT-PowerMeterMezzanine_F6 G 1.01 Hist_data
-cMT-PowerMeterMezzanine_F6 G 1.02 Hist_data
-cMT-PowerMeterMezzanine_F6 LA2.01 Hist_data
-cMT-PowerMeterMezzanine_F6 MG1.01 Hist_data
-cMT-PowerMeterMezzanine_F6 MG1.02 Hist_data
-cMT-PowerMeterMezzanine_F6 WG1.01 Hist_data
-cMT-PowerMeterMezzanine_F6 WG1.02 Hist_data
-cMT-PowerMeterMezzanine_F9 E 1.01 Histo_data
-cMT-PowerMeterMezzanine_F9 F 1.01 Histo_data
-cMT-PowerMeterMezzanine_F9 F 1.02 Histo_data
-cMT-PowerMeterMezzanine_F9 FT 1.01 Hist_data
-cMT-PowerMeterMezzanine_F9 FT 1.02 Hist_data
-cMT-PowerMeterMezzanine_F9 LA2.01 Hist_data
-cMT-PowerMeterMezzanine_F9 MG1.01 Hist_data
-cMT-PowerMeterMezzanine_F9 MG1.02 Hist_data
-cMT-PowerMeterMezzanine_F9 WG1.01 Hist_data
-cMT-PowerMeterMezzanine_F9 WG1.02 Hist_data
-cMT-PowerMeterMezzanine_H13 AHU 3.01 Hi_data
-cMT-PowerMeterMezzanine_H13 AHU 3.02 Hi_data
-cMT-PowerMeterMezzanine_H13 E 1.01 Histo_data
-cMT-PowerMeterMezzanine_H13 FT 1.01 His_data
-cMT-PowerMeterMezzanine_H13 FT 1.02 His_data
-cMT-PowerMeterMezzanine_H13 MG1.01 His_data
-cMT-PowerMeterMezzanine_H13 MG1.02 His_data
-cMT-PowerMeterMezzanine_H13 WG1.01 His_data
-cMT-PowerMeterMezzanine_H13 WG1.02 His_data
-cMT-PowerMeterMezzanine_M_Curren2_FT1.01_data
-cMT-PowerMeterMezzanine_M_Current_FT1.01_data
-cMT-PowerMeterMezzanine_M_Temp_FT1.01_data
-cMT-PowerMeterMezzanine_Totalizer%Chiler_data
-cMT-PowerMeterMezzanine_X-Z_AX_RM_FT1.01_data
-cMT-PowerMeterMezzanine_XZR_AX_RM_FT1.01_data
-cMT-PowerMeterMezzanine_X_ACC_G_FT1.01_data
-cMT-PowerMeterMezzanine_X_AXISVCF_FT1.01_data
-cMT-PowerMeterMezzanine_X_AXIS_RM_FT1.01_data
-cMT-PowerMeterMezzanine_X_Axis_Ve_FT1.01_data
-cMT-PowerMeterMezzanine_Z_ACC_G_FT1.01_data
-cMT-PowerMeterMezzanine_Z_AXISVCF_FT1.01_data
-cMT-PowerMeterMezzanine_Z_Axis_Ve_FT1.01_data
-cMT-PowerMeterMezzanine_kWh_Chiller_data
-cMT-PowerMeterMezzanine_kWh_Fasilitas_data
-cMT-PowerMeterMezzanine_kWh_Hydrant_data
-cMT-PowerMeterMezzanine_kWh_LVMDP 1_data
-cMT-PowerMeterMezzanine_kWh_LVMDP 2_data
-cMT-PowerMeterMezzanine_kWh_MVMDP_data
-cMT-PowerMeterMezzanine_kWh_SDP2_data
-cMT-PowerMeterMezzanine_m3_ inlet pretre_data
-cMT-PowerMeterMezzanine_m3_Boiler_data
-cMT-PowerMeterMezzanine_m3_Domestik_data
-cMT-PowerMeterMezzanine_m3_Outdoor_data
-cMT-PowerMeterMezzanine_m3_PDAM_data
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_ F6 AHU 3.01 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_ F6 AHU 3.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_ F6 AHU 3.02 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_ F6 AHU 3.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_ F6 E 1.01 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_ F6 E 1.01 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_ F9 AHU 3.01 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_ F9 AHU 3.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_ F9 AHU 3.02 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_ F9 AHU 3.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 AHU 3.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 AHU 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 AHU 3.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 AHU 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 E 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 F 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 F 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 F 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 FT 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 FT 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 G 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 G 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 G 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 G 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 LA 2.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 LA 2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 MG 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 MG 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 WG 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F6 WG 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F6 WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 AHU 3.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 AHU 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 AHU 3.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 AHU 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 E 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 F 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 F 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 F 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 FT 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 FT 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 LA 2.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 LA 2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 MG 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 MG 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 WG 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP F9 WG 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP F9 WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 AHU 3.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 AHU 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 AHU 3.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 AHU 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 E 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 FT 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 FT 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 MG 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 MG 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 WG 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DP H13 WG 1.02_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DP H13 WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_DetiDP F6 E 1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_DetiDP F6 E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 F 1.01 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 F 1.01 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 F 1.02 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 F 1.02 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 FT 1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 FT 1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 FT 1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 FT 1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 G 1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 G 1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 G 1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 G 1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 LA2.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 LA2.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 MG1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 MG1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 MG1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 MG1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 WG1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 WG1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F6 WG1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F6 WG1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 E 1.01 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 E 1.01 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 F 1.01 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 F 1.01 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 F 1.02 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 F 1.02 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 FT 1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 FT 1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 FT 1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 FT 1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 LA2.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 LA2.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 MG1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 MG1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 MG1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 MG1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 WG1.01 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 WG1.01 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_F9 WG1.02 Hist_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_F9 WG1.02 Hist_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 AHU 3.01 Hi_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 AHU 3.01 Hi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 AHU 3.02 Hi_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 AHU 3.02 Hi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 E 1.01 Histo_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 E 1.01 Histo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 FT 1.01 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 FT 1.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 FT 1.02 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 FT 1.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 MG1.01 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 MG1.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 MG1.02 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 MG1.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 WG1.01 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 WG1.01 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_H13 WG1.02 His_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_H13 WG1.02 His_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_M_Curren2_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_M_Curren2_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_M_Current_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_M_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_M_Temp_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_M_Temp_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_Totalizer%Chiler_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_Totalizer%Chiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_X-Z_AX_RM_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_X-Z_AX_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_XZR_AX_RM_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_XZR_AX_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_X_ACC_G_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_X_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_X_AXISVCF_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_X_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_X_AXIS_RM_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_X_AXIS_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_X_Axis_Ve_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_X_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_Z_ACC_G_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_Z_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_Z_AXISVCF_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_Z_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_Z_Axis_Ve_FT1.01_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_Z_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_Chiller_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_Chiller_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_Fasilitas_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_Fasilitas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_Hydrant_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_Hydrant_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_LVMDP 1_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_LVMDP 1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_LVMDP 2_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_LVMDP 2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_MVMDP_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_MVMDP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_kWh_SDP2_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_kWh_SDP2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_m3_ inlet pretre_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_m3_ inlet pretre_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_m3_Boiler_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_m3_Boiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_m3_Domestik_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_m3_Domestik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_m3_Outdoor_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_m3_Outdoor_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-PowerMeterMezzanine_m3_PDAM_data\` FROM parammachine_saka.\`cMT-PowerMeterMezzanine_m3_PDAM_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
 
 
 DB-INV-HVAC
@@ -511,119 +511,119 @@ SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`TANGGAL_CMT-DB-Chiller-UTY_t
 BOILER\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
 
 
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BahanBakaBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BahanBakaBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BahanBakaBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BahanBakaBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BahanBakaBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BahanBakaBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BodiBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BodiBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BodiBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BodiBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BodiBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BodiBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler1Gas_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler1Gas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler1Solar_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler1Solar_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler2Gas_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler2Gas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler2Solar_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler2Solar_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler3Gas_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler3Gas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler3Solar_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler3Solar_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_CekBocorBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_CekBocorBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_CekBocorBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_CekBocorBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_CekBocorBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_CekBocorBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ConductivBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ConductivBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ConductivBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ConductivBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ConductivBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ConductivBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_FeedWaterBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_FeedWaterBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_FeedWaterBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_FeedWaterBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_FeedWaterBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_FeedWaterBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasB-EffBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasB-EffBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasB-EffBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasB-EffBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasB-EffBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasB-EffBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasFuelCoBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasFuelCoBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasFuelCoBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasFuelCoBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasFuelCoBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasFuelCoBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft1Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft1Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft1Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft1Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft1Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft1Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft2Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft2Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft2Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft2Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft2Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft2Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HourMeterBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HourMeterBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HourMeterBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HourMeterBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HourMeterBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HourMeterBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_IgnicountBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_IgnicountBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_IgnicountBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_IgnicountBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_IgnicountBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_IgnicountBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_JamMonitoBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_JamMonitoBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_JamMonitoBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_JamMonitoBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_JamMonitoBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_JamMonitoBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_LvlChemicBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_LvlChemicBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_LvlChemicBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_LvlChemicBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_LvlChemicBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_LvlChemicBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamUtySpvBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamUtySpvBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamUtySpvBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamUtySpvBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamUtySpvBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamUtySpvBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperaBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperaBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperaBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperaBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperaBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperaBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperator4_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperator4_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaTekniBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaTekniBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaTekniBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaTekniBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaTekniBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaTekniBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilB-EffBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilB-EffBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilB-EffBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilB-EffBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilB-EffBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilB-EffBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilFuelCoBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilFuelCoBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilFuelCoBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilFuelCoBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilFuelCoBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilFuelCoBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilPressBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilPressBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilPressBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilPressBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilPressBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilPressBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft1Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft1Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft1Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft1Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft1Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft1Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft2Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft2Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft2Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft2Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft2Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft2Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft1Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft1Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft1Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft1Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft1Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft1Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft2Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft2Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft2Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft2Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft2Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft2Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StatusBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StatusBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StatusBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StatusBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StatusBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StatusBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamOutBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamOutBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamOutBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamOutBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamOutBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamOutBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamPresBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamPresBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamPresBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamPresBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamPresBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamPresBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StockChemBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StockChemBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StockChemBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StockChemBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StockChemBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StockChemBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SurfaBlowBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SurfaBlowBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SurfaBlowBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SurfaBlowBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SurfaBlowBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SurfaBlowBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankCondeBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankCondeBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankCondeBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankCondeBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankCondeBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankCondeBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankSolarBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankSolarBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankSolarBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankSolarBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankSolarBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankSolarBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarBoiler_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarBoiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarGenset_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarGenset_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarHydrant_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarHydrant_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarUtama1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarUtama1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarUtama2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarUtama2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeBlowBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeBlowBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeBlowBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeBlowBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeBlowBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeBlowBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeSootBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeSootBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeSootBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeSootBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeSootBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeSootBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotBoilerm3N_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotBoilerm3N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotBoilermmbtu_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotBoilermmbtu_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotEffGasBoil_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotEffGasBoil_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotEffSolarBoi_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotEffSolarBoi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
-SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotOutSteamBoil_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotOutSteamBoil_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1:
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BahanBakaBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BahanBakaBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BahanBakaBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BahanBakaBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BahanBakaBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BahanBakaBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BodiBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BodiBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BodiBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BodiBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_BodiBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_BodiBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler1Gas_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler1Gas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler1Solar_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler1Solar_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler2Gas_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler2Gas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler2Solar_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler2Solar_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler3Gas_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler3Gas_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_Boiler3Solar_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_Boiler3Solar_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_CekBocorBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_CekBocorBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_CekBocorBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_CekBocorBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_CekBocorBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_CekBocorBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ConductivBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ConductivBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ConductivBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ConductivBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ConductivBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ConductivBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_FeedWaterBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_FeedWaterBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_FeedWaterBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_FeedWaterBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_FeedWaterBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_FeedWaterBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasB-EffBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasB-EffBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasB-EffBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasB-EffBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasB-EffBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasB-EffBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasFuelCoBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasFuelCoBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasFuelCoBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasFuelCoBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_GasFuelCoBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_GasFuelCoBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft1Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft1Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft1Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft1Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft1Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft1Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft2Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft2Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft2Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft2Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HardSoft2Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HardSoft2Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HourMeterBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HourMeterBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HourMeterBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HourMeterBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_HourMeterBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_HourMeterBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_IgnicountBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_IgnicountBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_IgnicountBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_IgnicountBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_IgnicountBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_IgnicountBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_JamMonitoBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_JamMonitoBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_JamMonitoBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_JamMonitoBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_JamMonitoBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_JamMonitoBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_LvlChemicBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_LvlChemicBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_LvlChemicBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_LvlChemicBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_LvlChemicBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_LvlChemicBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamUtySpvBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamUtySpvBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamUtySpvBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamUtySpvBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamUtySpvBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamUtySpvBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperaBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperaBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperaBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperaBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperaBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperaBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaOperator4_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaOperator4_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaTekniBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaTekniBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaTekniBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaTekniBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_NamaTekniBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_NamaTekniBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilB-EffBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilB-EffBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilB-EffBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilB-EffBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilB-EffBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilB-EffBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilFuelCoBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilFuelCoBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilFuelCoBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilFuelCoBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilFuelCoBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilFuelCoBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilPressBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilPressBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilPressBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilPressBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_OilPressBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_OilPressBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft1Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft1Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft1Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft1Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft1Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft1Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft2Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft2Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft2Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft2Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_PresSoft2Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_PresSoft2Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft1Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft1Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft1Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft1Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft1Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft1Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft2Boiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft2Boiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft2Boiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft2Boiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_RegeSoft2Boiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_RegeSoft2Boiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StatusBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StatusBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StatusBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StatusBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StatusBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StatusBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamOutBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamOutBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamOutBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamOutBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamOutBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamOutBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamPresBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamPresBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamPresBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamPresBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SteamPresBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SteamPresBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StockChemBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StockChemBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StockChemBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StockChemBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_StockChemBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_StockChemBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SurfaBlowBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SurfaBlowBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SurfaBlowBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SurfaBlowBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_SurfaBlowBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_SurfaBlowBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankCondeBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankCondeBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankCondeBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankCondeBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankCondeBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankCondeBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankSolarBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankSolarBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankSolarBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankSolarBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankSolarBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankSolarBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarBoiler_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarBoiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarGenset_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarGenset_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarHydrant_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarHydrant_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarUtama1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarUtama1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TankiSolarUtama2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TankiSolarUtama2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeBlowBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeBlowBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeBlowBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeBlowBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeBlowBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeBlowBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeSootBoiler1_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeSootBoiler1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeSootBoiler2_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeSootBoiler2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_ToNeSootBoiler3_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_ToNeSootBoiler3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotBoilerm3N_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotBoilerm3N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotBoilermmbtu_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotBoilermmbtu_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotEffGasBoil_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotEffGasBoil_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotEffSolarBoi_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotEffSolarBoi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS Tanggal_cMT-DB-BOILER-UTY_TotOutSteamBoil_data FROM parammachine_saka.\`cMT-DB-BOILER-UTY_TotOutSteamBoil_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
 
 
 
