@@ -3289,10 +3289,10 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     } = request.body;
 
     const insertQuery = `INSERT INTO ems_saka.Parameter_Portal 
-                       (Parameter_Air, Parameter_Gas, Parameter_Listrik, Parameter_Air_2, Parameter_Gas_2, Parameter_Listrik_2, 
+                        (Parameter_Air, Parameter_Gas, Parameter_Listrik, Parameter_Air_2, Parameter_Gas_2, Parameter_Listrik_2, 
                         Parameter_Out_1, Parameter_Out_2, Parameter_Out_3, 
                         Parameter_Out_4, Parameter_Out_5, Created_date, Created_time, User) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const insertValues = [
       Parameter_Air,
       Parameter_Gas,
