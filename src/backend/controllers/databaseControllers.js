@@ -2809,7 +2809,7 @@ LEFT JOIN
         ORDER BY
         \`time@timestamp\`;`;
 
-    db.query(queryGet, (err, result) => {
+    db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -2826,7 +2826,7 @@ LEFT JOIN
           ORDER BY
           \`time@timestamp\`;`;
 
-    db.query(queryGet, (err, result) => {
+    db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -2844,7 +2844,7 @@ LEFT JOIN
           ORDER BY
           \`time@timestamp\`;`;
 
-    db.query(queryGet, (err, result) => {
+    db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
