@@ -22,8 +22,10 @@ const veryfyToken = (req, res, next) => {
     // Tangani error token, termasuk jika expired
     if (err.name === "TokenExpiredError") {
       return res.status(401).send("Token expired. Please login again.");
+      next();
     }
     return res.status(401).send("Access denied. Invalid token.");
+    next();
   }
 
   //==============================================================
