@@ -456,9 +456,11 @@ module.exports = {
           hashPassword
         )} WHERE email = ${db.escape(email)}`
       );
-      return res.status(200).send({ message: "password changed successfully" });
+      return response
+        .status(200)
+        .send({ message: "password changed successfully" });
     } catch (error) {
-      res.status(error.status || 500).send(error);
+      response.status(error.status || 500).send(error);
       console.log(error);
     }
   },
