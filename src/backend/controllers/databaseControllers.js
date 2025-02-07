@@ -441,6 +441,7 @@ module.exports = {
   changePassword: async (request, response) => {
     try {
       const { email, newPassword } = request.body;
+      console.log(email, newPassword);
 
       const isEmailExist = await query(
         `SELECT * FROM users WHERE email = ${db.escape(email)}`
