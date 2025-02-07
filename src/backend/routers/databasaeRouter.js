@@ -24,7 +24,7 @@ routers.post("/check-Login", veryfyToken, databaseControllers.checkLogin);
 routers.patch("/userupdate/:id", databaseControllers.updateUsers);
 routers.delete("/userdelete/:id", databaseControllers.deleteUseers);
 routers.patch("/useredit/:id", databaseControllers.editUsers);
-routers.post("/changePassword", databaseControllers.changePassword);
+routers.patch("/changePassword", databaseControllers.changePassword);
 
 routers.get("/instrument", databaseControllers.fetchDataInstrument);
 routers.post("/hardness", databaseControllers.fetchDataHardness);
