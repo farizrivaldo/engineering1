@@ -24,6 +24,7 @@ routers.post("/check-Login", veryfyToken, databaseControllers.checkLogin);
 routers.patch("/userupdate/:id", databaseControllers.updateUsers);
 routers.delete("/userdelete/:id", databaseControllers.deleteUseers);
 routers.patch("/useredit/:id", databaseControllers.editUsers);
+routers.post("/changePassword", databaseControllers.changePassword);
 
 routers.get("/instrument", databaseControllers.fetchDataInstrument);
 routers.post("/hardness", databaseControllers.fetchDataHardness);
@@ -166,7 +167,10 @@ routers.get("/GetDailyVibrasi138", databaseControllers.GetDailyVibrasi138);
 routers.get("/GetDailyGedung138", databaseControllers.GetDailyGedung138);
 routers.get("/GetDailyChiller138", databaseControllers.GetDailyChiller138);
 routers.get("/GetDailyBoiler138", databaseControllers.GetDailyBoiler138);
-routers.get("/GetDailyInstrumentIPC", databaseControllers.GetDailyInstrumentIPC);
+routers.get(
+  "/GetDailyInstrumentIPC",
+  databaseControllers.GetDailyInstrumentIPC
+);
 routers.get("/GetDailyPower55", databaseControllers.GetDailyPower55);
 // routers.get("/GetDailyHVAC55", databaseControllers.GetDailyHVAC55);
 

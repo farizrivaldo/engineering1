@@ -438,6 +438,29 @@ module.exports = {
     });
   },
 
+  changePassword: async (request, response) => {
+    try {
+      const { email, newPassword } = request.body;
+
+      const isEmailExist = await query(
+        `SELECT * FROM users WHERE email = ${db.escape(email)}`
+      );
+      if (isEmailExist.length == 0) {
+        return res.status(400).send({ message: "email & password infailid1" });
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(newPassword, salt);
+      await query(
+        `UPDATE parammachine_saka.users SET password = ${db.escape(
+          hashPassword
+        )} WHERE email = ${db.escape(email)}`
+      );
+    } catch (error) {
+      res.status(error.status || 500).send(error);
+      console.log(error);
+    }
+  },
+
   //=========================UTILITY=============================================
 
   fetchEMSn14: async (request, response) => {
