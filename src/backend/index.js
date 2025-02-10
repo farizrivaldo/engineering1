@@ -7,11 +7,12 @@ const app = express();
 const { databaseRouter } = require("./routers");
 const { body, validationResult } = require("express-validator");
 // const { log } = require("console");
-const { db, query } = require("./database");
 const upload = require("./middleware/multer");
 // const mqtt = require("mqtt");
 // const WebSocket = require("ws");
 // const EventEmitter = require("events");
+const { db, db2, db3, db4, post, query } = require("./database");
+
 
 app.use(cors());
 app.use(express.json());
@@ -253,6 +254,41 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 // }, 5000); // Periksa setiap 5 detik
 
 // console.log("Server WebSocket berjalan di ws://localhost:8080");
+// Check database connection every 5 seconds
+
+let connectionStatus = {
+  db1: "Unknown",
+  db2: "Unknown",
+  db3: "Unknown",
+  db4: "Unknown",
+  postgresql: "Unknown",
+};
+
+// Function to ping connections every 5 seconds
+function pingConnections() {
+  setInterval(() => {
+    [db, db2, db3, db4].forEach((conn, index) => {
+      conn.ping((err) => {
+        const status = err ? `Error: ${err.message}` : "OK";
+        console.log(`Ping db${index + 1}: ${status}`);
+        connectionStatus[`db${index + 1}`] = status;
+      });
+    });
+    post.query("SELECT 1", (err) => {
+      const status = err ? `Error: ${err.message}` : "OK";
+      console.log(`Ping postgresql: ${status}`);
+      connectionStatus.postgresql = status;
+    });
+  }, 5000);
+}
+
+// Start pinging connections
+pingConnections();
+
+// API endpoint to get connection status
+app.use("/api/connection", (req, res) => {
+  res.json(connectionStatus);
+});
 
 app.use("/part", databaseRouter);
 
