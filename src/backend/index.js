@@ -270,13 +270,13 @@ function pingConnections() {
     [db, db2, db3, db4].forEach((conn, index) => {
       conn.ping((err) => {
         const status = err ? `Error : ${err.message}` : "YOMAN";
-        console.log(`Ping db${index + 1}: ${status}`);
+        // console.log(`Ping db${index + 1}: ${status}`);
         connectionStatus[`db${index + 1}`] = status;
       });
     });
     post.query("SELECT 1", (err) => {
       const status = err ? `Error: ${err.message}` : "YOMAN";
-      console.log(`Ping postgresql: ${status}`);
+      // console.log(`Ping postgresql: ${status}`);
       connectionStatus.postgresql = status;
     });
   }, 5000);
