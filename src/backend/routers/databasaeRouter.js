@@ -154,6 +154,7 @@ routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
 routers.get("/BatchRecord1", databaseControllers.BatchRecord1);
 routers.get("/BatchRecord3", databaseControllers.BatchRecord3);
 routers.get("/SearchBatchRecord", databaseControllers.SearchBatchRecord);
+routers.get("/StripingRecord", databaseControllers.StripingRecord);
 
 routers.post("/CreateParameter", databaseControllers.CreateParameter);
 routers.get("/GetParameter", databaseControllers.GetParameter);
@@ -162,7 +163,7 @@ routers.get("/GetJam", databaseControllers.GetJam);
 routers.post("/CreateLimit", databaseControllers.CreateLimit);
 routers.get("/GetLimit", databaseControllers.GetLimit);
 
-//==============BATCH RECORD========================================BATCH RECORD==========================================
+//==============SHOW LAST DATA ========================================SHOW LAST DATA==========================================
 routers.get("/GetDailyVibrasi138", databaseControllers.GetDailyVibrasi138);
 routers.get("/GetDailyGedung138", databaseControllers.GetDailyGedung138);
 routers.get("/GetDailyChiller138", databaseControllers.GetDailyChiller138);
@@ -170,9 +171,9 @@ routers.get("/GetDailyBoiler138", databaseControllers.GetDailyBoiler138);
 routers.get("/GetDailyInstrumentIPC",databaseControllers.GetDailyInstrumentIPC);
 routers.get("/GetDailyPower55", databaseControllers.GetDailyPower55);
 routers.get("/GetDailyHVAC55", databaseControllers.GetDailyHVAC55);
-routers.get("/GetDailyINV_HVAC", databaseControllers.GetDailyINV_HVAC);
 routers.get("/GetDailyEMSUTY", databaseControllers.GetDailyEMSUTY);
 routers.get("/GetDailyDehum", databaseControllers.GetDailyDehum);
 routers.get("/GetDailyWATER", databaseControllers.GetDailyWATER);
+// routers.get("/GetDailyINV_HVAC", databaseControllers.GetDailyINV_HVAC);
 
 module.exports = routers;
