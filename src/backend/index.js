@@ -1,22 +1,55 @@
 const fetch = require("isomorphic-fetch");
-// const { request } = require("express");
 const express = require("express");
 const cors = require("cors");
+const { body, validationResult } = require("express-validator");
+const upload = require("./middleware/multer");
+const { db, db2, db3, db4, post } = require("./database");
+const { databaseRouter } = require("./routers");
+const { exec } = require("child_process");
+const fs = require("fs");
+const axios = require("axios");
+
 const port = 8002;
 const app = express();
-const { databaseRouter } = require("./routers");
-const { body, validationResult } = require("express-validator");
-// const { log } = require("console");
-const upload = require("./middleware/multer");
-// const mqtt = require("mqtt");
-// const WebSocket = require("ws");
-// const EventEmitter = require("events");
-const { db, db2, db3, db4, post, query } = require("./database");
+
 
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
+
+const OLLAMA_URL = "http://10.126.15.125:11434/api/generate";
+
+app.post("/ask-ollama", async (req, res) => {
+  try {
+    const response = await axios.post(OLLAMA_URL, {
+      model: "deepseek-r1:1.5b", // Sesuaikan dengan model yang digunakan
+      prompt: req.body.prompt,
+    });
+
+    res.json(response.data);
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error fetching Ollama:", error.message);
+    res.status(500).json({ error: "Failed to get response from Ollama" });
+  }
+});
+
+
+// Logging middleware to log request body
+app.use((req, res, next) => {
+  console.log(`Request Body: ${JSON.stringify(req.body)}`);
+  next();
+});
+
+// Error handling middleware for JSON parsing errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    console.error("Bad JSON:", err.message);
+    return res.status(400).send({ error: "Invalid JSON payload" });
+  }
+  next();
+});
 
 app.post(
   "/validation",
@@ -37,6 +70,7 @@ app.get("/plc", async (req, res) => {
     const data = await response.text();
     res.send(data);
   } catch (error) {
+    console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
@@ -44,217 +78,57 @@ app.get("/plc", async (req, res) => {
 app.post("/upload", upload.single("file"), async (req, res) => {
   const { file } = req;
   const filepath = file ? "/" + file.filename : null;
-  let data = JSON.parse(req.body.data);
+  let data;
+  try {
+    data = JSON.parse(req.body.data);
+  } catch (err) {
+    console.error(err);
+    return res.status(400).send({ error: "Invalid JSON payload" });
+  }
 
   res.status(200).send({ filepath });
 
-  let fetchQuerry = `UPDATE parammachine_saka.users SET imagePath = ${db.escape(
+  let fetchQuery = `UPDATE parammachine_saka.users SET imagePath = ${db.escape(
     filepath
   )} WHERE id_users = ${db.escape(data.id)}`;
 
-  db.query(fetchQuerry, (err, result) => {
+  db.query(fetchQuery, (err, result) => {
     if (err) {
-      // return response.status(200).send({
-      //   isSucess: true,
-      //   message: "File not suport,(don't use spacing in name of file) ",
-      // });
+      console.error(err);
+      res.status(500).send({
+        isSuccess: false,
+        message: "Error updating database",
+      });
     } else {
-      //return response.status(200).send({ isSucess: true, message: "Succes update data" });
+      res.status(200).send({ isSuccess: true, message: "Success update data" });
     }
   });
 });
 
-//========================MQTT===============================================================================
-//========================MQTT===============================================================================
-// Konfigurasi broker MQT // Pastikan Anda telah menginstal package 'mqtt' dengan `npm install mqtt`
-// const mqttBroker = "mqtt://10.126.15.7"; // Alamat broker Anda
-// const mqttTopic1 = "kwhmeter"; // Topik yang ingin di-subscribe
-// const mqttTopic2 = "dbwater"; // Topik yang ingin di-subscribe
-// const mqttTopic3 = "totalgas"; // Topik yang ingin di-subscribe
-// const mqttTopic4 = "masterbox"; // Topik yang ingin di-subscribe
+app.post("/generate", (req, res) => {
+  const { model, prompt } = req.body;
+  const command = `curl.exe -X POST http://10.126.15.125:11434/api/generate -H "Content-Type: application/json" -d "{\\"model\\":\\"${model}\\", \\"prompt\\":\\"${prompt}\\"}"`;
 
-// Hubungkan ke broker MQTT
-// const mqttClient = mqtt.connect(mqttBroker);
-// EventEmitter.defaultMaxListeners = 20;
-// mqttClient.on("connect", () => {
-//   console.log("Terhubung ke broker MQTT");
-//   // Subscribe ke topik
-//   mqttClient.subscribe(mqttTopic1, (err) => {
-//     if (!err) {
-//       console.log(`Berhasil subscribe ke topik: ${mqttTopic1}`);
-//     } else {
-//       console.error("Gagal subscribe ke topik:", err);
-//     }
-//   });
-
-//   mqttClient.subscribe(mqttTopic2, (err) => {
-//     if (!err) {
-//       console.log(`Berhasil subscribe ke topik: ${mqttTopic2}`);
-//     } else {
-//       console.error("Gagal subscribe ke topik:", err);
-//     }
-//   });
-
-//   mqttClient.subscribe(mqttTopic3, (err) => {
-//     if (!err) {
-//       console.log(`Berhasil subscribe ke topik: ${mqttTopic3}`);
-//     } else {
-//       console.error("Gagal subscribe ke topik:", err);
-//     }
-//   });
-
-//   mqttClient.subscribe(mqttTopic4, (err) => {
-//     if (!err) {
-//       console.log(`Berhasil subscribe ke topik: ${mqttTopic4}`);
-//     } else {
-//       console.error("Gagal subscribe ke topik:", err);
-//     }
-//   });
-// });
-
-// // Tangani error jika ada
-// mqttClient.on("error", (err) => {
-//   console.error("Error MQTT:", err);
-// });
-
-// // Event ketika menerima pesan dari topik
-// mqttClient.on("message", (topic, message) => {
-//   // console.log(`Pesan diterima dari topik "${topic}": ${message.toString()}`);
-//   // console.log(mqttClient.listenerCount("message"));
-// });
-
-// // Buat server WebSocket
-// const wss = new WebSocket.Server({ host: "127.0.0.1", port: 8081 });
-
-// wss.on("connection", (ws) => {
-//   //console.log("Klien WebSocket terhubung");
-
-//   // Kirim pesan selamat datang
-//   ws.send("Terhubung ke WebSocket server!");
-
-//   // // Kirim pesan MQTT yang diterima ke klien WebSocket
-//   // mqttClient.on("message", (topic, message) => {
-//   //   if (topic === mqttTopic1) {
-//   //     console.log(`Pesan dari MQTT: ${message.toString()}`);
-//   //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-//   //   }
-//   // });
-
-//   // mqttClient.on("message", (topic, message) => {
-//   //   if (topic === mqttTopic2) {
-//   //     //console.log(`Pesan dari MQTT: ${message.toString()}`);
-//   //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-//   //   }
-//   // });
-
-//   // mqttClient.on("message", (topic, message) => {
-//   //   if (topic === mqttTopic3) {
-//   //     // console.log(`Pesan dari MQTT: ${message.toString()}`);
-//   //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-//   //   }
-//   // });
-
-//   // mqttClient.on("message", (topic, message) => {
-//   //   if (topic === mqttTopic4) {
-//   //     // console.log(`Pesan dari MQTT: ${message.toString()}`);
-//   //     ws.send(`Pesan dari MQTT [${topic}]: ${message.toString()}`);
-//   //   }
-//   // });
-
-//   const previousValues = {
-//     [mqttTopic1]: null,
-//     [mqttTopic2]: null,
-//     [mqttTopic3]: null,
-//     [mqttTopic4]: null,
-//   };
-
-//   mqttClient.on("message", (topic, message) => {
-//     try {
-//       // Bersihkan pesan dari karakter tak diinginkan
-//       const cleanedMessage = message
-//         .toString()
-//         .replace(/\\x0B|\+/g, "")
-//         .replace(/\s|\+/g, "")
-//         .replace(/\t/g, "")
-//         .replace(/\f/g, "");
-
-//       // Parse pesan menjadi JSON
-//       const parsedMessage = JSON.parse(cleanedMessage);
-
-//       if (parsedMessage && parsedMessage.d) {
-//         // Ambil nilai sebelumnya jika ada
-//         const previousData = previousValues[topic] || {};
-
-//         // Proses data di dalam properti `d`
-//         for (const [key, value] of Object.entries(parsedMessage.d)) {
-//           const newValue = value[0];
-
-//           // Gunakan nilai sebelumnya jika `newValue` adalah 0
-//           if (newValue === 0 && previousData[key] !== undefined) {
-//             parsedMessage.d[key] = [previousData[key]];
-//           } else {
-//             // Simpan nilai baru ke `previousValues`
-//             previousData[key] = newValue;
-//           }
-//         }
-
-//         // Perbarui nilai sebelumnya untuk topik ini
-//         previousValues[topic] = previousData;
-
-//         // Kirim data ke WebSocket
-//         ws.send(`Pesan dari MQTT [${topic}]: ${JSON.stringify(parsedMessage)}`);
-//       }
-//     } catch (error) {
-//       console.error(`Error processing MQTT message for topic ${topic}:`, error);
-//     }
-//   });
-
-//   //=====================================================================
-
-//   ws.on("message", (msg) => {
-//     //console.log(`Pesan dari klien WebSocket: ${msg}`);
-//   });
-
-//   ws.on("close", () => {
-//     //console.log("Klien WebSocket terputus");
-//   });
-//   //================================================================================
-//   // wss.on("connection", (ws) => {
-//   //   console.log("Klien WebSocket terhubung");
-
-//   //   ws.send("Terhubung ke WebSocket server!");
-
-//   //   if (mqttClient.listenerCount("message") === 0) {
-//   //     mqttClient.on("message", mqttMessageHandler);
-//   //   }
-
-//   //   ws.on("close", () => {
-//   //     console.log("Klien WebSocket terputus");
-//   //     mqttClient.removeListener("message", mqttMessageHandler);
-//   //   });
-//   // });
-// });
-
-// setInterval(() => {
-//   const listenerCount = mqttClient.listenerCount("message");
-//   // console.log(`Jumlah listener: ${listenerCount}`);
-
-//   if (listenerCount >= 300) {
-//     console.warn("Listener melebihi batas, melakukan reset...");
-
-//     // Hapus semua listener
-//     mqttClient.removeAllListeners("message");
-
-//     // Tambahkan listener baru
-//     mqttClient.on("message", handleMessage);
-//     ws.on("message");
-
-//     // console.log("Listener telah direset ke 1.");
-//   }
-// }, 5000); // Periksa setiap 5 detik
-
-// console.log("Server WebSocket berjalan di ws://localhost:8080");
-// Check database connection every 5 seconds
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(error);
+      res.status(500).send(`Error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(stderr);
+      res.status(500).send(`Stderr: ${stderr}`);
+      return;
+    }
+    try {
+      const jsonResponse = JSON.parse(stdout);
+      res.status(200).json(jsonResponse);
+    } catch (parseError) {
+      console.error(parseError);
+      res.status(500).send(`Failed to parse response: ${parseError.message}`);
+    }
+  });
+});
 
 let connectionStatus = {
   db1: "Unknown",
@@ -270,13 +144,11 @@ function pingConnections() {
     [db, db2, db3, db4].forEach((conn, index) => {
       conn.ping((err) => {
         const status = err ? `Error : ${err.message}` : "YOMAN";
-        // console.log(`Ping db${index + 1}: ${status}`);
         connectionStatus[`db${index + 1}`] = status;
       });
     });
     post.query("SELECT 1", (err) => {
       const status = err ? `Error: ${err.message}` : "YOMAN";
-      // console.log(`Ping postgresql: ${status}`);
       connectionStatus.postgresql = status;
     });
   }, 5000);
@@ -293,5 +165,5 @@ app.use("/api/connection", (req, res) => {
 app.use("/part", databaseRouter);
 
 app.listen(port, () => {
-  console.log("SERVER RUNNING IN PORT" + port);
+  console.log("SERVER RUNNING IN PORT " + port);
 });
