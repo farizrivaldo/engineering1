@@ -23,7 +23,7 @@ const OLLAMA_URL = "http://10.126.15.125:11434/api/generate";
 app.post("/ask-ollama", async (req, res) => {
   try {
     const response = await axios.post(OLLAMA_URL, {
-      model: "deepseek-r1:1.5b", // Sesuaikan dengan model yang digunakan
+      model: req.body.machine, // Sesuaikan dengan model yang digunakan
       prompt: req.body.prompt,
     });
 
