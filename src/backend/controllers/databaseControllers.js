@@ -3294,25 +3294,25 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   StripingRecord: async (request, response) => {
-    const { area, start, finish } = request.query;
+    const { start, finish } = request.query;
     const queryGet = `
-        SELECT 
-            data_index AS x, 
-            CONVERT(data_format_0 USING utf8) AS BATCH,
-            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
-        FROM 
-            \`ems_saka\`.\`${area}\`
-        WHERE 
-            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+    SELECT 
+    batchname AS Batch,
+    DATE(FROM_UNIXTIME(\`waktu\`) + INTERVAL 4 HOUR) AS Tanggal
+    FROM 
+        \`parammachine_saka\`.\`hm_str1b\`
+    WHERE 
+        \`waktu\` IS NOT NULL
         GROUP BY 
-            data_format_0
-        ORDER BY
-            label;
+        batchname
+    ORDER BY
+    Tanggal DESC;
     `;
+    console.log(queryGet)
 
     try {
       const result = await new Promise((resolve, reject) => {
-        db2.query(queryGet, (err, result) => {
+        db.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
