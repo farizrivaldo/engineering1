@@ -12,18 +12,26 @@ const axios = require("axios");
 const port = 8002;
 const app = express();
 
-
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
 const OLLAMA_URL = "http://10.126.15.125:11434/api/generate";
 
-app.post("/ask-ollama", async (req, res) => {
+// Antrian untuk permintaan
+let requestQueue = [];
+let isProcessing = false;
+
+// Fungsi untuk memproses antrian
+const processQueue = async () => {
+  if (isProcessing || requestQueue.length === 0) return;
+
+  isProcessing = true;
+  const { req, res } = requestQueue.shift();
+
   try {
     const response = await axios.post(OLLAMA_URL, {
-      model: req.body.machine, // Sesuaikan dengan model yang digunakan
+      model: req.body.machine,
       prompt: req.body.prompt,
     });
 
@@ -32,9 +40,16 @@ app.post("/ask-ollama", async (req, res) => {
   } catch (error) {
     console.error("Error fetching Ollama:", error.message);
     res.status(500).json({ error: "Failed to get response from Ollama" });
+  } finally {
+    isProcessing = false;
+    processQueue(); // Proses permintaan berikutnya dalam antrian
   }
-});
+};
 
+app.post("/ask-ollama", (req, res) => {
+  requestQueue.push({ req, res });
+  processQueue();
+});
 
 // Logging middleware to log request body
 app.use((req, res, next) => {
