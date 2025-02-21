@@ -8,6 +8,8 @@ const { databaseRouter } = require("./routers");
 const { exec } = require("child_process");
 const fs = require("fs");
 const axios = require("axios");
+const http = require("http");
+const WebSocket = require("ws");
 
 const port = 8002;
 const app = express();
@@ -179,6 +181,66 @@ app.use("/api/connection", (req, res) => {
 
 app.use("/part", databaseRouter);
 
-app.listen(port, () => {
+// WebSocket Server setup
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+app.post("/ask", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify({ message: "WebSocket connection established" }));
+
+  const ws = new WebSocket(`ws://localhost:${port}`);
+
+  ws.on("open", () => {
+    ws.send(JSON.stringify(req.body));
+  });
+
+  ws.on("message", (data) => {
+    console.log("Received:", data);
+  });
+});
+
+wss.on("connection", (ws) => {
+  ws.on("message", async (message) => {
+    const { machine, prompt } = JSON.parse(message);
+
+    try {
+      const response = await axios.post(
+        OLLAMA_URL,
+        {
+          model: machine,
+          prompt: prompt,
+          stream: true,
+        },
+        { responseType: "stream" }
+      );
+
+      response.data.on("data", (chunk) => {
+        try {
+          const jsonChunks = chunk.toString().trim().split("\n");
+          jsonChunks.forEach((jsonChunk) => {
+            const parsed = JSON.parse(jsonChunk);
+            if (parsed.response) {
+              console.log(parsed.response); // Log hasil ke console
+              ws.send(parsed.response);
+            }
+          });
+        } catch (err) {
+          console.error("Error parsing stream chunk:", err);
+        }
+      });
+
+      response.data.on("end", () => {
+        ws.close();
+      });
+    } catch (error) {
+      console.error("Error fetching Ollama:", error.message);
+      ws.send(JSON.stringify({ error: "Failed to get response from Ollama" }));
+      ws.close();
+    }
+  });
+});
+
+server.listen(port, () => {
   console.log("SERVER RUNNING IN PORT " + port);
 });
