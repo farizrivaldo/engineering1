@@ -181,7 +181,7 @@ app.use("/api/connection", (req, res) => {
 
 app.use("/part", databaseRouter);
 
-// WebSocket Server setup
+// WebSocket implementation
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
@@ -227,6 +227,7 @@ wss.on("connection", (ws) => {
           });
         } catch (err) {
           console.error("Error parsing stream chunk:", err);
+          ws.send(JSON.stringify({ error: "Error parsing stream chunk" }));
         }
       });
 
