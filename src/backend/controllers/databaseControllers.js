@@ -2819,7 +2819,7 @@ LEFT JOIN
           ORDER BY
           \`time@timestamp\``;
     console.log(queryGet)
-    db.query(queryGet, (err, result) => {
+    db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
