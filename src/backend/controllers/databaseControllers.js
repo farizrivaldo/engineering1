@@ -2800,7 +2800,7 @@ LEFT JOIN
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)- INTERVAL 7 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
           \`time@timestamp\``;
-        console.log(queryGet)
+    console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
@@ -3297,35 +3297,28 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   StripingRecord: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `
-    SELECT 
-    batchname AS Batch,
-    DATE(FROM_UNIXTIME(\`waktu\`) + INTERVAL 4 HOUR) AS Tanggal
-    FROM 
-        \`parammachine_saka\`.\`hm_str1b\`
-    WHERE 
-        \`waktu\` IS NOT NULL
+        SELECT 
+            data_index AS x, 
+            batchname AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\` / 1000) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`hm_striping_1B\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\` / 1000)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
-        batchname
-    ORDER BY
-    Tanggal DESC;
+            BATCH
+        ORDER BY
+            label;
     `;
-    console.log(queryGet)
-
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
+    db.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
       return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
+    });
   },
+
 
   //==============CRUD CRUD PORTAL========================================CRUD CRUD PORTAL==========================================
   //PARAMETER PORTAL ENJOY
@@ -3580,7 +3573,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   GetDailyGedung138: async (request, response) => {
-  const fatchquerry = `
+    const fatchquerry = `
   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Chiller1_data\` FROM \`ems_saka\`.\`cMT-Gedung-UTY_Chiller1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Chiller2_data\` FROM \`ems_saka\`.\`cMT-Gedung-UTY_Chiller2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_Chiller3_data\` FROM \`ems_saka\`.\`cMT-Gedung-UTY_Chiller3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
