@@ -4403,17 +4403,26 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { area } = request.query;
     const queryGet = `
     SELECT 
-        FROM_UNIXTIME(\`time@timestamp\`) AS time,
-        @prev_value := data_format_0 AS data_format_0
-    FROM 
-        (
-            SELECT \`time@timestamp\`, data_format_0
-            FROM \`parammachine_saka\`.\`${area}\`
-            WHERE \`time@timestamp\` >= UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-01')) -- Tanggal 1 bulan ini
-              AND \`time@timestamp\` < UNIX_TIMESTAMP(DATE(NOW())) -- Hingga kemarin
-        ) AS combined_data
-    ORDER BY 
-        \`time@timestamp\`
+    time,
+    difference
+    FROM (
+        SELECT 
+            \`time@timestamp\` AS time,
+            CASE 
+                WHEN @prev_value IS NULL THEN 0
+                ELSE data_format_0 - @prev_value
+            END AS difference,
+            @prev_value := data_format_0
+        FROM 
+            (
+                SELECT \`time@timestamp\`, data_format_0
+                FROM \`parammachine_saka\`.\`${area}\`
+                WHERE \`time@timestamp\` >= UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-01')) -- Tanggal 1 bulan ini
+                  AND \`time@timestamp\` < UNIX_TIMESTAMP(DATE(NOW())) -- Hingga kemarin
+            ) AS combined_data
+        ORDER BY 
+            \`time@timestamp\`
+    ) AS inner_query;
     `;
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -4428,17 +4437,26 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { area } = request.query;
     const queryGet = `
     SELECT 
-        FROM_UNIXTIME(\`time@timestamp\`) AS time,
-        @prev_value := data_format_0 AS data_format_0
-    FROM 
-        (
-            SELECT \`time@timestamp\`, data_format_0
-            FROM \`ems_saka\`.\`${area}\`
-            WHERE \`time@timestamp\` >= UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-01')) -- Tanggal 1 bulan ini
-              AND \`time@timestamp\` < UNIX_TIMESTAMP(DATE(NOW())) -- Hingga kemarin
-        ) AS combined_data
-    ORDER BY 
-        \`time@timestamp\`
+    time,
+    difference
+    FROM (
+        SELECT 
+            \`time@timestamp\` AS time,
+            CASE 
+                WHEN @prev_value IS NULL THEN 0
+                ELSE data_format_0 - @prev_value
+            END AS difference,
+            @prev_value := data_format_0
+        FROM 
+            (
+                SELECT \`time@timestamp\`, data_format_0
+                FROM \`ems_saka\`.\`${area}\`
+                WHERE \`time@timestamp\` >= UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-01')) -- Tanggal 1 bulan ini
+                  AND \`time@timestamp\` < UNIX_TIMESTAMP(DATE(NOW())) -- Hingga kemarin
+            ) AS combined_data
+        ORDER BY 
+            \`time@timestamp\`
+    ) AS inner_query;
     `;
     db4.query(queryGet, (err, result) => {
       if (err) {
