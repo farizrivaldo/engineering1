@@ -4403,15 +4403,15 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { area } = request.query;
     const queryGet = `
     SELECT 
-    time,
-    difference
+    x,
+    y
     FROM (
         SELECT 
-            \`time@timestamp\` AS time,
+            \`time@timestamp\` AS x,
             CASE 
                 WHEN @prev_value IS NULL THEN 0
                 ELSE data_format_0 - @prev_value
-            END AS difference,
+            END AS y,
             @prev_value := data_format_0
         FROM 
             (
@@ -4437,15 +4437,15 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { area } = request.query;
     const queryGet = `
     SELECT 
-    time,
-    difference
+    x,
+    y
     FROM (
         SELECT 
-            \`time@timestamp\` AS time,
+            \`time@timestamp\` AS x,
             CASE 
                 WHEN @prev_value IS NULL THEN 0
                 ELSE data_format_0 - @prev_value
-            END AS difference,
+            END AS y,
             @prev_value := data_format_0
         FROM 
             (
