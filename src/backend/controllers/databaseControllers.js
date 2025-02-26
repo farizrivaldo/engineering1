@@ -2818,7 +2818,7 @@ LEFT JOIN
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)- INTERVAL 7 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
           \`time@timestamp\``;
-    console.log(queryGet)
+    console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
@@ -3318,7 +3318,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
-
 
   //==============CRUD CRUD PORTAL========================================CRUD CRUD PORTAL==========================================
   //PARAMETER PORTAL ENJOY
@@ -4399,4 +4398,55 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+  GrafanaWater: async (request, response) => {
+    const { area } = request.query;
+    const queryGet = `
+    SELECT 
+        FROM_UNIXTIME(\`time@timestamp\`) AS time,
+        @prev_value := data_format_0 AS data_format_0
+    FROM 
+        (
+            SELECT \`time@timestamp\`, data_format_0
+            FROM \`parammachine_saka\`.\`${area}\`
+            WHERE \`time@timestamp\` >= UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-01')) -- Tanggal 1 bulan ini
+              AND \`time@timestamp\` < UNIX_TIMESTAMP(DATE(NOW())) -- Hingga kemarin
+        ) AS combined_data
+    ORDER BY 
+        \`time@timestamp\`
+    `;
+    db3.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+
+  GrafanaPower: async (request, response) => {
+    const { area } = request.query;
+    const queryGet = `
+    SELECT 
+        FROM_UNIXTIME(\`time@timestamp\`) AS time,
+        @prev_value := data_format_0 AS data_format_0
+    FROM 
+        (
+            SELECT \`time@timestamp\`, data_format_0
+            FROM \`ems_saka\`.\`${area}\`
+            WHERE \`time@timestamp\` >= UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-01')) -- Tanggal 1 bulan ini
+              AND \`time@timestamp\` < UNIX_TIMESTAMP(DATE(NOW())) -- Hingga kemarin
+        ) AS combined_data
+    ORDER BY 
+        \`time@timestamp\`
+    `;
+    db4.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+  
 };

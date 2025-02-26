@@ -176,5 +176,8 @@ routers.get("/GetDailyDehum", databaseControllers.GetDailyDehum);
 routers.get("/GetDailyWATER", databaseControllers.GetDailyWATER);
 // routers.get("/GetDailyINV_HVAC", databaseControllers.GetDailyINV_HVAC);
 
+//==============GRAFANA NIH BOS ========================================GRAFANA NIH BOS==========================================
+routers.get("/GrafanaWater", databaseControllers.GrafanaWater);
+routers.get("/GrafanaPower", databaseControllers.GrafanaPower);
 
 module.exports = routers;
