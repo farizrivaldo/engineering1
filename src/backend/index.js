@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-const OLLAMA_URL = "http://10.126.15.125:11434/api/generate";
+const OLLAMA_URL = "http://10.126.15.141:11434/api/generate";
 
 // Antrian untuk permintaan
 let requestQueue = [];
@@ -124,7 +124,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
 app.post("/generate", (req, res) => {
   const { model, prompt } = req.body;
-  const command = `curl.exe -X POST http://10.126.15.125:11434/api/generate -H "Content-Type: application/json" -d "{\\"model\\":\\"${model}\\", \\"prompt\\":\\"${prompt}\\"}"`;
+  const command = `curl.exe -X POST http://10.126.15.141:11434/api/generate -H "Content-Type: application/json" -d "{\\"model\\":\\"${model}\\", \\"prompt\\":\\"${prompt}\\"}"`;
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
