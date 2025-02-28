@@ -3636,7 +3636,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   `;
 
-    db4.query(fatchquerry, (err, result) => {
+    db3.query(fatchquerry, (err, result) => {
       if (err) {
         console.log(err);
         return response.status(500).send("Database query failed");
