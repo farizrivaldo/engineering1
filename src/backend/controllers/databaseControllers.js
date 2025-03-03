@@ -3522,45 +3522,33 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //==============TEST VALUE DATA DAILY========================================TEST VALUE DATA DAILY==========================================
   GetDailyVibrasi138: async (request, response) => {
     const fatchquerry = `
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_E_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_F_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_F_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU F 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_FT_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_FT_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_G_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU G 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_G_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU G 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_LA_2.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU LA 2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_MG_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_MG_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_MG_1.03_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU MG 1.03_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_RND_3.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU RND 3.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_RND_3.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU RND 3.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_WG_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_WG_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_AHU_WH1_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH AHU WH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_DCU_FT_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH DCU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_DCU_WG_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH DCU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_E_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU E 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_FT_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU FT 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_FT_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU FT 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_MG_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU MG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_MG_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU MG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_WG_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_RFU_WG_1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH RFU WG 1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_TFU_F_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH TFU F 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_CMH_TFU_WG_1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_CMH TFU WG 1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_M_Current_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_M_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_M_Temp_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_M_Temp_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_XaxisRMS-S1_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_XaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_ZaxisRMS-S1_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_ZaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-  `;
+
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_2_Current_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_2_Current_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_E1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_E1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_F1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_F1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_F1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_F1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_FT1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_FT1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_G1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_G1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_G1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_G1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_LA2.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_LA2.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_MG1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_MG1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_MG1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_MG1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_WG1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_WG1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_AHU_WG1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_AHU_WG1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_RFU_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_RFU_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Data_RFU_MG1.02_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Data_RFU_MG1.02_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_M_Temp_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_M_Temp_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_X_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_X_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_X_Axis_Ve_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_XaxisRMS-S1_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_XaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Z_ACC_G_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Z_AXISVCF_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_Z_AXIS_RM_FT1.01_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-VibrasiHVAC_ZaxisRMS-S1_data\` FROM \`parammachine_saka\`.\`cMT-VibrasiHVAC_ZaxisRMS-S1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+
+    `;
 
     db3.query(fatchquerry, (err, result) => {
       if (err) {
@@ -3635,7 +3623,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-Gedung-UTY_SDP_Genset_data\` FROM \`ems_saka\`.\`cMT-Gedung-UTY_SDP_Genset_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
 
   `;
-
+    console.log(fatchquerry);
     db3.query(fatchquerry, (err, result) => {
       if (err) {
         console.log(err);
