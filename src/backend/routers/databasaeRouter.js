@@ -174,6 +174,7 @@ routers.get("/GetDailyHVAC55", databaseControllers.GetDailyHVAC55);
 routers.get("/GetDailyEMSUTY", databaseControllers.GetDailyEMSUTY);
 routers.get("/GetDailyDehum", databaseControllers.GetDailyDehum);
 routers.get("/GetDailyWATER", databaseControllers.GetDailyWATER);
+routers.get("/GrafanaWater2", databaseControllers.GrafanaWater2);
 // routers.get("/GetDailyINV_HVAC", databaseControllers.GetDailyINV_HVAC);
 
 //==============GRAFANA NIH BOS ========================================GRAFANA NIH BOS==========================================
