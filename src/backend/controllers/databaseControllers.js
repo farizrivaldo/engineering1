@@ -3175,7 +3175,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     try {
       const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
+        db3.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -3197,7 +3197,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`parammachine_saka\`.\`${area}\`
+            \`ems_saka\`.\`${area}\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
