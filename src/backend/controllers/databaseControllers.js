@@ -3175,7 +3175,40 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     try {
       const result = await new Promise((resolve, reject) => {
-        db3.query(queryGet, (err, result) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  BatchRecord1_DB2: async (request, response) => {
+    const { area, start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`${area}\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db2.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
