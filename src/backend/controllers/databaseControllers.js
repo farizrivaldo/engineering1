@@ -3155,16 +3155,16 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
-  //==============BATCH RECORD ========================================BATCH RECORD ==========================================
-  BatchRecord1: async (request, response) => {
-    const { area, start, finish } = request.query;
+  //==============BATCH RECORD LINE 1 ========================================BATCH RECORD LINE 1 ==========================================
+  PMARecord1: async (request, response) => {
+    const { start, finish } = request.query;
     const queryGet = `
         SELECT 
             data_index AS x, 
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`parammachine_saka\`.\`${area}\`
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_PMA_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3172,40 +3172,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         ORDER BY
             label;
     `;
-
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db3.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
-
-  BatchRecord1_DB2: async (request, response) => {
-    const { area, start, finish } = request.query;
-    const queryGet = `
-        SELECT 
-            data_index AS x, 
-            CONVERT(data_format_0 USING utf8) AS BATCH,
-            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
-        FROM 
-            \`ems_saka\`.\`${area}\`
-        WHERE 
-            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-        GROUP BY 
-            data_format_0
-        ORDER BY
-            label;
-    `;
-
     try {
       const result = await new Promise((resolve, reject) => {
         db2.query(queryGet, (err, result) => {
@@ -3222,15 +3188,15 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  BatchRecord3: async (request, response) => {
-    const { area, start, finish } = request.query;
+  BinderRecord1: async (request, response) => {
+    const { start, finish } = request.query;
     const queryGet = `
         SELECT 
             data_index AS x, 
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`parammachine_saka\`.\`${area}\`
+            \`parammachine_saka\`.\`mezanine.tengah_Ebr_Binder1_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3238,96 +3204,255 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         ORDER BY
             label;
     `;
-    db2.query(queryGet, (err, result) => {
-      if (err) {
-        console.log(err);
-        return response.status(500).send("Database query failed");
-      }
-      return response.status(200).send(result);
-    });
-  },
-
-  SearchBatchRecord: async (request, response) => {
-    const { area, data } = request.query;
-    if (!area) {
-      return response.status(400).send("Missing required query parameters");
-    }
-
-    const getAllColumns = (area) => {
-      return new Promise((resolve, reject) => {
-        const query = `
-        SELECT COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = 'ems_saka'
-        AND TABLE_NAME = ?
-        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
-      `;
-        db2.query(query, [area], (err, results) => {
-          if (err) return reject(err);
-          const columns = results.map((result) => result.COLUMN_NAME);
-          resolve(columns);
-        });
-      });
-    };
-
-    const getColumnMappings = (area) => {
-      return new Promise((resolve, reject) => {
-        const query = `
-        SELECT data_format_index, comment
-        FROM \`${area}_format\`
-      `;
-        db2.query(query, (err, results) => {
-          if (err) return reject(err);
-          resolve(results);
-        });
-      });
-    };
-
     try {
-      const columns = await getAllColumns(area);
-      const columnMappings = await getColumnMappings(area);
-
-      const mappedColumns = columns.map((col) => {
-        const match = col.match(/data_format_(\d+)/);
-        if (match) {
-          const index = parseInt(match[1], 10);
-          const mapping = columnMappings.find(
-            (mapping) => mapping.data_format_index === index
-          );
-          if (mapping) {
-            return `\`${col}\` AS \`${mapping.comment}\``;
+      const result = await new Promise((resolve, reject) => {
+        db3.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
           }
-        }
-        return `\`${col}\``;
+          resolve(result);
+        });
       });
-
-      const queryGet = `
-      SELECT
-        ${mappedColumns.join(", ")},
-        CONVERT(\`data_format_0\` USING utf8) AS \` BATCH\`,
-        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
-      FROM
-        \`ems_saka\`.\`${area}\`
-      WHERE
-        CONVERT(\`data_format_0\` USING utf8) LIKE ?
-      ORDER BY
-        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
-    `;
-
-      db.query(queryGet, [`%${data}%`], (err, result) => {
-        if (err) {
-          console.log(err);
-          return response.status(500).send("Database query failed");
-        }
-        return response.status(200).send(result);
-      });
+      return response.status(200).send(result);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return response.status(500).send("Database query failed");
     }
   },
 
-  StripingRecord: async (request, response) => {
+  WetmillRecord1: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_Wetmill_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db2.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  FBDRecord1: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`cMT-FHDGEA1_EBR_FBD_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db3.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  EPHRecord1: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_EPH_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db2.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  TumblerRecord1: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_Finalmix_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db2.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  FetteRecord1: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`mezanine.tengah_EBR_FetteLine1_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  DedusterRecord1: async (request, response) => {
+   
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  LifterRecord1: async (request, response) => {
+   
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  MetalDetectorRecord1: async (request, response) => {
+   
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  IJPRecord1: async (request, response) => {
+    
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  HMRecord1: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `
         SELECT 
@@ -3351,6 +3476,336 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+  CM1Record1: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`mezanine.tengah_Cm1_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  PMARecord3: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`cMT-GEA-L3_EBR_PMA_L3_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  BinderRecord3: async (request, response) => {
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db3.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  WetmillRecord3: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`cMT-GEA-L3_EBR_WETMILL_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  FBDRecord3: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`cMT-GEA-L3_EBR_FBD_L3_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  EPHRecord3: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            CONVERT(data_format_0 USING utf8) AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`cMT-GEA-L3_EBR_EPH_L3_data\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            data_format_0
+        ORDER BY
+            label;
+    `;
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  TumblerRecord3: async (request, response) => {
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db2.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  FetteRecord3: async (request, response) => {
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  DedusterRecord3: async (request, response) => {
+   
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  LifterRecord3: async (request, response) => {
+   
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  MetalDetectorRecord3: async (request, response) => {
+   
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  IJPRecord3: async (request, response) => {
+    
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  HMRecord3: async (request, response) => {
+    const { start, finish } = request.query;
+    const queryGet = `
+        SELECT 
+            data_index AS x, 
+            batchname AS BATCH,
+            DATE(FROM_UNIXTIME(\`time@timestamp\` / 1000) + INTERVAL 4 HOUR) AS label
+        FROM 
+            \`parammachine_saka\`.\`hm_striping_1B\`
+        WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\` / 1000)) BETWEEN '${start}' AND '${finish}'
+        GROUP BY 
+            BATCH
+        ORDER BY
+            label;
+    `;
+    db.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
+
+  CM1Record3: async (request, response) => {
+    
+    try {
+      const result = await new Promise((resolve, reject) => {
+        db4.query(queryGet, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
+      return response.status(200).send(result);
+    } catch (error) {
+      console.error(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
 
   //==============CRUD CRUD PORTAL========================================CRUD CRUD PORTAL==========================================
   //PARAMETER PORTAL ENJOY

@@ -151,11 +151,38 @@ routers.get("/fetchPower", databaseControllers.fetchPower);
 routers.get("/PowerMeterGraph", databaseControllers.PowerMeterGraph);
 
 //==============BATCH RECORD ========================================BATCH RECORD ==========================================
-routers.get("/BatchRecord1", databaseControllers.BatchRecord1);
-routers.get("/BatchRecord1_DB2", databaseControllers.BatchRecord1_DB2);
-routers.get("/BatchRecord3", databaseControllers.BatchRecord3);
-routers.get("/SearchBatchRecord", databaseControllers.SearchBatchRecord);
-routers.get("/StripingRecord", databaseControllers.StripingRecord);
+routers.get("/PMARecord1", databaseControllers.PMARecord1);
+routers.get("/BinderRecord1", databaseControllers.BinderRecord1);
+routers.get("/WetmillRecord1", databaseControllers.WetmillRecord1);
+routers.get("/FBDRecord1", databaseControllers.FBDRecord1);
+routers.get("/EPHRecord1", databaseControllers.EPHRecord1);
+routers.get("/TumblerRecord1", databaseControllers.TumblerRecord1);
+routers.get("/FetteRecord1", databaseControllers.FetteRecord1);
+routers.get("/DedusterRecord1", databaseControllers.DedusterRecord1);
+routers.get("/LifterRecord1", databaseControllers.DedusterRecord1);
+routers.get("/MetalDetectorRecord1", databaseControllers.DedusterRecord1);
+routers.get("/HMRecord1", databaseControllers.HMRecord1);
+routers.get("/IJPRecord1", databaseControllers.IJPRecord1);
+routers.get("/CM1Record1", databaseControllers.CM1Record1);
+
+routers.get("/PMARecord3", databaseControllers.PMARecord3);
+routers.get("/BinderRecord3", databaseControllers.BinderRecord3);
+routers.get("/WetmillRecord3", databaseControllers.WetmillRecord3);
+routers.get("/FBDRecord3", databaseControllers.FBDRecord3);
+routers.get("/EPHRecord3", databaseControllers.EPHRecord3);
+routers.get("/TumblerRecord3", databaseControllers.TumblerRecord3);
+routers.get("/FetteRecord3", databaseControllers.FetteRecord3);
+routers.get("/DedusterRecord3", databaseControllers.DedusterRecord3);
+routers.get("/LifterRecord3", databaseControllers.DedusterRecord3);
+routers.get("/MetalDetectorRecord3", databaseControllers.DedusterRecord3);
+routers.get("/HMRecord3", databaseControllers.HMRecord3);
+routers.get("/IJPRecord3", databaseControllers.IJPRecord3);
+routers.get("/CM1Record3", databaseControllers.CM1Record3);
+
+
+
+
+
 
 routers.post("/CreateParameter", databaseControllers.CreateParameter);
 routers.get("/GetParameter", databaseControllers.GetParameter);
