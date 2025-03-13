@@ -3366,7 +3366,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
     try {
       const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
+        db3.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -3380,77 +3380,73 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  DedusterRecord1: async (request, response) => {
-   
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // DedusterRecord1: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-  LifterRecord1: async (request, response) => {
-   
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // LifterRecord1: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-  MetalDetectorRecord1: async (request, response) => {
-   
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // MetalDetectorRecord1: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-  IJPRecord1: async (request, response) => {
-    
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // IJPRecord1: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
   HMRecord1: async (request, response) => {
     const { start, finish } = request.query;
@@ -3541,23 +3537,22 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  BinderRecord3: async (request, response) => {
-
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db3.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // BinderRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db3.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
   WetmillRecord3: async (request, response) => {
     const { start, finish } = request.query;
@@ -3655,113 +3650,107 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  TumblerRecord3: async (request, response) => {
+  // TumblerRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db2.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db2.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // FetteRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-  FetteRecord3: async (request, response) => {
+  // DedusterRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // LifterRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-  DedusterRecord3: async (request, response) => {
-   
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // MetalDetectorRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
-  LifterRecord3: async (request, response) => {
-   
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
-
-  MetalDetectorRecord3: async (request, response) => {
-   
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
-
-  IJPRecord3: async (request, response) => {
-    
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
-        });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+  // IJPRecord3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
 
   HMRecord3: async (request, response) => {
     const { start, finish } = request.query;
@@ -3788,24 +3777,719 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
-  CM1Record3: async (request, response) => {
-    
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db4.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
+  // CM1Record3: async (request, response) => {
+  //   try {
+  //     const result = await new Promise((resolve, reject) => {
+  //       db4.query(queryGet, (err, result) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+  //         resolve(result);
+  //       });
+  //     });
+  //     return response.status(200).send(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return response.status(500).send("Database query failed");
+  //   }
+  // },
+
+  //==============SEARCH BATCH RECORD NEW========================================SEARCH BATCH RECORD NEW==========================================
+
+  SearchPMARecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-FHDGEA1_EBR_PMA_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'ems_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+      `;
+        db2.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
         });
       });
-      return response.status(200).send(result);
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db2.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+      FROM
+        \`ems_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return response.status(500).send("Database query failed");
     }
   },
 
+  SearchBinderRecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "mezanine.tengah_Ebr_Binder1_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = '${area}'
+      `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+          SELECT
+            ${mappedColumns.join(", ")},
+            CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+            CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+          FROM
+            \`parammachine_saka\`.\`${area}\`
+          GROUP BY
+            \`BATCH\`
+          ORDER BY
+            MIN(DATE(FROM_UNIXTIME(\`time@timestamp\`))) ASC;
+        `;
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchWetMillRecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-FHDGEA1_EBR_Wetmill_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'ems_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+      `;
+        db2.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db2.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+      FROM
+        \`ems_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db2.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchFBDRecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-FHDGEA1_EBR_FBD_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+      `;
+        db3.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db3.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+      FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db3.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchEPHRecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-FHDGEA1_EBR_EPH_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'ems_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+      `;
+        db2.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db2.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+      FROM
+        \`ems_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db2.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchTumblerRecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-FHDGEA1_EBR_Finalmix_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'ems_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0')
+      `;
+        db2.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db2.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+      FROM
+        \`ems_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db2.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchFetteRecord1: async (request, response) => {
+    const { data } = request.query;
+    const area = "mezanine.tengah_EBR_FetteLine1_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0')
+      `;
+        db3.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db3.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+      FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+
+      db3.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchPMARecord3: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-GEA-L3_EBR_PMA_L3_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
+      `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+      FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchWetmillRecord3: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-GEA-L3_EBR_WETMILL_data"; // Static value
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0')
+      `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+        FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
 
   //==============CRUD CRUD PORTAL========================================CRUD CRUD PORTAL==========================================
   //PARAMETER PORTAL ENJOY
@@ -3874,7 +4558,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //GET
   GetParameter: async (request, response) => {
     var fatchquerry = `SELECT * FROM ems_saka.Parameter_Portal ORDER BY id DESC LIMIT 1;`;
-
+    console.log("====================================");
+    console.log("test bro");
+    console.log("====================================");
     db4.query(fatchquerry, (err, result) => {
       return response.status(200).send(result);
     });
