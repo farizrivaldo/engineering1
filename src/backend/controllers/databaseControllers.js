@@ -4491,6 +4491,234 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
+  SearchFBDRecord3: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-GEA-L3_EBR_FBD_L3_data"; 
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0')
+      `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+        FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchEPHRecord3: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-GEA-L3_EBR_EPH_L3_data"; 
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0')
+      `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+        FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
+  SearchHMRecord3: async (request, response) => {
+    const { data } = request.query;
+    const area = "cMT-GEA-L3_EBR_EPH_L3_data"; 
+
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME NOT IN ('data_format_0')
+      `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+        SELECT data_format_index, comment
+        FROM \`${area}_format\`
+      `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+
+      const mappedColumns = columns.map((col) => {
+        const match = col.match(/data_format_(\d+)/);
+        if (match) {
+          const index = parseInt(match[1], 10);
+          const mapping = columnMappings.find(
+            (mapping) => mapping.data_format_index === index
+          );
+          if (mapping) {
+            return `\`${col}\` AS \`${mapping.comment}\``;
+          }
+        }
+        return `\`${col}\``;
+      });
+
+      const queryGet = `
+      SELECT
+        ${mappedColumns.join(", ")},
+        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+        FROM
+        \`parammachine_saka\`.\`${area}\`
+      WHERE
+        CONVERT(\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY
+        DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
+    `;
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+
   //==============CRUD CRUD PORTAL========================================CRUD CRUD PORTAL==========================================
   //PARAMETER PORTAL ENJOY
 

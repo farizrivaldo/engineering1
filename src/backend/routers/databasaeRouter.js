@@ -189,9 +189,9 @@ routers.get("/SearchFetteRecord1", databaseControllers.SearchFetteRecord1);
 
 routers.get("/SearchPMARecord3", databaseControllers.SearchPMARecord3);
 routers.get("/SearchWetmillRecord3", databaseControllers.SearchWetmillRecord3);
-// routers.get("/SearchFBDRecord3", databaseControllers.SearchFBDRecord3);
-// routers.get("/SearchEPHRecord3", databaseControllers.SearchEPHRecord3);
-// routers.get("/SearchHMRecord3", databaseControllers.SearchHMRecord3);
+routers.get("/SearchFBDRecord3", databaseControllers.SearchFBDRecord3);
+routers.get("/SearchEPHRecord3", databaseControllers.SearchEPHRecord3);
+routers.get("/SearchHMRecord3", databaseControllers.SearchHMRecord3);
 
 
 routers.post("/CreateParameter", databaseControllers.CreateParameter);
