@@ -3063,10 +3063,10 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //==============INSTRUMENT HARDNESS 141 ========================================INSTRUMENT HARDNESS 141 ==========================================
   getHardnessData: async (request, response) => {
     const { start, finish } = request.query;
-    const queryGet = `SELECT * FROM sakaplant_prod_ipc_staging 
+    const queryGet = `SELECT * FROM ipc_hardness 
       WHERE created_date BETWEEN '${start}' AND '${finish}'
-      ORDER BY id_setup ASC;`;
-    post.query(queryGet, (err, result) => {
+      ORDER BY id ASC;`;
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -3075,12 +3075,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { start, finish } = request.query;
     const queryGet = `SELECT
           created_date AS label,
-          id_setup AS x, 
+          id AS x, 
           h_value AS y 
-          FROM sakaplant_prod_ipc_staging 
+          FROM ipc_hardness 
           WHERE created_date BETWEEN '${start}' AND '${finish}'
-          ORDER BY id_setup ASC;`;
-    post.query(queryGet, (err, result) => {
+          ORDER BY id ASC;`;
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -3089,12 +3089,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { start, finish } = request.query;
     const queryGet = `SELECT
           created_date AS label,
-          id_setup AS x, 
+          id AS x, 
           t_value AS y 
-          FROM sakaplant_prod_ipc_staging 
+          FROM ipc_hardness 
           WHERE created_date BETWEEN '${start}' AND '${finish}'
-          ORDER BY id_setup ASC;`;
-    post.query(queryGet, (err, result) => {
+          ORDER BY id ASC;`;
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -3103,12 +3103,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { start, finish } = request.query;
     const queryGet = `SELECT
           created_date AS label,
-          id_setup AS x, 
+          id AS x, 
           d_value AS y 
-          FROM sakaplant_prod_ipc_staging 
+          FROM ipc_hardness 
           WHERE created_date BETWEEN '${start}' AND '${finish}'
-          ORDER BY id_setup ASC;`;
-    post.query(queryGet, (err, result) => {
+          ORDER BY id ASC;`;
+    db4.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
   },
