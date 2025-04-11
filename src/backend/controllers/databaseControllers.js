@@ -3074,7 +3074,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   getHardnessGraph: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `SELECT
-          created_date AS label,
+          CONCAT(DATE(created_date), ' ', TIME(time_insert)) AS label,
           id AS x, 
           h_value AS y 
           FROM ipc_hardness 
@@ -3088,7 +3088,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   getThicknessGraph: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `SELECT
-          created_date AS label,
+          CONCAT(DATE(created_date), ' ', TIME(time_insert)) AS label,
           id AS x, 
           t_value AS y 
           FROM ipc_hardness 
@@ -3102,7 +3102,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   getDiameterGraph: async (request, response) => {
     const { start, finish } = request.query;
     const queryGet = `SELECT
-          created_date AS label,
+          CONCAT(DATE(created_date), ' ', TIME(time_insert)) AS label,
           id AS x, 
           d_value AS y 
           FROM ipc_hardness 
