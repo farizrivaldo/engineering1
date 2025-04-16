@@ -1000,63 +1000,63 @@ LEFT JOIN
     s AS "AirMancur"
     FROM 
     (SELECT SUM(data_format_0) as a 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' ) as sum1,
     (SELECT SUM(data_format_0) as b 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Dom_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Dom_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum2,
     (SELECT SUM(data_format_0) as c 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum3,
     (SELECT SUM(data_format_0) as d 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum4,
     (SELECT SUM(data_format_0) as e 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum5,
     (SELECT SUM(data_format_0) as f 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum6,
     (SELECT SUM(data_format_0) as g 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_RO_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_RO_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum7,
     (SELECT SUM(data_format_0) as h 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum8,
     (SELECT SUM(data_format_0) as i 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Taman_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Taman_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum9,
     (SELECT SUM(data_format_0) as j 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum10,
     (SELECT SUM(data_format_0) as k 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum11,
     (SELECT SUM(data_format_0) as l 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum12,
     (SELECT SUM(data_format_0) as m 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum13,
     (SELECT SUM(data_format_0) as n 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum14,
     (SELECT SUM(data_format_0) as o 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum15,
     (SELECT SUM(data_format_0) as p 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum16,
     (SELECT SUM(data_format_0) as q 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum17,
     (SELECT SUM(data_format_0) as r 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum18,
     (SELECT SUM(data_format_0) as s 
-         \` from parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum19`;
-
+    
     db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
