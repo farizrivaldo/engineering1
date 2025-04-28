@@ -172,3 +172,93 @@
 
 
 
+  ChillerGraph: async (request, response) => {
+    const { area, start, finish, chiller, komp } = request.query;
+    const queryGet = `SELECT
+    DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
+    \`time@timestamp\`*1000 AS x,
+    data_format_0 AS y
+    FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY_${area}${komp}${chiller}_data\`
+    WHERE
+    DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+    ORDER BY
+    \`time@timestamp\`;`;
+
+    // console.log(queryGet);
+    // ada perubahan di bagian from -> si db CHILLER jadi Chiller.
+    db3.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
+
+ChillerGraph: async (request, response) => {
+    const { area, start, finish, chiller, komp } = request.query;
+    const queryGet = `
+      SELECT
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
+          \`time@timestamp\` * 1000 AS x,
+          data_format_0 AS y
+      FROM
+          \`test\`.\`CMT-DB-Chiller-UTY_${area}${komp}${chiller}_data\`
+      WHERE
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+      UNION ALL
+      SELECT
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
+          \`time@timestamp\` * 1000 AS x,
+          data_format_0 AS y
+      FROM
+          \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_${area}${komp}${chiller}_data\`
+      WHERE
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+      ORDER BY
+          x;
+    `;
+    
+    console.log(queryGet);
+    db3.query(queryGet, (err, result) => {
+      if (err) {
+        return response.status(500).send(err);
+      }
+      return response.status(200).send(result);
+    });
+  },
+
+  ChillerGraph: async (request, response) => {
+    const { area, start, finish, chiller, komp } = request.query;
+
+    const areaFormatted = area.replace(/-/g, '_');
+
+    const queryGet = `
+            SELECT
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
+                \`time@timestamp\` * 1000 AS x,
+                data_format_0 AS y
+            FROM
+                \`newdb\`.\`${areaFormatted}${komp}${chiller}_data\`
+            WHERE
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+
+            UNION ALL
+
+            SELECT
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d %H:%i') AS label,
+                \`time@timestamp\` * 1000 AS x,
+                data_format_0 AS y
+            FROM
+                \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_${area}${komp}${chiller}_data\`
+            WHERE
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+
+            ORDER BY
+                x;
+        `;
+    
+    console.log(queryGet);
+    db3.query(queryGet, (err, result) => {
+      if (err) {
+        return response.status(500).send(err);
+      }
+      return response.status(200).send(result);
+    });
+  },

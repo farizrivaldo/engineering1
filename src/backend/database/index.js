@@ -38,6 +38,15 @@ const db4 = mysql.createConnection({
   multipleStatements: true,
 });
 
+const db6 = mysql.createConnection({
+  host: process.env.DB_HOST2,
+  user: process.env.DB_USER2,
+  password: process.env.DB_PASSWORD2,
+  database: process.env.DB_DATABASE6,
+  port: process.env.DB_PORT2,
+  multipleStatements: true,
+});
+
 const post = new Pool({
   host: process.env.DB_HOST3,
   user: process.env.DB_USER3,
@@ -75,6 +84,13 @@ db4.connect((err) => {
   console.log("connect to mysql4");
 });
 
+db6.connect((err) => {
+  if (err) {
+    return console.log(`error : ${err.message}`);
+  }
+  console.log("connect to mysql4");
+});
+
 post.connect()
   .then(() => console.log("Connected to PostgreSQL database using Pool!"))
   .catch((err) => console.error("Connection error", err.stack));
@@ -83,10 +99,12 @@ const query = util.promisify(db.query).bind(db);
 const query2 = util.promisify(db2.query).bind(db2);
 const query3 = util.promisify(db3.query).bind(db3);
 const query4 = util.promisify(db4.query).bind(db4);
+const query6 = util.promisify(db6.query).bind(db6);
 // const query5 = util.promisify(d.query).bind(db5);
 
 module.exports = {
   post,
+  db6,
   db4,
   db3,
   db2,
@@ -95,4 +113,5 @@ module.exports = {
   query2,
   query3,
   query4,
+  query6,
   };
