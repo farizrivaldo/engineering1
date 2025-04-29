@@ -2181,24 +2181,24 @@ LEFT JOIN
 
     const queryGet = `
             SELECT
-                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 7 HOUR, '%Y-%m-%d %H:%i') AS label,
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 6 HOUR, '%Y-%m-%d %H:%i') AS label,
                 \`time@timestamp\` * 1000 AS x,
                 data_format_0 AS y
             FROM
                 \`newdb\`.\`${areaFormatted}${komp}${chiller}_data\`
             WHERE
-                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 7 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 6 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
 
             UNION ALL
 
             SELECT
-                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 7 HOUR, '%Y-%m-%d %H:%i') AS label,
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 6 HOUR, '%Y-%m-%d %H:%i') AS label,
                 \`time@timestamp\` * 1000 AS x,
                 data_format_0 AS y
             FROM
                 \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_${area}${komp}${chiller}_data\`
             WHERE
-                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 7 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+                DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 6 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
 
             ORDER BY
                 x;
