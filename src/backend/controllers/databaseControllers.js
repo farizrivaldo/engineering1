@@ -5297,9 +5297,10 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-DB-Chiller-UTY2_RP-TegS-TCH3_data\` FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_RP-TegS-TCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-DB-Chiller-UTY2_RP-TegT-RCH1_data\` FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_RP-TegT-RCH1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
     SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-DB-Chiller-UTY2_RP-TegT-RCH2_data\` FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_RP-TegT-RCH2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-DB-Chiller-UTY2_RP-TegT-RCH3_data\` FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_RP-TegT-RCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-DB-Chiller-UTY2_test_data\` FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_test_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_CMT-DB-Chiller-UTY2_RP-TegT-RCH3_data\` FROM \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_RP-TegT-RCH3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1; 
     `;
+
+    //console.log(fetchquery);
     db3.query(fetchquery, (err, result) => {
       if (err) {
         console.log(err);

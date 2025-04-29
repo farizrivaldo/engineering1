@@ -262,3 +262,5 @@ ChillerGraph: async (request, response) => {
       return response.status(200).send(result);
     });
   },
+
+  console.log(fetchquery);
