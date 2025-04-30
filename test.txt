@@ -264,3 +264,48 @@ ChillerGraph: async (request, response) => {
   },
 
   console.log(fetchquery);
+
+  ChillerStatus: async (request, response) => {
+    const { start, finish, chiller, komp } = request.query;
+
+    const queryGet = `SELECT
+    DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d %H:%i:%s') AS time,
+      case
+      when a.data_format_0 = 0 then "OFF"
+      when a.data_format_0 = 1 then "ON"
+      end AS 'Alarm_Chiller',
+      case
+      when a1.data_format_0 = 0 then "OFF"
+      when a1.data_format_0 = 1 then "ON"
+      end as "Status_Chiller",
+       case
+      when f.data_format_0 = 0 then "OFF"
+          when f.data_format_0 = 1 then "ON"
+    end as "Fan_Kondensor",
+      case
+      when d.data_format_0 = 0 then "OFF"
+          when d.data_format_0 = 1 then "ON"
+    end AS 'Status_Kompresor'
+  From
+      \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_R-AlarmCH${chiller}_data\` AS a
+  LEFT JOIN
+      \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_R-StatusCH${chiller}_data\` AS a1
+    ON
+      DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i') = DATE_FORMAT(FROM_UNIXTIME(a1.\`time@timestamp\`), '%Y-%m-%d %H:%i')
+  LEFT JOIN
+      \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_H-StatFanKondCH${chiller}_data\` AS f
+    ON
+      DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i') = DATE_FORMAT(FROM_UNIXTIME(f.\`time@timestamp\`), '%Y-%m-%d %H:%i')
+  LEFT JOIN
+      \`parammachine_saka\`.\`CMT-DB-Chiller-UTY2_R-Status${komp}${chiller}_data\` AS d
+    ON
+      DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i') = DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d %H:%i')
+  WHERE 
+  DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`)+ INTERVAL 4 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
+      group by a.data_index
+      order by DATE_FORMAT(FROM_UNIXTIME(a.\`time@timestamp\`), '%Y-%m-%d %H:%i:%s');`;
+    console.log(queryGet);
+    db3.query(queryGet, (err, result) => {
+      return response.status(200).send(result);
+    });
+  },
