@@ -3925,7 +3925,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         SELECT 
             data_index AS x, 
             CONVERT(data_format_0 USING utf8) AS BATCH,
-            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS label
         FROM 
             \`parammachine_saka\`.\`cMT-GEA-L3_EBR_PMA_L3_data\`
         WHERE 
