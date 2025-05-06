@@ -4753,92 +4753,92 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   SearchPMARecord3: async (request, response) => {
-  const { data } = request.query;
-  const area = "cMT-GEA-L3_EBR_PMA_L3_data"; // Static value
-
-  const getAllColumns = () => {
-    return new Promise((resolve, reject) => {
-      const query = `
-        SELECT COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = 'parammachine_saka'
-        AND TABLE_NAME = ?
-        AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
-      `;
-      db.query(query, [area], (err, results) => {
-        if (err) return reject(err);
-        const columns = results.map((result) => result.COLUMN_NAME);
-        resolve(columns);
-      });
-    });
-  };
-
-  const getColumnMappings = () => {
-    return new Promise((resolve, reject) => {
-      const query = `
-        SELECT data_format_index, comment
-        FROM \`${area}_format\`
-      `;
-      db.query(query, (err, results) => {
-        if (err) return reject(err);
-        resolve(results);
-      });
-    });
-  };
-
-  try {
-    const columns = await getAllColumns();
-    const columnMappings = await getColumnMappings();
-
-    const mappedColumns = columns
-      .filter((col) => col !== "time@timestamp") // Sembunyikan time@timestamp
-      .map((col) => {
-        const match = col.match(/data_format_(\d+)/);
-        if (match) {
-          const index = parseInt(match[1], 10);
-          const mapping = columnMappings.find(
-            (mapping) => mapping.data_format_index === index
-          );
-          if (mapping) {
-            return `\`${col}\` AS \`${mapping.comment}\``;
-          }
-        }
-        return `\`${col}\``;
-      });
-
-    const queryGet = `
-      SELECT
-        ${mappedColumns.join(", ")},
-        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
-        CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`,
-        DATE_FORMAT(
-          FROM_UNIXTIME(FLOOR(\`time@timestamp\`)) + INTERVAL 10 MINUTE,
-          '%Y-%m-%d %H:%i'
-        ) AS \`TIME\`,
-        \`time@timestamp\` * 1000 AS \`x\`
-      FROM
-        \`parammachine_saka\`.\`${area}\`
-      WHERE
-        CONVERT(\`data_format_0\` USING utf8) LIKE ?
-      ORDER BY
-        \`x\` ASC;
-    `;
-
-    db.query(queryGet, [`%${data}%`], (err, result) => {
-      if (err) {
-        console.log(err);
-        return response.status(500).send("Database query failed");
-      }
-      return response.status(200).send(result);
-    });
-  } catch (error) {
-    console.log(error);
-    return response.status(500).send("Database query failed");
-  }
- },
-
+    const { data } = request.query;
+    const area = "cMT-GEA-L3_EBR_PMA_L3_data"; // Static value
   
-
+    const getAllColumns = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+          SELECT COLUMN_NAME
+          FROM INFORMATION_SCHEMA.COLUMNS
+          WHERE TABLE_SCHEMA = 'parammachine_saka'
+          AND TABLE_NAME = ?
+          AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1', 'time@timestamp')
+        `;
+        db.query(query, [area], (err, results) => {
+          if (err) return reject(err);
+          const columns = results.map((result) => result.COLUMN_NAME);
+          resolve(columns);
+        });
+      });
+    };
+  
+    const getColumnMappings = () => {
+      return new Promise((resolve, reject) => {
+        const query = `
+          SELECT data_format_index, comment
+          FROM \`${area}_format\`
+        `;
+        db.query(query, (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
+      });
+    };
+  
+    try {
+      const columns = await getAllColumns();
+      const columnMappings = await getColumnMappings();
+  
+      // Pisahkan data_index dari kolom lainnya
+      const dataIndexCol = "`data_index`";
+      const mappedColumns = columns
+        .filter(col => col !== "data_index")
+        .map((col) => {
+          const match = col.match(/data_format_(\d+)/);
+          if (match) {
+            const index = parseInt(match[1], 10);
+            const mapping = columnMappings.find(
+              (mapping) => mapping.data_format_index === index
+            );
+            if (mapping) {
+              return `\`${col}\` AS \`${mapping.comment}\``;
+            }
+          }
+          return `\`${col}\``;
+        });
+  
+      const queryGet = `
+        SELECT
+          ${dataIndexCol},
+          DATE_FORMAT(
+            FROM_UNIXTIME(FLOOR(\`time@timestamp\`)) - INTERVAL 7 HOUR,
+            '%Y-%m-%d %H:%i'
+          ) AS \`TIME\`,
+          ${mappedColumns.join(", ")},
+          CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
+          CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
+        FROM
+          \`parammachine_saka\`.\`${area}\`
+        WHERE
+          CONVERT(\`data_format_0\` USING utf8) LIKE ?
+        ORDER BY
+          \`TIME\` ASC;
+      `;
+  
+      db.query(queryGet, [`%${data}%`], (err, result) => {
+        if (err) {
+          console.log(err);
+          return response.status(500).send("Database query failed");
+        }
+        return response.status(200).send(result);
+      });
+    } catch (error) {
+      console.log(error);
+      return response.status(500).send("Database query failed");
+    }
+  },
+  
   SearchWetmillRecord3: async (request, response) => {
     const { data } = request.query;
     const area = "cMT-GEA-L3_EBR_WETMILL_data"; // Static value
