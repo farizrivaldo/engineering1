@@ -4814,7 +4814,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           DATE_FORMAT(
             FROM_UNIXTIME(FLOOR(\`time@timestamp\`)) - INTERVAL 7 HOUR,
             '%Y-%m-%d %H:%i'
-          ) AS \`TIME\`,
+          ) AS \`time@timestamp\`,
           ${mappedColumns.join(", ")},
           CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
           CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
@@ -4823,7 +4823,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         WHERE
           CONVERT(\`data_format_0\` USING utf8) LIKE ?
         ORDER BY
-          \`TIME\` ASC;
+          \`time@timestamp\` ASC;
       `;
   
       db.query(queryGet, [`%${data}%`], (err, result) => {
