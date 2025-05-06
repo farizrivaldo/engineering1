@@ -4812,7 +4812,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         SELECT
           ${dataIndexCol},
           DATE_FORMAT(
-            FROM_UNIXTIME(FLOOR(\`time@timestamp\`)) - INTERVAL 7 HOUR,
+            FROM_UNIXTIME(FLOOR(\`time@timestamp\`)),
             '%Y-%m-%d %H:%i'
           ) AS \`time@timestamp\`,
           ${mappedColumns.join(", ")},
