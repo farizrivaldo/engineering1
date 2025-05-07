@@ -6323,23 +6323,23 @@ HM1Report: async (request, response) => {
   const { tanggal, shift } = request.query;
 
   // Helper untuk konversi WIB ke UTC
-  function toUTCString(dateStr) {
+  /*function toUTCString(dateStr) {
     const local = new Date(`${dateStr}`);
     const utc = new Date(local.getTime() + 0 * 3600 * 1000); // kurangi 7 jam (WIB to UTC)
     return utc.toISOString().slice(0, 19).replace('T', ' ');
-  }
+  }*/
 
   // Hitung waktu shift
   let shiftStart, shiftEnd;
   if (shift === '1') {
-    shiftStart = toUTCString(`${tanggal} 06:30:00`);
-    shiftEnd   = toUTCString(`${tanggal} 15:00:00`);
+    shiftStart = `06:30:00`;
+    shiftEnd   = `15:00:00`;
   } else if (shift === '2') {
-    shiftStart = toUTCString(`${tanggal} 15:00:00`);
-    shiftEnd   = toUTCString(`${tanggal} 23:00:00`);
+    shiftStart = `15:00:00`;
+    shiftEnd   = `23:00:00`;
   } else if (shift === '3') {
-    shiftStart = toUTCString(`${tanggal} 23:00:00`);
-    shiftEnd   = toUTCString(`${tanggal} 06:00:00`);
+    shiftStart = `23:00:00`;
+    shiftEnd   = `06:00:00`;
   } else {
     return response.status(400).send({ error: 'Shift tidak valid' });
   }
@@ -6351,7 +6351,7 @@ HM1Report: async (request, response) => {
       data_format_0 AS y
     FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
     WHERE
-      FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${shiftStart}' AND '${shiftEnd}'
+      FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} ${shiftStart}' AND '${tanggal} ${shiftEnd}'
       AND data_format_0 = 0
     ORDER BY \`time@timestamp\`
   `;
