@@ -390,18 +390,59 @@ ChillerGraph: async (request, response) => {
 
 
   HM1Report: async (request, response) => {
-  const { tanggal } = request.query;
+  const { tanggal, shift } = request.query;
 
-  const queryGet = `
-    SELECT
-      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-      data_format_0 AS y
-    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-    WHERE
-      DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%Y-%m-%d') = '${tanggal}'
-      AND data_format_0 = 0
-    ORDER BY \`time@timestamp\`
-  `;
+  if (!tanggal || !shift) {
+    return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
+  }
+
+  let queryGet = '';
+
+  if (shift === '1') {
+    queryGet = `
+      SELECT
+        FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+        \`time@timestamp\` AS raw_timestamp,
+        data_format_0 AS y
+      FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+      WHERE
+        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
+        AND data_format_0 = 0
+      ORDER BY \`time@timestamp\`
+    `;
+  } else if (shift === '2') {
+    queryGet = `
+      SELECT
+        FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+        \`time@timestamp\` AS raw_timestamp,
+        data_format_0 AS y
+      FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+      WHERE
+        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
+        AND data_format_0 = 0
+      ORDER BY \`time@timestamp\`
+    `;
+  } else if (shift === '3') {
+    queryGet = `
+      SELECT
+        FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+        \`time@timestamp\` AS raw_timestamp,
+        data_format_0 AS y
+      FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+      WHERE
+        (
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+          OR
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+        )
+        AND data_format_0 = 0
+      ORDER BY \`time@timestamp\`
+    `;
+  } else {
+    return response.status(400).send({ error: 'Shift tidak valid' });
+  }
+
+  console.log('Query:\n', queryGet);
 
   db3.query(queryGet, (err, result) => {
     if (err) {
@@ -417,42 +458,161 @@ ChillerGraph: async (request, response) => {
     for (let row of result) {
       const currentTime = new Date(row.waktu);
 
-      // Cek jika group baru harus dimulai
-      if (
-        !currentGroup ||
-        (prevTime && (currentTime - prevTime) > 60000) // jika jarak lebih dari 1 menit
-      ) {
+      if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
         if (currentGroup) {
           grouped.push({
             id: id++,
-            start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
-            start_unix: Math.floor(currentGroup.start.getTime() / 1000),
-            finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+            start: currentGroup.start.toTimeString().slice(0, 5),  // HH:mm
+            finish: currentGroup.finish.toTimeString().slice(0, 5),
             total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
           });
         }
-        currentGroup = { start: currentTime, finish: currentTime };
+        currentGroup = {
+          start: currentTime,
+          finish: currentTime
+        };
       } else {
-        // Lanjutkan group lama
         currentGroup.finish = currentTime;
       }
 
       prevTime = currentTime;
     }
 
-    // Push group terakhir
+    // Push last group
     if (currentGroup) {
       grouped.push({
         id: id++,
-        start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
-        start_unix: Math.floor(currentGroup.start.getTime() / 1000),
-        finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+        start: currentGroup.start.toTimeString().slice(0, 5),  // HH:mm
+        finish: currentGroup.finish.toTimeString().slice(0, 5),
         total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
       });
     }
 
-    // Filter hanya yang lebih dari 3 menit
-    const filtered = grouped.filter(item => item.total_minutes > 3);
+    // Filter minimal 3 menit
+    const filtered = grouped.filter(item => item.total_minutes >= 3);
+
+    return response.status(200).send(filtered);
+  });
+},
+
+HM1Report: async (request, response) => {
+  const { tanggal, shift } = request.query;
+
+  // Helper untuk konversi WIB ke UTC
+  /*function toUTCString(dateStr) {
+    const local = new Date(`${dateStr}`);
+    const utc = new Date(local.getTime() + 0 * 3600 * 1000); // kurangi 7 jam (WIB to UTC)
+    return utc.toISOString().slice(0, 19).replace('T', ' ');
+  }*/
+
+  // Hitung waktu shift
+let shiftStart, shiftEnd;
+let queryGet = '';
+
+if (shift === '1') {
+  shiftStart = `06:30:00`;
+  shiftEnd = `15:00:00`;
+  queryGet = `
+    SELECT
+      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+      \`time@timestamp\` AS raw_timestamp,
+      data_format_0 AS y
+    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+    WHERE
+      FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} ${shiftStart}' AND '${tanggal} ${shiftEnd}'
+      AND data_format_0 = 0
+    ORDER BY \`time@timestamp\`
+  `;
+} else if (shift === '2') {
+  shiftStart = `15:00:00`;
+  shiftEnd = `23:00:00`;
+  queryGet = `
+    SELECT
+      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+      \`time@timestamp\` AS raw_timestamp,
+      data_format_0 AS y
+    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+    WHERE
+      FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} ${shiftStart}' AND '${tanggal} ${shiftEnd}'
+      AND data_format_0 = 0
+    ORDER BY \`time@timestamp\`
+  `;
+} else if (shift === '3') {
+  queryGet = `
+    SELECT
+      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+      \`time@timestamp\` AS raw_timestamp,
+      data_format_0 AS y
+    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+    WHERE
+      (
+        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+        OR
+        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+      )
+      AND data_format_0 = 0
+    ORDER BY \`time@timestamp\`
+  `;
+} else {
+  return response.status(400).send({ error: 'Shift tidak valid' });
+}
+
+
+  console.log(queryGet);
+
+  db3.query(queryGet, (err, result) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return response.status(500).send({ error: 'Database query error' });
+    }
+
+    const grouped = [];
+    let currentGroup = null;
+    let prevTime = null;
+    let id = 1;
+
+    for (let row of result) {
+      const currentTime = new Date(row.waktu);
+
+      if (
+        !currentGroup ||
+        (prevTime && (currentTime - prevTime) > 60000)
+      ) {
+        if (currentGroup) {
+          grouped.push({
+            id: id++,
+            start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
+            finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+            /*start_timestamp: currentGroup.start.getTime() / 1000,
+            finish_timestamp: currentGroup.finish.getTime() / 1000,*/
+            total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+          });
+        }
+        currentGroup = {
+          start: currentTime,
+          finish: currentTime
+        };
+      } else {
+        currentGroup.finish = currentTime;
+      }
+
+      prevTime = currentTime;
+    }
+
+    // Push the last group
+    if (currentGroup) {
+      grouped.push({
+        id: id++,
+        start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
+        finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+        /*start_timestamp: currentGroup.start.getTime() / 1000,
+        finish_timestamp: currentGroup.finish.getTime() / 1000,*/
+        total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+      });
+    }
+
+    // Filter hanya yang durasi 3 menit atau lebih
+    const filtered = grouped.filter(item => item.total_minutes >= 3);
 
     return response.status(200).send(filtered);
   });
