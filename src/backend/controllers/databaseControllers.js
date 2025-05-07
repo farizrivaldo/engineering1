@@ -6330,21 +6330,13 @@ HM1Report: async (request, response) => {
   }*/
 
   // Hitung waktu shift
-  let shiftStart, shiftEnd;
-  if (shift === '1') {
-    shiftStart = `06:30:00`;
-    shiftEnd   = `15:00:00`;
-  } else if (shift === '2') {
-    shiftStart = `15:00:00`;
-    shiftEnd   = `23:00:00`;
-  } else if (shift === '3') {
-    shiftStart = `23:00:00`;
-    shiftEnd   = `06:00:00`;
-  } else {
-    return response.status(400).send({ error: 'Shift tidak valid' });
-  }
+let shiftStart, shiftEnd;
+let queryGet = '';
 
-  const queryGet = `
+if (shift === '1') {
+  shiftStart = `06:30:00`;
+  shiftEnd = `15:00:00`;
+  queryGet = `
     SELECT
       FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
       \`time@timestamp\` AS raw_timestamp,
@@ -6355,6 +6347,40 @@ HM1Report: async (request, response) => {
       AND data_format_0 = 0
     ORDER BY \`time@timestamp\`
   `;
+} else if (shift === '2') {
+  shiftStart = `15:00:00`;
+  shiftEnd = `23:00:00`;
+  queryGet = `
+    SELECT
+      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+      \`time@timestamp\` AS raw_timestamp,
+      data_format_0 AS y
+    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+    WHERE
+      FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} ${shiftStart}' AND '${tanggal} ${shiftEnd}'
+      AND data_format_0 = 0
+    ORDER BY \`time@timestamp\`
+  `;
+} else if (shift === '3') {
+  queryGet = `
+    SELECT
+      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+      \`time@timestamp\` AS raw_timestamp,
+      data_format_0 AS y
+    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+    WHERE
+      (
+        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+        OR
+        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+      )
+      AND data_format_0 = 0
+    ORDER BY \`time@timestamp\`
+  `;
+} else {
+  return response.status(400).send({ error: 'Shift tidak valid' });
+}
+
 
   console.log(queryGet);
 
