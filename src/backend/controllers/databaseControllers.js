@@ -6325,7 +6325,7 @@ HM1Report: async (request, response) => {
   // Helper untuk konversi WIB ke UTC
   function toUTCString(dateStr) {
     const local = new Date(`${dateStr}`);
-    const utc = new Date(local.getTime() - 7 * 3600 * 1000); // kurangi 7 jam (WIB to UTC)
+    const utc = new Date(local.getTime() - 3 * 3600 * 1000); // kurangi 7 jam (WIB to UTC)
     return utc.toISOString().slice(0, 19).replace('T', ' ');
   }
 
