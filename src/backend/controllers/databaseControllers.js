@@ -6405,8 +6405,8 @@ if (shift === '1') {
         if (currentGroup) {
           grouped.push({
             id: id++,
-            start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
-            finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+            start: currentGroup.start.toISOString().slice(0, 16),
+            finish: currentGroup.finish.toISOString().slice(0, 16),
             /*start_timestamp: currentGroup.start.getTime() / 1000,
             finish_timestamp: currentGroup.finish.getTime() / 1000,*/
             total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
@@ -6427,8 +6427,8 @@ if (shift === '1') {
     if (currentGroup) {
       grouped.push({
         id: id++,
-        start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
-        finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+        start: currentGroup.start.toISOString().slice(0, 16),
+        finish: currentGroup.finish.toISOString().slice(0, 16),
         /*start_timestamp: currentGroup.start.getTime() / 1000,
         finish_timestamp: currentGroup.finish.getTime() / 1000,*/
         total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
