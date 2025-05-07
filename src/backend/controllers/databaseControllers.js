@@ -6339,7 +6339,7 @@ HM1Report: async (request, response) => {
     shiftEnd   = toUTCString(`${tanggal} 23:00:00`);
   } else if (shift === '3') {
     shiftStart = toUTCString(`${tanggal} 23:00:00`);
-    shiftEnd   = toUTCString(`${tanggal} 06:30:00`);
+    shiftEnd   = toUTCString(`${tanggal} 06:00:00`);
   } else {
     return response.status(400).send({ error: 'Shift tidak valid' });
   }
