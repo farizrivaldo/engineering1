@@ -219,4 +219,7 @@ routers.get("/GrafanaWater", databaseControllers.GrafanaWater);
 routers.get("/GrafanaPower", databaseControllers.GrafanaPower);
 routers.get("/GrafanaMVMDPyear", databaseControllers.GrafanaMVMDPyear);
 
+//==============ReportMesin ========================================ReportMesin======================================================
+routers.get("/HM1Report", databaseControllers.HM1Report);
+
 module.exports = routers;

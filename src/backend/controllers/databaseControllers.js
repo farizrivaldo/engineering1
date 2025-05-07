@@ -6316,4 +6316,101 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+//-------------------------Mesin Report-------------HM-------------
+
+HM1Report: async (request, response) => {
+  const { tanggal, shift } = request.query;
+
+  // Helper untuk konversi WIB ke UTC
+  function toUTCString(dateStr) {
+    const local = new Date(`${dateStr}`);
+    const utc = new Date(local.getTime() + 14 * 3600 * 1000); // kurangi 7 jam (WIB to UTC)
+    return utc.toISOString().slice(0, 19).replace('T', ' ');
+  }
+
+  // Hitung waktu shift
+  let shiftStart, shiftEnd;
+  if (shift === '1') {
+    shiftStart = toUTCString(`${tanggal} 06:30:00`);
+    shiftEnd   = toUTCString(`${tanggal} 15:00:00`);
+  } else if (shift === '2') {
+    shiftStart = toUTCString(`${tanggal} 15:00:00`);
+    shiftEnd   = toUTCString(`${tanggal} 23:00:00`);
+  } else if (shift === '3') {
+    shiftStart = toUTCString(`${tanggal} 23:00:00`);
+    shiftEnd   = toUTCString(`${tanggal} 06:30:00`);
+  } else {
+    return response.status(400).send({ error: 'Shift tidak valid' });
+  }
+
+  const queryGet = `
+    SELECT
+      FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+      \`time@timestamp\` AS raw_timestamp,
+      data_format_0 AS y
+    FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+    WHERE
+      FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${shiftStart}' AND '${shiftEnd}'
+      AND data_format_0 = 0
+    ORDER BY \`time@timestamp\`
+  `;
+
+  console.log(queryGet);
+  db3.query(queryGet, (err, result) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return response.status(500).send({ error: 'Database query error' });
+    }
+
+    const grouped = [];
+    let currentGroup = null;
+    let prevTime = null;
+    let id = 1;
+
+    for (let row of result) {
+      const currentTime = new Date(row.waktu);
+
+      if (
+        !currentGroup ||
+        (prevTime && (currentTime - prevTime) > 60000)
+      ) {
+        if (currentGroup) {
+          grouped.push({
+            id: id++,
+            start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
+            finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+            start_timestamp: currentGroup.start.getTime() / 1000,
+            finish_timestamp: currentGroup.finish.getTime() / 1000,
+            total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+          });
+        }
+        currentGroup = {
+          start: currentTime,
+          finish: currentTime
+        };
+      } else {
+        currentGroup.finish = currentTime;
+      }
+
+      prevTime = currentTime;
+    }
+
+    // Push the last group
+    if (currentGroup) {
+      grouped.push({
+        id: id++,
+        start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
+        finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
+        start_timestamp: currentGroup.start.getTime() / 1000,
+        finish_timestamp: currentGroup.finish.getTime() / 1000,
+        total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+      });
+    }
+
+    return response.status(200).send(grouped);
+  });
+},
+
+
 };
