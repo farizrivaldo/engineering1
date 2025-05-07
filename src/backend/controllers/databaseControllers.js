@@ -6353,10 +6353,6 @@ HM1Report: async (request, response) => {
       ORDER BY \`time@timestamp\`
     `;
   } else if (shift === '3') {
-    const nextDate = new Date(`${tanggal}T00:00:00`);
-    nextDate.setDate(nextDate.getDate() + 1);
-    const nextTanggal = nextDate.toISOString().slice(0, 10); // YYYY-MM-DD
-
     queryGet = `
       SELECT
         FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
@@ -6365,7 +6361,9 @@ HM1Report: async (request, response) => {
       FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
       WHERE
         (
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${nextTanggal} 06:30:00'
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+          OR
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
         )
         AND data_format_0 = 0
       ORDER BY \`time@timestamp\`
