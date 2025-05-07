@@ -6408,6 +6408,7 @@ HM1Report: async (request, response) => {
       });
     }
 
+    const filtered = grouped.filter(item => item.total_minutes >= 3);
     return response.status(200).send(grouped);
   });
 },
