@@ -6357,6 +6357,7 @@ HM1Report: async (request, response) => {
   `;
 
   console.log(queryGet);
+
   db3.query(queryGet, (err, result) => {
     if (err) {
       console.error('Database query error:', err);
@@ -6408,10 +6409,13 @@ HM1Report: async (request, response) => {
       });
     }
 
+    // Filter hanya yang durasi 3 menit atau lebih
     const filtered = grouped.filter(item => item.total_minutes >= 3);
-    return response.status(200).send(grouped);
+
+    return response.status(200).send(filtered);
   });
 },
+
 
 
 };
