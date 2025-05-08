@@ -6448,6 +6448,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   
   HM1InsertDowntime: async (req, res) => {
     const { start, finish, total_minutes, downtime_type, detail, user, submit_date } = req.body;
+
+    /*const start = "2025-05-08 08:30:00";
+    const finish = "2025-05-08 09:45:00";
+    const total_minutes = 75;
+    const downtime_type = "Maintenance";
+    const detail = "Ganti oli dan pembersihan filter";
+    const user = "operator_1";
+    const submit_date = "2025-05-08";*/
   
     if (!start || !finish || !total_minutes || !downtime_type || !detail || !user || !submit_date) {
       return res.status(400).send({ error: "Semua field harus diisi" });
