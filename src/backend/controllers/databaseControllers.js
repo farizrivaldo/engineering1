@@ -6319,110 +6319,110 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
 //-------------------------Mesin Report-------------HM-------------
 
-HM1Report: async (request, response) => {
-  const { tanggal, shift } = request.query;
+  HM1Report: async (request, response) => {
+    const { tanggal, shift } = request.query;
 
-  if (!tanggal || !shift) {
-    return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
-  }
-
-  let queryGet = '';
-
-  if (shift === '1') {
-    queryGet = `
-      SELECT
-        FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-        \`time@timestamp\` AS raw_timestamp,
-        data_format_0 AS y
-      FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-      WHERE
-        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
-        AND data_format_0 = 0
-      ORDER BY \`time@timestamp\`
-    `;
-  } else if (shift === '2') {
-    queryGet = `
-      SELECT
-        FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-        \`time@timestamp\` AS raw_timestamp,
-        data_format_0 AS y
-      FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-      WHERE
-        FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
-        AND data_format_0 = 0
-      ORDER BY \`time@timestamp\`
-    `;
-  } else if (shift === '3') {
-    queryGet = `
-      SELECT
-        FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-        \`time@timestamp\` AS raw_timestamp,
-        data_format_0 AS y
-      FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-      WHERE
-        (
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
-          OR
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
-        )
-        AND data_format_0 = 0
-      ORDER BY \`time@timestamp\`
-    `;
-  } else {
-    return response.status(400).send({ error: 'Shift tidak valid' });
-  }
-
-  console.log('Query:\n', queryGet);
-
-  db3.query(queryGet, (err, result) => {
-    if (err) {
-      console.error('Database query error:', err);
-      return response.status(500).send({ error: 'Database query error' });
+    if (!tanggal || !shift) {
+      return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
     }
 
-    const grouped = [];
-    let currentGroup = null;
-    let prevTime = null;
-    let id = 1;
+    let queryGet = '';
 
-    for (let row of result) {
-      const currentTime = new Date(row.waktu);
+    if (shift === '1') {
+      queryGet = `
+        SELECT
+          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+          \`time@timestamp\` AS raw_timestamp,
+          data_format_0 AS y
+        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+        WHERE
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
+          AND data_format_0 = 0
+        ORDER BY \`time@timestamp\`
+      `;
+    } else if (shift === '2') {
+      queryGet = `
+        SELECT
+          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+          \`time@timestamp\` AS raw_timestamp,
+          data_format_0 AS y
+        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+        WHERE
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
+          AND data_format_0 = 0
+        ORDER BY \`time@timestamp\`
+      `;
+    } else if (shift === '3') {
+      queryGet = `
+        SELECT
+          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+          \`time@timestamp\` AS raw_timestamp,
+          data_format_0 AS y
+        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+        WHERE
+          (
+            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+            OR
+            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+          )
+          AND data_format_0 = 0
+        ORDER BY \`time@timestamp\`
+      `;
+    } else {
+      return response.status(400).send({ error: 'Shift tidak valid' });
+    }
 
-      if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
-        if (currentGroup) {
-          grouped.push({
-            id: id++,
-            start: currentGroup.start.toTimeString().slice(0, 5),  // HH:mm
-            finish: currentGroup.finish.toTimeString().slice(0, 5),
-            total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
-          });
-        }
-        currentGroup = {
-          start: currentTime,
-          finish: currentTime
-        };
-      } else {
-        currentGroup.finish = currentTime;
+    console.log('Query:\n', queryGet);
+
+    db3.query(queryGet, (err, result) => {
+      if (err) {
+        console.error('Database query error:', err);
+        return response.status(500).send({ error: 'Database query error' });
       }
 
-      prevTime = currentTime;
-    }
+      const grouped = [];
+      let currentGroup = null;
+      let prevTime = null;
+      let id = 1;
 
-    // Push last group
-    if (currentGroup) {
-      grouped.push({
-        id: id++,
-        start: currentGroup.start.toTimeString().slice(0, 5),  // HH:mm
-        finish: currentGroup.finish.toTimeString().slice(0, 5),
-        total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
-      });
-    }
+      for (let row of result) {
+        const currentTime = new Date(row.waktu);
 
-    // Filter minimal 3 menit
-    const filtered = grouped.filter(item => item.total_minutes >= 3);
+        if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
+          if (currentGroup) {
+            grouped.push({
+              id: id++,
+              start: currentGroup.start.toTimeString().slice(0, 5),  // HH:mm
+              finish: currentGroup.finish.toTimeString().slice(0, 5),
+              total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+            });
+          }
+          currentGroup = {
+            start: currentTime,
+            finish: currentTime
+          };
+        } else {
+          currentGroup.finish = currentTime;
+        }
 
-    return response.status(200).send(filtered);
-  });
-},
+        prevTime = currentTime;
+      }
+
+      // Push last group
+      if (currentGroup) {
+        grouped.push({
+          id: id++,
+          start: currentGroup.start.toTimeString().slice(0, 5),  // HH:mm
+          finish: currentGroup.finish.toTimeString().slice(0, 5),
+          total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+        });
+      }
+
+      // Filter minimal 3 menit
+      const filtered = grouped.filter(item => item.total_minutes >= 3);
+
+      return response.status(200).send(filtered);
+    });
+  },
 
 };
