@@ -6372,7 +6372,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(400).send({ error: 'Shift tidak valid' });
     }
 
-    console.log('Query:\n', queryGet);
+    //console.log('Query:\n', queryGet);
 
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -6444,6 +6444,41 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   
         return response.status(200).send(result);
       });
+  },
+  
+  HM1InsertDowntime: async (req, res) => {
+    const { start, finish, total_minutes, downtime_type, detail, user, submit_date } = req.body;
+  
+    if (!start || !finish || !total_minutes || !downtime_type || !detail || !user || !submit_date) {
+      return res.status(400).send({ error: "Semua field harus diisi" });
+    }
+  
+    try {
+      const insertQuery = `
+        INSERT INTO Downtime_Mesin_HM1_A
+        (start, finish, total_menit, downtime_type, detail, user, submit_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      db3.query(insertQuery, [
+        start,
+        finish,
+        total_minutes,
+        downtime_type,
+        detail,
+        user,
+        submit_date
+      ], (err, result) => {
+        if (err) {
+          console.error("Insert error:", err);
+          return res.status(500).send({ error: "Gagal insert data ke database" });
+        }
+        return res.status(200).send({ success: true, message: "Data berhasil disimpan" });
+      });
+    } catch (err) {
+      console.error("Server error:", err);
+      res.status(500).send({ error: "Terjadi kesalahan pada server" });
+    }
   },
   
 };

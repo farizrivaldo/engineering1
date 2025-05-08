@@ -223,5 +223,7 @@ routers.get("/GrafanaMVMDPyear", databaseControllers.GrafanaMVMDPyear);
 routers.get("/HM1Report", databaseControllers.HM1Report);
 //routers.get("/downtime", databaseControllers.downtime);
 routers.get("/alldowntime", databaseControllers.alldowntime);
+routers.post("/HM1InsertDowntime", databaseControllers.HM1InsertDowntime);
+
 
 module.exports = routers;
