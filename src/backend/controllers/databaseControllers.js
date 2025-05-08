@@ -6425,4 +6425,25 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
+  alldowntime: async (request, response) => {
+      const { type } = request.query;
+  
+      // Cek apakah parameter type ada
+      if (!type) {
+        return response.status(400).send({ error: "Parameter 'type' diperlukan" });
+      }
+  
+      // Query hanya kolom keterangan_downtime dengan filter downtime_type
+      const queryData = `SELECT detail FROM parammachine_saka.alldowntime_db WHERE downtime_type = '${type}'`;
+      
+      console.log(queryData);
+      db3.query(queryData, (err, result) => {
+        if (err) {
+          return response.status(500).send({ error: "Database error", detail: err });
+        }
+  
+        return response.status(200).send(result);
+      });
+  },
+  
 };

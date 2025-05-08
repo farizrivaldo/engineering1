@@ -221,5 +221,7 @@ routers.get("/GrafanaMVMDPyear", databaseControllers.GrafanaMVMDPyear);
 
 //==============ReportMesin ========================================ReportMesin======================================================
 routers.get("/HM1Report", databaseControllers.HM1Report);
+//routers.get("/downtime", databaseControllers.downtime);
+routers.get("/alldowntime", databaseControllers.alldowntime);
 
 module.exports = routers;
