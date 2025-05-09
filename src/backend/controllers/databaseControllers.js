@@ -6319,178 +6319,187 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
 //-------------------------Mesin Report-------------HM-------------
 
-  HM1Report: async (request, response) => {
-    const { tanggal, shift } = request.query;
+HM1Report: async (request, response) => {
+  const { tanggal, shift } = request.query;
 
-    if (!tanggal || !shift) {
-      return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
+  if (!tanggal || !shift) {
+    return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
+  }
+
+  const checkExistQuery = `
+    SELECT 1 FROM Downtime_Mesin_HM1_A
+    WHERE DATE(start) = ? AND shift = ?
+    LIMIT 1
+  `;
+
+  db3.query(checkExistQuery, [tanggal, shift], (err, existResult) => {
+    if (err) {
+      console.error('Database check error:', err);
+      return response.status(500).send({ error: 'Database check error' });
     }
 
-    const checkExistQuery = `
-      SELECT 1 FROM Downtime_Mesin_HM1_A
-      WHERE DATE(start) = ? AND shift = ?
-      LIMIT 1
-    `;
-
-    db3.query(checkExistQuery, [tanggal, shift], (err, existResult) => {
-      if (err) {
-        console.error('Database check error:', err);
-        return response.status(500).send({ error: 'Database check error' });
-      }
-
-      const tampilkanDowntimeNull = () => {
-        const selectQuery = `
-          SELECT *,
-            DATE_FORMAT(DATE_ADD(start, INTERVAL 7 HOUR), '%Y-%m-%d %H:%i:%s') AS start,
-            DATE_FORMAT(DATE_ADD(finish, INTERVAL 7 HOUR), '%Y-%m-%d %H:%i:%s') AS finish,
-            DATE_FORMAT(DATE_ADD(start, INTERVAL 7 HOUR), '%H:%i') AS start_jam,
-            DATE_FORMAT(DATE_ADD(finish, INTERVAL 7 HOUR), '%H:%i') AS finish_jam
-          FROM Downtime_Mesin_HM1_A
-          WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
-        `;
-        db3.query(selectQuery, [tanggal, shift], (err, rows) => {
-          if (err) {
-            console.error('Select error:', err);
-            return response.status(500).send({ error: 'Select error' });
-          }
-          return response.status(200).send(rows);
-        });
-      };
-
-      if (existResult.length > 0) {
-        return tampilkanDowntimeNull(); // Sudah ada, langsung tampilkan
-      }
-
-      // Buat query parammachine
-      let queryGet = '';
-      if (shift === '1') {
-        queryGet = `
-          SELECT FROM_UNIXTIME(\`time@timestamp\`) AS waktu
-          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-          WHERE FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
-            AND data_format_0 = 0
-          ORDER BY \`time@timestamp\`
-        `;
-      } else if (shift === '2') {
-        queryGet = `
-          SELECT FROM_UNIXTIME(\`time@timestamp\`) AS waktu
-          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-          WHERE FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
-            AND data_format_0 = 0
-          ORDER BY \`time@timestamp\`
-        `;
-      } else if (shift === '3') {
-        queryGet = `
-          SELECT FROM_UNIXTIME(\`time@timestamp\`) AS waktu
-          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-          WHERE (
-            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
-            OR 
-            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
-          )
-          AND data_format_0 = 0
-          ORDER BY \`time@timestamp\`
-        `;
-      } else {
-        return response.status(400).send({ error: 'Shift tidak valid' });
-      }
-
-      console.log(queryGet);
-      db3.query(queryGet, (err, result) => {
+    const sendFilteredResponse = () => {
+      const selectQuery = `
+        SELECT 
+          DATE_FORMAT(start, '%H:%i') AS start_jam,
+          DATE_FORMAT(finish, '%H:%i') AS finish_jam,
+          total_menit
+        FROM Downtime_Mesin_HM1_A
+        WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
+      `;
+      db3.query(selectQuery, [tanggal, shift], (err, rows) => {
         if (err) {
-          console.error('Database query error:', err);
-          return response.status(500).send({ error: 'Database query error' });
+          console.error('Select error:', err);
+          return response.status(500).send({ error: 'Select error' });
         }
+        return response.status(200).send(rows);
+      });
+    };
 
-        const grouped = [];
-        let currentGroup = null;
-        let prevTime = null;
+    if (existResult.length > 0) {
+      return sendFilteredResponse();
+    }
 
-        for (let row of result) {
-          const currentTime = new Date(row.waktu);
+    let queryGet = '';
+    if (shift === '1') {
+      queryGet = `
+        SELECT
+          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+          \`time@timestamp\` AS raw_timestamp,
+          data_format_0 AS y
+        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+        WHERE
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
+          AND data_format_0 = 0
+        ORDER BY \`time@timestamp\`
+      `;
+    } else if (shift === '2') {
+      queryGet = `
+        SELECT
+          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+          \`time@timestamp\` AS raw_timestamp,
+          data_format_0 AS y
+        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+        WHERE
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
+          AND data_format_0 = 0
+        ORDER BY \`time@timestamp\`
+      `;
+    } else if (shift === '3') {
+      queryGet = `
+        SELECT
+          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+          \`time@timestamp\` AS raw_timestamp,
+          data_format_0 AS y
+        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+        WHERE (
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+          OR
+          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+        )
+        AND data_format_0 = 0
+        ORDER BY \`time@timestamp\`
+      `;
+    } else {
+      return response.status(400).send({ error: 'Shift tidak valid' });
+    }
 
-          if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
-            if (currentGroup) {
-              grouped.push({
-                start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
-                finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
-                total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
-              });
-            }
-            currentGroup = {
-              start: currentTime,
-              finish: currentTime
-            };
-          } else {
-            currentGroup.finish = currentTime;
+    db3.query(queryGet, (err, result) => {
+      if (err) {
+        console.error('Database query error:', err);
+        return response.status(500).send({ error: 'Database query error' });
+      }
+
+      const grouped = [];
+      let currentGroup = null;
+      let prevTime = null;
+
+      for (let row of result) {
+        const currentTime = new Date(row.waktu);
+
+        if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
+          if (currentGroup) {
+            grouped.push({
+              start: currentGroup.start,
+              finish: currentGroup.finish,
+              total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+            });
           }
-
-          prevTime = currentTime;
+          currentGroup = {
+            start: currentTime,
+            finish: currentTime
+          };
+        } else {
+          currentGroup.finish = currentTime;
         }
 
-        if (currentGroup) {
-          grouped.push({
-            start: currentGroup.start.toISOString().slice(0, 16).replace('T', ' '),
-            finish: currentGroup.finish.toISOString().slice(0, 16).replace('T', ' '),
-            total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
-          });
+        prevTime = currentTime;
+      }
+
+      if (currentGroup) {
+        grouped.push({
+          start: currentGroup.start,
+          finish: currentGroup.finish,
+          total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+        });
+      }
+
+      const filtered = grouped.filter(item => item.total_minutes >= 3);
+
+      if (filtered.length === 0) {
+        return response.status(200).send([]);
+      }
+
+      const checkExistingQuery = `
+        SELECT shift, start, finish
+        FROM Downtime_Mesin_HM1_A
+        WHERE DATE(start) = ? AND shift = ?
+      `;
+
+      db3.query(checkExistingQuery, [tanggal, shift], (err, existingRows) => {
+        if (err) {
+          console.error('Check existing entries error:', err);
+          return response.status(500).send({ error: 'Check existing entries error' });
         }
 
-        const filtered = grouped.filter(item => item.total_minutes >= 3);
+        const existingSet = new Set(
+          existingRows.map(row => `${row.shift}|${row.start.toISOString()}|${row.finish.toISOString()}`)
+        );
 
-        if (filtered.length === 0) {
-          return tampilkanDowntimeNull(); // Tidak ada durasi cukup panjang
+        const newEntries = filtered.filter(item => {
+          const key = `${shift}|${item.start.toISOString()}|${item.finish.toISOString()}`;
+          return !existingSet.has(key);
+        });
+
+        if (newEntries.length === 0) {
+          return sendFilteredResponse();
         }
 
-        const checkExistingQuery = `
-          SELECT shift, start, finish
-          FROM Downtime_Mesin_HM1_A
-          WHERE DATE(start) = ? AND shift = ?
+        const insertValues = newEntries.map(item => [
+          parseInt(shift),
+          item.start,
+          item.finish,
+          item.total_minutes
+        ]);
+
+        const insertQuery = `
+          INSERT INTO Downtime_Mesin_HM1_A (shift, start, finish, total_menit)
+          VALUES ?
         `;
 
-        db3.query(checkExistingQuery, [tanggal, shift], (err, existingRows) => {
-          if (err) {
-            console.error('Check existing entries error:', err);
-            return response.status(500).send({ error: 'Check existing entries error' });
+        db3.query(insertQuery, [insertValues], (insertErr) => {
+          if (insertErr) {
+            console.error('Insert error:', insertErr);
+            return response.status(500).send({ error: 'Insert error' });
           }
 
-          const existingSet = new Set(
-            existingRows.map(row => `${row.shift}|${row.start.toISOString()}|${row.finish.toISOString()}`)
-          );
-
-          const newEntries = filtered.filter(item => {
-            const key = `${shift}|${new Date(item.start).toISOString()}|${new Date(item.finish).toISOString()}`;
-            return !existingSet.has(key);
-          });
-
-          if (newEntries.length === 0) {
-            return tampilkanDowntimeNull();
-          }
-
-          const insertValues = newEntries.map(item => [
-            parseInt(shift),
-            item.start,
-            item.finish,
-            item.total_minutes
-          ]);
-
-          const insertQuery = `
-            INSERT INTO Downtime_Mesin_HM1_A (shift, start, finish, total_menit)
-            VALUES ?
-          `;
-
-          db3.query(insertQuery, [insertValues], (insertErr) => {
-            if (insertErr) {
-              console.error('Insert error:', insertErr);
-              return response.status(500).send({ error: 'Insert error' });
-            }
-
-            return tampilkanDowntimeNull();
-          });
+          return sendFilteredResponse();
         });
       });
     });
-  },
+  });
+},
+
 
 
   alldowntime: async (request, response) => {
