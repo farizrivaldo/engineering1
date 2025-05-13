@@ -6525,9 +6525,10 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
   
   HM1UpdateDowntime: async (req, res) => {
-  const { id, downtime_type, detail, user, submit_date } = req.body;
+  const { id, downtime_type, downtime_detail, username, submitted_at } = req.body;
 
-  if (!id || !downtime_type || !detail || !user || !submit_date) {
+  // Validasi field
+  if (!id || !downtime_type || !downtime_detail || !username || !submitted_at) {
     return res.status(400).send({ error: "Semua field harus diisi" });
   }
 
@@ -6542,7 +6543,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       LIMIT 1
     `;
 
-    db3.query(checkQuery, [start], (err, results) => {
+    db3.query(checkQuery, [id], (err, results) => {
       if (err) {
         console.error("Check error:", err);
         return res.status(500).send({ error: "Gagal cek data di database" });
@@ -6552,7 +6553,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         return res.status(400).send({ error: "Data tidak ditemukan atau sudah terisi" });
       }
 
-      // Data valid, lanjut update
+      // Update data jika valid
       const updateQuery = `
         UPDATE Downtime_Mesin_HM1_A
         SET downtime_type = ?, detail = ?, user = ?, submit_date = ?
@@ -6563,19 +6564,24 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           AND submit_date IS NULL
       `;
 
-      db3.query(updateQuery, [downtime_type, detail, user, submit_date, start], (err, result) => {
-        if (err) {
-          console.error("Update error:", err);
-          return res.status(500).send({ error: "Gagal update data di database" });
+      db3.query(
+        updateQuery,
+        [downtime_type, downtime_detail, username, submitted_at, id],
+        (err, result) => {
+          if (err) {
+            console.error("Update error:", err);
+            return res.status(500).send({ error: "Gagal update data di database" });
+          }
+          return res.status(200).send({ success: true, message: "Data berhasil diupdate" });
         }
-        return res.status(200).send({ success: true, message: "Data berhasil diupdate" });
-      });
+      );
     });
   } catch (err) {
     console.error("Server error:", err);
     res.status(500).send({ error: "Terjadi kesalahan pada server" });
   }
-},
+}
+
 
   
 };
