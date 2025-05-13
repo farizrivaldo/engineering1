@@ -6524,7 +6524,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       });
   },
   
-  HM1UpdateDowntime: async (req, res) => {
+  HM1InsertDowntime: async (req, res) => {
   const { id, downtime_type, downtime_detail, username, submitted_at } = req.body;
 
   // Validasi field
