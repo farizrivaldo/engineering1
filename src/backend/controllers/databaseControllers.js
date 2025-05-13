@@ -6319,186 +6319,186 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
 //-------------------------Mesin Report-------------HM-------------
 
-HM1Report: async (request, response) => {
-  const { tanggal, shift } = request.query;
+  HM1Report: async (request, response) => {
+    const { tanggal, shift } = request.query;
 
-  if (!tanggal || !shift) {
-    return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
-  }
-
-  const checkExistQuery = `
-    SELECT 1 FROM Downtime_Mesin_HM1_A
-    WHERE DATE(start) = ? AND shift = ?
-    LIMIT 1
-  `;
-
-  db3.query(checkExistQuery, [tanggal, shift], (err, existResult) => {
-    if (err) {
-      console.error('Database check error:', err);
-      return response.status(500).send({ error: 'Database check error' });
+    if (!tanggal || !shift) {
+      return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
     }
 
-    const sendFilteredResponse = () => {
-      const selectQuery = `
-        SELECT 
-          DATE_FORMAT(start, '%H:%i') AS start_jam,
-          DATE_FORMAT(finish, '%H:%i') AS finish_jam,
-          total_menit
-        FROM Downtime_Mesin_HM1_A
-        WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
-      `;
-      db3.query(selectQuery, [tanggal, shift], (err, rows) => {
-        if (err) {
-          console.error('Select error:', err);
-          return response.status(500).send({ error: 'Select error' });
-        }
-        return response.status(200).send(rows);
-      });
-    };
+    const checkExistQuery = `
+      SELECT 1 FROM Downtime_Mesin_HM1_A
+      WHERE DATE(start) = ? AND shift = ?
+      LIMIT 1
+    `;
 
-    if (existResult.length > 0) {
-      return sendFilteredResponse();
-    }
-
-    let queryGet = '';
-    if (shift === '1') {
-      queryGet = `
-        SELECT
-          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-          \`time@timestamp\` AS raw_timestamp,
-          data_format_0 AS y
-        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-        WHERE
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
-          AND data_format_0 = 0
-        ORDER BY \`time@timestamp\`
-      `;
-    } else if (shift === '2') {
-      queryGet = `
-        SELECT
-          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-          \`time@timestamp\` AS raw_timestamp,
-          data_format_0 AS y
-        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-        WHERE
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
-          AND data_format_0 = 0
-        ORDER BY \`time@timestamp\`
-      `;
-    } else if (shift === '3') {
-      queryGet = `
-        SELECT
-          FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
-          \`time@timestamp\` AS raw_timestamp,
-          data_format_0 AS y
-        FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
-        WHERE (
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
-          OR
-          FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
-        )
-        AND data_format_0 = 0
-        ORDER BY \`time@timestamp\`
-      `;
-    } else {
-      return response.status(400).send({ error: 'Shift tidak valid' });
-    }
-
-    db3.query(queryGet, (err, result) => {
+    db3.query(checkExistQuery, [tanggal, shift], (err, existResult) => {
       if (err) {
-        console.error('Database query error:', err);
-        return response.status(500).send({ error: 'Database query error' });
+        console.error('Database check error:', err);
+        return response.status(500).send({ error: 'Database check error' });
       }
 
-      const grouped = [];
-      let currentGroup = null;
-      let prevTime = null;
-
-      for (let row of result) {
-        const currentTime = new Date(row.waktu);
-
-        if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
-          if (currentGroup) {
-            grouped.push({
-              start: currentGroup.start,
-              finish: currentGroup.finish,
-              total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
-            });
+      const sendFilteredResponse = () => {
+        const selectQuery = `
+          SELECT 
+            DATE_FORMAT(start, '%H:%i') AS start,
+            DATE_FORMAT(finish, '%H:%i') AS finish,
+            total_menit
+          FROM Downtime_Mesin_HM1_A
+          WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
+        `;
+        db3.query(selectQuery, [tanggal, shift], (err, rows) => {
+          if (err) {
+            console.error('Select error:', err);
+            return response.status(500).send({ error: 'Select error' });
           }
-          currentGroup = {
-            start: currentTime,
-            finish: currentTime
-          };
-        } else {
-          currentGroup.finish = currentTime;
-        }
-
-        prevTime = currentTime;
-      }
-
-      if (currentGroup) {
-        grouped.push({
-          start: currentGroup.start,
-          finish: currentGroup.finish,
-          total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+          return response.status(200).send(rows);
         });
+      };
+
+      if (existResult.length > 0) {
+        return sendFilteredResponse();
       }
 
-      const filtered = grouped.filter(item => item.total_minutes >= 3);
-
-      if (filtered.length === 0) {
-        return response.status(200).send([]);
+      let queryGet = '';
+      if (shift === '1') {
+        queryGet = `
+          SELECT
+            FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+            \`time@timestamp\` AS raw_timestamp,
+            data_format_0 AS y
+          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+          WHERE
+            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
+            AND data_format_0 = 0
+          ORDER BY \`time@timestamp\`
+        `;
+      } else if (shift === '2') {
+        queryGet = `
+          SELECT
+            FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+            \`time@timestamp\` AS raw_timestamp,
+            data_format_0 AS y
+          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+          WHERE
+            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
+            AND data_format_0 = 0
+          ORDER BY \`time@timestamp\`
+        `;
+      } else if (shift === '3') {
+        queryGet = `
+          SELECT
+            FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
+            \`time@timestamp\` AS raw_timestamp,
+            data_format_0 AS y
+          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+          WHERE (
+            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+            OR
+            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+          )
+          AND data_format_0 = 0
+          ORDER BY \`time@timestamp\`
+        `;
+      } else {
+        return response.status(400).send({ error: 'Shift tidak valid' });
       }
 
-      const checkExistingQuery = `
-        SELECT shift, start, finish
-        FROM Downtime_Mesin_HM1_A
-        WHERE DATE(start) = ? AND shift = ?
-      `;
-
-      db3.query(checkExistingQuery, [tanggal, shift], (err, existingRows) => {
+      db3.query(queryGet, (err, result) => {
         if (err) {
-          console.error('Check existing entries error:', err);
-          return response.status(500).send({ error: 'Check existing entries error' });
+          console.error('Database query error:', err);
+          return response.status(500).send({ error: 'Database query error' });
         }
 
-        const existingSet = new Set(
-          existingRows.map(row => `${row.shift}|${row.start.toISOString()}|${row.finish.toISOString()}`)
-        );
+        const grouped = [];
+        let currentGroup = null;
+        let prevTime = null;
 
-        const newEntries = filtered.filter(item => {
-          const key = `${shift}|${item.start.toISOString()}|${item.finish.toISOString()}`;
-          return !existingSet.has(key);
-        });
+        for (let row of result) {
+          const currentTime = new Date(row.waktu);
 
-        if (newEntries.length === 0) {
-          return sendFilteredResponse();
+          if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
+            if (currentGroup) {
+              grouped.push({
+                start: currentGroup.start,
+                finish: currentGroup.finish,
+                total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+              });
+            }
+            currentGroup = {
+              start: currentTime,
+              finish: currentTime
+            };
+          } else {
+            currentGroup.finish = currentTime;
+          }
+
+          prevTime = currentTime;
         }
 
-        const insertValues = newEntries.map(item => [
-          parseInt(shift),
-          item.start,
-          item.finish,
-          item.total_minutes
-        ]);
+        if (currentGroup) {
+          grouped.push({
+            start: currentGroup.start,
+            finish: currentGroup.finish,
+            total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+          });
+        }
 
-        const insertQuery = `
-          INSERT INTO Downtime_Mesin_HM1_A (shift, start, finish, total_menit)
-          VALUES ?
+        const filtered = grouped.filter(item => item.total_minutes >= 3);
+
+        if (filtered.length === 0) {
+          return response.status(200).send([]);
+        }
+
+        const checkExistingQuery = `
+          SELECT shift, start, finish
+          FROM Downtime_Mesin_HM1_A
+          WHERE DATE(start) = ? AND shift = ?
         `;
 
-        db3.query(insertQuery, [insertValues], (insertErr) => {
-          if (insertErr) {
-            console.error('Insert error:', insertErr);
-            return response.status(500).send({ error: 'Insert error' });
+        db3.query(checkExistingQuery, [tanggal, shift], (err, existingRows) => {
+          if (err) {
+            console.error('Check existing entries error:', err);
+            return response.status(500).send({ error: 'Check existing entries error' });
           }
 
-          return sendFilteredResponse();
+          const existingSet = new Set(
+            existingRows.map(row => `${row.shift}|${row.start.toISOString()}|${row.finish.toISOString()}`)
+          );
+
+          const newEntries = filtered.filter(item => {
+            const key = `${shift}|${item.start.toISOString()}|${item.finish.toISOString()}`;
+            return !existingSet.has(key);
+          });
+
+          if (newEntries.length === 0) {
+            return sendFilteredResponse();
+          }
+
+          const insertValues = newEntries.map(item => [
+            parseInt(shift),
+            item.start,
+            item.finish,
+            item.total_minutes
+          ]);
+
+          const insertQuery = `
+            INSERT INTO Downtime_Mesin_HM1_A (shift, start, finish, total_menit)
+            VALUES ?
+          `;
+
+          db3.query(insertQuery, [insertValues], (insertErr) => {
+            if (insertErr) {
+              console.error('Insert error:', insertErr);
+              return response.status(500).send({ error: 'Insert error' });
+            }
+
+            return sendFilteredResponse();
+          });
         });
       });
     });
-  });
-},
+  },
 
 
 
@@ -6523,47 +6523,58 @@ HM1Report: async (request, response) => {
       });
   },
   
-  /*HM1InsertDowntime: async (req, res) => {
-    const { start, finish, total_minutes, downtime_type, detail, user, submit_date } = req.body;
+  HM1UpdateDowntime: async (req, res) => {
+  const { start, downtime_type, detail, user, submit_date } = req.body;
 
-    const start = "2025-05-08 08:30:00";
-    const finish = "2025-05-08 09:45:00";
-    const total_minutes = 75;
-    const downtime_type = "Maintenance";
-    const detail = "Ganti oli dan pembersihan filter";
-    const user = "operator_1";
-    const submit_date = "2025-05-08";
-  
-    if (!start || !finish || !total_minutes || !downtime_type || !detail || !user || !submit_date) {
-      return res.status(400).send({ error: "Semua field harus diisi" });
-    }
-  
-    try {
-      const insertQuery = `
-        INSERT INTO Downtime_Mesin_HM1_A
-        (start, finish, total_menit, downtime_type, detail, user, submit_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+  if (!start || !downtime_type || !detail || !user || !submit_date) {
+    return res.status(400).send({ error: "Semua field harus diisi" });
+  }
+
+  try {
+    const checkQuery = `
+      SELECT * FROM Downtime_Mesin_HM1_A
+      WHERE start = ?
+        AND downtime_type IS NULL
+        AND detail IS NULL
+        AND user IS NULL
+        AND submit_date IS NULL
+      LIMIT 1
+    `;
+
+    db3.query(checkQuery, [start], (err, results) => {
+      if (err) {
+        console.error("Check error:", err);
+        return res.status(500).send({ error: "Gagal cek data di database" });
+      }
+
+      if (results.length === 0) {
+        return res.status(400).send({ error: "Data tidak ditemukan atau sudah terisi" });
+      }
+
+      // Data valid, lanjut update
+      const updateQuery = `
+        UPDATE Downtime_Mesin_HM1_A
+        SET downtime_type = ?, detail = ?, user = ?, submit_date = ?
+        WHERE start = ?
+          AND downtime_type IS NULL
+          AND detail IS NULL
+          AND user IS NULL
+          AND submit_date IS NULL
       `;
-      
-      db3.query(insertQuery, [
-        start,
-        finish,
-        total_minutes,
-        downtime_type,
-        detail,
-        user,
-        submit_date
-      ], (err, result) => {
+
+      db3.query(updateQuery, [downtime_type, detail, user, submit_date, start], (err, result) => {
         if (err) {
-          console.error("Insert error:", err);
-          return res.status(500).send({ error: "Gagal insert data ke database" });
+          console.error("Update error:", err);
+          return res.status(500).send({ error: "Gagal update data di database" });
         }
-        return res.status(200).send({ success: true, message: "Data berhasil disimpan" });
+        return res.status(200).send({ success: true, message: "Data berhasil diupdate" });
       });
-    } catch (err) {
-      console.error("Server error:", err);
-      res.status(500).send({ error: "Terjadi kesalahan pada server" });
-    }
-  },*/
+    });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send({ error: "Terjadi kesalahan pada server" });
+  }
+},
+
   
 };
