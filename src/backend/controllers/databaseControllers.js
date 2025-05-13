@@ -6527,6 +6527,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   HM1InsertDowntime: async (req, res) => {
   const { id, downtime_type, downtime_detail, username, submitted_at } = req.body;
 
+  console.log("Incoming Request Body:", req.body);
+  console.log("ID:", id);
+  console.log("Downtime Type:", downtime_type);
+  console.log("Downtime Detail:", downtime_detail);
+  console.log("Username:", username);
+  console.log("Submitted At:", submitted_at);
   // Validasi field
   if (!id || !downtime_type || !downtime_detail || !username || !submitted_at) {
     return res.status(400).send({ error: "Semua field harus diisi" });
@@ -6580,8 +6586,5 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     console.error("Server error:", err);
     res.status(500).send({ error: "Terjadi kesalahan pada server" });
   }
-}
-
-
-  
+},
 };
