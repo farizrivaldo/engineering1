@@ -6341,6 +6341,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       const sendFilteredResponse = () => {
         const selectQuery = `
           SELECT 
+            id,
             DATE_FORMAT(start, '%H:%i') AS start,
             DATE_FORMAT(finish, '%H:%i') AS finish,
             total_menit
@@ -6524,16 +6525,16 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
   
   HM1UpdateDowntime: async (req, res) => {
-  const { start, downtime_type, detail, user, submit_date } = req.body;
+  const { id, downtime_type, detail, user, submit_date } = req.body;
 
-  if (!start || !downtime_type || !detail || !user || !submit_date) {
+  if (!id || !downtime_type || !detail || !user || !submit_date) {
     return res.status(400).send({ error: "Semua field harus diisi" });
   }
 
   try {
     const checkQuery = `
       SELECT * FROM Downtime_Mesin_HM1_A
-      WHERE start = ?
+      WHERE id = ?
         AND downtime_type IS NULL
         AND detail IS NULL
         AND user IS NULL
@@ -6555,7 +6556,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       const updateQuery = `
         UPDATE Downtime_Mesin_HM1_A
         SET downtime_type = ?, detail = ?, user = ?, submit_date = ?
-        WHERE start = ?
+        WHERE id = ?
           AND downtime_type IS NULL
           AND detail IS NULL
           AND user IS NULL
