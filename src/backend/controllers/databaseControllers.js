@@ -6348,6 +6348,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           FROM Downtime_Mesin_HM1_A
           WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
         `;
+
+        //console.log(selectQuery);
         db3.query(selectQuery, [tanggal, shift], (err, rows) => {
           if (err) {
             console.error('Select error:', err);
@@ -6370,7 +6372,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             data_format_0 AS y
           FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
           WHERE
-            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
+            DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
             AND data_format_0 = 0
           ORDER BY \`time@timestamp\`
         `;
@@ -6382,7 +6384,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             data_format_0 AS y
           FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
           WHERE
-            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
+            DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
             AND data_format_0 = 0
           ORDER BY \`time@timestamp\`
         `;
@@ -6394,9 +6396,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             data_format_0 AS y
           FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
           WHERE (
-            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
+            DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
             OR
-            FROM_UNIXTIME(\`time@timestamp\`) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
+            DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 00:00:00' AND '${tanggal} 06:30:00'
           )
           AND data_format_0 = 0
           ORDER BY \`time@timestamp\`
@@ -6405,6 +6407,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         return response.status(400).send({ error: 'Shift tidak valid' });
       }
 
+      console.log(queryGet);
       db3.query(queryGet, (err, result) => {
         if (err) {
           console.error('Database query error:', err);
@@ -6478,8 +6481,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
           const insertValues = newEntries.map(item => [
             parseInt(shift),
-            item.start,
-            item.finish,
+            new Date(item.start.getTime() - 7 * 60 * 60 * 1000),
+            new Date(item.finish.getTime() - 7 * 60 * 60 * 1000),
             item.total_minutes
           ]);
 
