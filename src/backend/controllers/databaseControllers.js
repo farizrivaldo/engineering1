@@ -6537,7 +6537,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   console.log("Submitted At:", submitted_at);*/
   // Validasi field
   if (!id || !downtime_type || !downtime_detail || !username || !submitted_at) {
-    return res.status(400).send({ error: "Semua field harus diisi" });
+    return res.status(400).send({ error: "Semua field harus diisi" });  
   }
 
   try {
