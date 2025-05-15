@@ -6346,11 +6346,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             DATE_FORMAT(finish, '%H:%i') AS finish,
             total_menit
           FROM Downtime_Mesin
-          WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
+          WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL AND mesin = ?
         `;
 
         //console.log(selectQuery);
-        db3.query(selectQuery, [tanggal, shift], (err, rows) => {
+        db3.query(selectQuery, [tanggal, shift, area], (err, rows) => {
           if (err) {
             console.error('Select error:', err);
             return response.status(500).send({ error: 'Select error' });
@@ -6483,11 +6483,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             parseInt(shift),
             new Date(item.start.getTime() - 7 * 60 * 60 * 1000),
             new Date(item.finish.getTime() - 7 * 60 * 60 * 1000),
-            item.total_minutes
+            item.total_minutes,
+            area
           ]);
 
           const insertQuery = `
-            INSERT INTO Downtime_Mesin (shift, start, finish, total_menit)
+            INSERT INTO Downtime_Mesin (shift, start, finish, total_menit, mesin)
             VALUES ?
           `;
 
