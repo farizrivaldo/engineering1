@@ -6320,7 +6320,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 //-------------------------Mesin Report-------------HM-------------
 
   HM1Report: async (request, response) => {
-    const { tanggal, shift } = request.query;
+    const { tanggal, shift, area } = request.query;
 
     if (!tanggal || !shift) {
       return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
@@ -6370,7 +6370,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
             \`time@timestamp\` AS raw_timestamp,
             data_format_0 AS y
-          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_${area}_data\`
           WHERE
             DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 06:30:00' AND '${tanggal} 15:00:00'
             AND data_format_0 = 0
@@ -6382,7 +6382,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
             \`time@timestamp\` AS raw_timestamp,
             data_format_0 AS y
-          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_${area}_data\`
           WHERE
             DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 15:00:00' AND '${tanggal} 23:00:00'
             AND data_format_0 = 0
@@ -6394,7 +6394,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
             \`time@timestamp\` AS raw_timestamp,
             data_format_0 AS y
-          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_HM1_data\`
+          FROM \`parammachine_saka\`.\`mezanine.tengah_runn_${area}_data\`
           WHERE (
             DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR) BETWEEN '${tanggal} 23:00:00' AND '${tanggal} 00:00:00'
             OR
@@ -6407,7 +6407,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         return response.status(400).send({ error: 'Shift tidak valid' });
       }
 
-      console.log(queryGet);
+      //console.log(queryGet);
       db3.query(queryGet, (err, result) => {
         if (err) {
           console.error('Database query error:', err);
@@ -6504,8 +6504,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
-
-
   alldowntime: async (request, response) => {
       const { type } = request.query;
   
@@ -6530,12 +6528,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   HM1InsertDowntime: async (req, res) => {
   const { id, downtime_type, downtime_detail, username, submitted_at } = req.body;
 
-  console.log("Incoming Request Body:", req.body);
+  /*console.log("Incoming Request Body:", req.body);
   console.log("ID:", id);
   console.log("Downtime Type:", downtime_type);
   console.log("Downtime Detail:", downtime_detail);
   console.log("Username:", username);
-  console.log("Submitted At:", submitted_at);
+  console.log("Submitted At:", submitted_at);*/
   // Validasi field
   if (!id || !downtime_type || !downtime_detail || !username || !submitted_at) {
     return res.status(400).send({ error: "Semua field harus diisi" });
