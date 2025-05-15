@@ -6527,7 +6527,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
   
   HM1InsertDowntime: async (req, res) => {
-  const { id, downtime_type, downtime_detail, username, submitted_at } = req.body;
+  const { id, downtime_type, downtime_detail, username, submitted_at, keterangan } = req.body;
 
   /*console.log("Incoming Request Body:", req.body);
   console.log("ID:", id);
@@ -6536,7 +6536,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   console.log("Username:", username);
   console.log("Submitted At:", submitted_at);*/
   // Validasi field
-  if (!id || !downtime_type || !downtime_detail || !username || !submitted_at) {
+  if (!id || !downtime_type || !downtime_detail || !username || !submitted_at, keterangan) {
     return res.status(400).send({ error: "Semua field harus diisi" }); 
   }
 
@@ -6548,6 +6548,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         AND detail IS NULL
         AND user IS NULL
         AND submit_date IS NULL
+        AND keterangan
       LIMIT 1
     `;
 
@@ -6564,17 +6565,18 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       // Update data jika valid
       const updateQuery = `
         UPDATE Downtime_Mesin
-        SET downtime_type = ?, detail = ?, user = ?, submit_date = ?
+        SET downtime_type = ?, detail = ?, user = ?, submit_date = ?, keterangan = ?
         WHERE id = ?
           AND downtime_type IS NULL
           AND detail IS NULL
           AND user IS NULL
           AND submit_date IS NULL
+          AND keterangan IS NULL
       `;
 
       db3.query(
         updateQuery,
-        [downtime_type, downtime_detail, username, submitted_at, id],
+        [downtime_type, downtime_detail, username, submitted_at, id, keterangan],
         (err, result) => {
           if (err) {
             console.error("Update error:", err);
