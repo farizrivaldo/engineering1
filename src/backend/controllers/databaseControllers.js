@@ -6492,6 +6492,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             VALUES ?
           `;
 
+
+          
           db3.query(insertQuery, [insertValues], (insertErr) => {
             if (insertErr) {
               console.error('Insert error:', insertErr);
