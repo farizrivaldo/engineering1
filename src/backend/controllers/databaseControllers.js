@@ -6327,7 +6327,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
 
     const checkExistQuery = `
-      SELECT 1 FROM Downtime_Mesin_HM1_A
+      SELECT 1 FROM Downtime_Mesin
       WHERE DATE(start) = ? AND shift = ?
       LIMIT 1
     `;
@@ -6345,7 +6345,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             DATE_FORMAT(start, '%H:%i') AS start,
             DATE_FORMAT(finish, '%H:%i') AS finish,
             total_menit
-          FROM Downtime_Mesin_HM1_A
+          FROM Downtime_Mesin
           WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL
         `;
 
@@ -6456,7 +6456,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
         const checkExistingQuery = `
           SELECT shift, start, finish
-          FROM Downtime_Mesin_HM1_A
+          FROM Downtime_Mesin
           WHERE DATE(start) = ? AND shift = ?
         `;
 
@@ -6487,7 +6487,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           ]);
 
           const insertQuery = `
-            INSERT INTO Downtime_Mesin_HM1_A (shift, start, finish, total_menit)
+            INSERT INTO Downtime_Mesin (shift, start, finish, total_menit)
             VALUES ?
           `;
 
@@ -6541,7 +6541,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   try {
     const checkQuery = `
-      SELECT * FROM Downtime_Mesin_HM1_A
+      SELECT * FROM Downtime_Mesin
       WHERE id = ?
         AND downtime_type IS NULL
         AND detail IS NULL
@@ -6562,7 +6562,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
       // Update data jika valid
       const updateQuery = `
-        UPDATE Downtime_Mesin_HM1_A
+        UPDATE Downtime_Mesin
         SET downtime_type = ?, detail = ?, user = ?, submit_date = ?
         WHERE id = ?
           AND downtime_type IS NULL
