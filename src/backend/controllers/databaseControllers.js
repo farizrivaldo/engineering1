@@ -6586,4 +6586,60 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
+  ReplaceDowntime: async (req, res) => {
+  const { parent_id, newDowntimes } = req.body;
+  // Format:
+  // newDowntimes = [
+  //   { start: '2024-05-20 13:13:00', finish: '2024-05-20 13:30:00', downtime_type, detail, user, submit_date, keterangan, shift, mesin },
+  //   { start: '2024-05-20 13:30:00', finish: '2024-05-20 14:00:00', downtime_type, detail, user, submit_date, keterangan, shift, mesin }
+  // ]
+
+  if (!parent_id || !Array.isArray(newDowntimes) || newDowntimes.length === 0) {
+    return res.status(400).send({ error: "Data tidak lengkap" });
+  }
+
+  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
+  const insertQuery = `
+    INSERT INTO Downtime_Mesin (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
+    VALUES ?
+  `;
+
+  try {
+    // Hapus data original
+    db3.query(deleteQuery, [parent_id], (err) => {
+      if (err) {
+        console.error("Gagal menghapus data lama:", err);
+        return res.status(500).send({ error: "Gagal hapus data lama" });
+      }
+
+      const values = newDowntimes.map(item => ([
+        item.shift,
+        new Date(item.start),
+        new Date(item.finish),
+        Math.round((new Date(item.finish) - new Date(item.start)) / 60000),
+        item.mesin,
+        item.downtime_type,
+        item.detail,
+        item.user,
+        item.submit_date,
+        item.keterangan
+      ]));
+
+      db3.query(insertQuery, [values], (err) => {
+        if (err) {
+          console.error("Insert error:", err);
+          return res.status(500).send({ error: "Gagal insert data baru" });
+        }
+
+        return res.status(200).send({ success: true, message: "Data berhasil diganti dengan sub-row" });
+      });
+    });
+
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).send({ error: "Terjadi kesalahan di server" });
+  }
+},
+
+
 };
