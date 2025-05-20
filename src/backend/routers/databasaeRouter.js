@@ -225,6 +225,6 @@ routers.post("/HM1Report", databaseControllers.HM1Report);
 //routers.get("/downtime", databaseControllers.downtime);
 routers.get("/alldowntime", databaseControllers.alldowntime);
 routers.post("/HM1InsertDowntime", databaseControllers.HM1InsertDowntime);
-routers.post("/ReplaceDowntime", databaseControllers.ReplaceDowntime);
+routers.post("/HM1InsertDowntimeWithSubRows", databaseControllers.HM1InsertDowntimeWithSubRows);
 
 module.exports = routers;

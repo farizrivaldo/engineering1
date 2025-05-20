@@ -6586,7 +6586,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  ReplaceDowntime: async (req, res) => {
+  HM1InsertDowntimeWithSubRows: async (req, res) => {
   const { parent_id, newDowntimes } = req.body;
   // Format:
   // newDowntimes = [
