@@ -6590,6 +6590,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   const { parent_id, newDowntimes } = req.body;
 
   // Validasi input
+  console.log("REQ BODY:", req.body);
   if (!parent_id || !Array.isArray(newDowntimes) || newDowntimes.length === 0) {
     return res.status(400).send({ error: "Data tidak lengkap" });
   }
@@ -6624,6 +6625,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ]));
 
       // Step 3: Insert data baru
+
       db3.query(insertQuery, [values], (err) => {
         if (err) {
           console.error("Insert error:", err);
