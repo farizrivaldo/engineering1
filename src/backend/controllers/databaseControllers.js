@@ -6611,18 +6611,24 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       }
 
       // Step 2: Persiapkan data untuk insert
-      const values = newDowntimes.map(item => ([
+      const values = newDowntimes.map(item => {
+      const fullStart = `${item.tanggal} ${item.start}`;   // Gabung jadi "2025-05-20 06:48"
+      const fullFinish = `${item.tanggal} ${item.finish}`; // Gabung jadi "2025-05-20 07:03"
+      
+      return [
         item.shift,
-        new Date(item.start),
-        new Date(item.finish),
+        fullStart,
+        fullFinish,
         item.total_menit,
-        item.mesin || item.area, // fallback jika pakai area
+        item.area,
         item.downtime_type,
-        item.detail || item.downtime_detail,
-        item.user || item.username,
-        new Date(item.submit_date || item.submitted_at),
+        item.detail,
+        item.username,
+        item.submit_date,
         item.keterangan
-      ]));
+      ];
+    });
+
 
       // Step 3: Insert data baru
 
@@ -6641,7 +6647,5 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     return res.status(500).send({ error: "Terjadi kesalahan di server" });
   }
 },
-
-
 
 };
