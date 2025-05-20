@@ -6587,15 +6587,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-  const { parent_id, newDowntimes } = req.body;
+  const { parent_id, tanggal, subRows } = req.body;
 
-  // Validasi input
-  console.log("REQ BODY:", req.body);
-  if (!parent_id || !Array.isArray(newDowntimes) || newDowntimes.length === 0) {
+  if (!parent_id || !tanggal || !Array.isArray(subRows) || subRows.length === 0) {
     return res.status(400).send({ error: "Data tidak lengkap" });
   }
 
-  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
   const insertQuery = `
     INSERT INTO Downtime_Mesin 
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
@@ -6603,18 +6600,10 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   `;
 
   try {
-    // Step 1: Hapus data lama
-    db3.query(deleteQuery, [parent_id], (err) => {
-      if (err) {
-        console.error("Gagal menghapus data lama:", err);
-        return res.status(500).send({ error: "Gagal hapus data lama" });
-      }
+    const values = subRows.map(item => {
+      const fullStart = `${tanggal} ${item.start}`;   // Format: "2025-05-20 06:48"
+      const fullFinish = `${tanggal} ${item.finish}`; // Format: "2025-05-20 07:03"
 
-      // Step 2: Persiapkan data untuk insert
-      const values = newDowntimes.map(item => {
-      const fullStart = `${item.tanggal} ${item.start}`;   // Gabung jadi "2025-05-20 06:48"
-      const fullFinish = `${item.tanggal} ${item.finish}`; // Gabung jadi "2025-05-20 07:03"
-      
       return [
         item.shift,
         fullStart,
@@ -6629,17 +6618,13 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ];
     });
 
+    db3.query(insertQuery, [values], (err) => {
+      if (err) {
+        console.error("Insert error:", err);
+        return res.status(500).send({ error: "Gagal insert data sub-rows" });
+      }
 
-      // Step 3: Insert data baru
-
-      db3.query(insertQuery, [values], (err) => {
-        if (err) {
-          console.error("Insert error:", err);
-          return res.status(500).send({ error: "Gagal insert data baru" });
-        }
-
-        return res.status(200).send({ success: true, message: "Data berhasil diganti dengan sub-row" });
-      });
+      return res.status(200).send({ success: true, message: "Sub-rows berhasil disimpan" });
     });
 
   } catch (error) {
@@ -6647,5 +6632,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     return res.status(500).send({ error: "Terjadi kesalahan di server" });
   }
 },
+
 
 };
