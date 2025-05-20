@@ -6526,58 +6526,120 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       });
   },
   
-  HM1InsertDowntimeWithSubRows: async (req, res) => {
-    const { parent_id, newDowntimes } = req.body;
+  HM1InsertDowntime: async (req, res) => {
+    const { id, downtime_type, downtime_detail, username, submitted_at, keterangan } = req.body;
 
-    // Validasi input
-    if (!parent_id || !Array.isArray(newDowntimes) || newDowntimes.length === 0) {
-      return res.status(400).send({ error: "Data tidak lengkap" });
+    // Validasi field
+    if (!id || !downtime_type || !downtime_detail || !username || !submitted_at || !keterangan) {
+      return res.status(400).send({ error: "Semua field harus diisi" }); 
     }
-
-    const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
-    const insertQuery = `
-      INSERT INTO Downtime_Mesin 
-      (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
-      VALUES ?
-    `;
 
     try {
-      // Step 1: Hapus data lama
-      db3.query(deleteQuery, [parent_id], (err) => {
+      const checkQuery = `
+        SELECT * FROM Downtime_Mesin
+        WHERE id = ?
+          AND downtime_type IS NULL
+          AND detail IS NULL
+          AND user IS NULL
+          AND submit_date IS NULL
+          AND keterangan IS NULL
+        LIMIT 1
+      `;
+
+      db3.query(checkQuery, [id], (err, results) => {
         if (err) {
-          console.error("Gagal menghapus data lama:", err);
-          return res.status(500).send({ error: "Gagal hapus data lama" });
+          console.error("Check error:", err);
+          return res.status(500).send({ error: "Gagal cek data di database" });
         }
 
-        // Step 2: Persiapkan data untuk insert
-        const values = newDowntimes.map(item => ([
-          item.shift,
-          new Date(item.start),
-          new Date(item.finish),
-          item.total_menit,
-          item.mesin || item.area, // fallback jika pakai area
-          item.downtime_type,
-          item.detail || item.downtime_detail,
-          item.user || item.username,
-          new Date(item.submit_date || item.submitted_at),
-          item.keterangan
-        ]));
+        if (results.length === 0) {
+          return res.status(400).send({ error: "Data tidak ditemukan atau sudah terisi" });
+        }
 
-        // Step 3: Insert data baru
-        db3.query(insertQuery, [values], (err) => {
-          if (err) {
-            console.error("Insert error:", err);
-            return res.status(500).send({ error: "Gagal insert data baru" });
+        // Update data jika valid
+        const updateQuery = `
+          UPDATE Downtime_Mesin
+          SET downtime_type = ?, detail = ?, user = ?, submit_date = ?, keterangan = ?
+          WHERE id = ?
+            AND downtime_type IS NULL
+            AND detail IS NULL
+            AND user IS NULL
+            AND submit_date IS NULL
+            AND keterangan IS NULL
+        `;
+
+        db3.query(
+          updateQuery,
+          [downtime_type, downtime_detail, username, submitted_at, keterangan, id],
+          (err, result) => {
+            if (err) {
+              console.error("Update error:", err);
+              return res.status(500).send({ error: "Gagal update data di database" });
+            }
+            return res.status(200).send({ success: true, message: "Data berhasil diupdate" });
           }
-
-          return res.status(200).send({ success: true, message: "Data berhasil diganti dengan sub-row" });
-        });
+        );
       });
-
-    } catch (error) {
-      console.error("Server error:", error);
-      return res.status(500).send({ error: "Terjadi kesalahan di server" });
+    } catch (err) {
+      console.error("Server error:", err);
+      res.status(500).send({ error: "Terjadi kesalahan pada server" });
     }
   },
+
+  HM1InsertDowntimeWithSubRows: async (req, res) => {
+  const { parent_id, newDowntimes } = req.body;
+
+  // Validasi input
+  if (!parent_id || !Array.isArray(newDowntimes) || newDowntimes.length === 0) {
+    return res.status(400).send({ error: "Data tidak lengkap" });
+  }
+
+  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
+  const insertQuery = `
+    INSERT INTO Downtime_Mesin 
+    (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
+    VALUES ?
+  `;
+
+  try {
+    // Step 1: Hapus data lama
+    db3.query(deleteQuery, [parent_id], (err) => {
+      if (err) {
+        console.error("Gagal menghapus data lama:", err);
+        return res.status(500).send({ error: "Gagal hapus data lama" });
+      }
+
+      // Step 2: Persiapkan data untuk insert
+      const values = newDowntimes.map(item => ([
+        item.shift,
+        new Date(item.start),
+        new Date(item.finish),
+        item.total_menit,
+        item.mesin || item.area, // fallback jika pakai area
+        item.downtime_type,
+        item.detail || item.downtime_detail,
+        item.user || item.username,
+        new Date(item.submit_date || item.submitted_at),
+        item.keterangan
+      ]));
+
+      // Step 3: Insert data baru
+      db3.query(insertQuery, [values], (err) => {
+        if (err) {
+          console.error("Insert error:", err);
+          return res.status(500).send({ error: "Gagal insert data baru" });
+        }
+
+        return res.status(200).send({ success: true, message: "Data berhasil diganti dengan sub-row" });
+      });
+    });
+
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).send({ error: "Terjadi kesalahan di server" });
+  }
+},
+
+
 
 };
