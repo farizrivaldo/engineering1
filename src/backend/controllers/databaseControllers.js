@@ -6476,7 +6476,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           });
 
           if (newEntries.length === 0) {
-            return sendFilteredResponse();
+            return sendFilteredResponse(); 
           }
 
           const insertValues = newEntries.map(item => [
