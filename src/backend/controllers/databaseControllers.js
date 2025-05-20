@@ -6606,7 +6606,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   try {
     // Hapus data original
-    db3.query(deleteQuery, [parent_id], (err) => {
+    db3.query(deleteQuery, [id], (err) => {
       if (err) {
         console.error("Gagal menghapus data lama:", err);
         return res.status(500).send({ error: "Gagal hapus data lama" });
@@ -6616,8 +6616,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         item.shift,
         new Date(item.start),
         new Date(item.finish),
-        Math.round((new Date(item.finish) - new Date(item.start)) / 60000),
-        item.mesin,
+        item.total_menit,
+        item.area,
         item.downtime_type,
         item.detail,
         item.user,
