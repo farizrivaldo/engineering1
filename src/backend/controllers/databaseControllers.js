@@ -6589,10 +6589,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   HM1InsertDowntimeWithSubRows: async (req, res) => {
   const {id, subRows } = req.body;
 
-  if (!Array.isArray(subRows) || subRows.length === 0 || !id) {
+  if (!Array.isArray(subRows) || subRows.length === 0) {
     return res.status(400).send({ error: "Data subRows kosong atau tidak valid" });
   }
 
+  
   const insertQuery = `
     INSERT INTO Downtime_Mesin
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
@@ -6601,9 +6602,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   try {
     const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
-    
     // Step 1: Hapus data lama
-    db3.query(deleteQuery, (deleteErr) => {
+    db3.query(deleteQuery, [id], (deleteErr) => {
       if (deleteErr) {
         return res.status(500).send({ error: "Gagal hapus data lama" });
       }
