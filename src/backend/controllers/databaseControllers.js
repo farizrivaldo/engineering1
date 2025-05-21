@@ -6595,7 +6595,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   }
 
   // Ambil parent_id dari salah satu row
-  const parent_id = subRows[5].parent_id;
+  const parent_id = subRows[0].parent_id;
   if (!parent_id) {
     return res.status(400).send({ error: "parent_id tidak ditemukan dalam subRows" });
   }
