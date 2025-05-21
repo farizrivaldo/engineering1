@@ -6587,17 +6587,24 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-  const { subRows } = req.body;
+  const { mainRow, subRows } = req.body;
 
   // Validasi awal
+  if (!mainRow || typeof mainRow.id !== "number") {
+    return res.status(400).send({ error: "mainRow.id tidak valid" });
+  }
+
   if (!Array.isArray(subRows) || subRows.length === 0) {
     return res.status(400).send({ error: "Data subRows kosong atau tidak valid" });
   }
 
-  // Ambil parent_id dari salah satu row
-  const parent_id = subRows[0].parent_id;
-  if (!parent_id) {
-    return res.status(400).send({ error: "parent_id tidak ditemukan dalam subRows" });
+  const parent_id = mainRow.id;
+  console.log("parent_id (dari mainRow.id):", parent_id);
+
+  // Validasi konsistensi data jika diperlukan
+  const subRowParentMismatch = subRows.some((item) => item.parent_id !== parent_id);
+  if (subRowParentMismatch) {
+    return res.status(400).send({ error: "Beberapa subRows memiliki parent_id yang tidak sesuai dengan mainRow.id" });
   }
 
   const deleteQuery = `DELETE FROM Downtime_Mesin WHERE parent_id = ?`;
@@ -6608,37 +6615,38 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   `;
 
   try {
-    // Step 1: Hapus data lama berdasarkan parent_id
-    db3.query(deleteQuery, [parent_id], (err) => {
-      if (err) {
-        console.error("Gagal menghapus data lama:", err);
+    // Step 1: Hapus data lama
+    db3.query(deleteQuery, [parent_id], (deleteErr, deleteResult) => {
+      if (deleteErr) {
+        console.error("Gagal menghapus data lama:", deleteErr);
         return res.status(500).send({ error: "Gagal hapus data lama" });
       }
 
-      // Step 2: Siapkan data untuk insert
+      console.log(`Berhasil hapus ${deleteResult.affectedRows} baris data downtime lama.`);
+
+      // Step 2: Siapkan data baru untuk insert
       const values = subRows.map(item => {
         const fullStart = `${item.tanggal} ${item.start}`;
         const fullFinish = `${item.tanggal} ${item.finish}`;
 
         return [
-          item.shift,                                 // shift
-          fullStart,                                  // start
-          fullFinish,                                 // finish
-          item.total_menit,                           // total_menit
-          item.mesin || item.area,                    // mesin (fallback ke area)
-          item.downtime_type,                         // downtime_type
-          item.detail || item.downtime_detail,        // detail (fallback)
-          item.user || item.username,                 // user (fallback)
-          item.submit_date || item.submitted_at, // submit_date
-          item.keterangan || "",                      // keterangan (optional)
-          item.parent_id                              // parent_id (penting untuk trace)
+          item.shift,
+          fullStart,
+          fullFinish,
+          item.total_menit,
+          item.mesin || item.area,
+          item.downtime_type,
+          item.detail || item.downtime_detail,
+          item.user || item.username,
+          item.submit_date || item.submitted_at,
+          item.keterangan || "",
         ];
       });
 
       // Step 3: Insert data baru
-      db3.query(insertQuery, [values], (err) => {
-        if (err) {
-          console.error("Insert error:", err);
+      db3.query(insertQuery, [values], (insertErr) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
           return res.status(500).send({ error: "Gagal insert data baru" });
         }
 
@@ -6651,4 +6659,5 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     return res.status(500).send({ error: "Terjadi kesalahan di server" });
   }
 },
+
 };
