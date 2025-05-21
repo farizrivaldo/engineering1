@@ -6587,42 +6587,26 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-  const { mainRow, subRows } = req.body;
-
-  // Validasi awal
-  if (!mainRow || typeof mainRow.id !== "number") {
-    return res.status(400).send({ error: "mainRow.id tidak valid" });
-  }
+  const {id, subRows } = req.body;
 
   if (!Array.isArray(subRows) || subRows.length === 0) {
     return res.status(400).send({ error: "Data subRows kosong atau tidak valid" });
   }
 
-  const parent_id = mainRow.id;
-  console.log("parent_id (dari mainRow.id):", parent_id);
-
-  // Validasi konsistensi data jika diperlukan
-  const subRowParentMismatch = subRows.some((item) => item.parent_id !== parent_id);
-  if (subRowParentMismatch) {
-    return res.status(400).send({ error: "Beberapa subRows memiliki parent_id yang tidak sesuai dengan mainRow.id" });
-  }
-
-  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE parent_id = ?`;
+  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
   const insertQuery = `
-    INSERT INTO Downtime_Mesin 
+    INSERT INTO Downtime_Mesin
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
     VALUES ?
   `;
 
   try {
     // Step 1: Hapus data lama
-    db3.query(deleteQuery, [parent_id], (deleteErr, deleteResult) => {
+    db3.query(deleteQuery, [id], (deleteErr) => {
       if (deleteErr) {
         console.error("Gagal menghapus data lama:", deleteErr);
         return res.status(500).send({ error: "Gagal hapus data lama" });
       }
-
-      console.log(`Berhasil hapus ${deleteResult.affectedRows} baris data downtime lama.`);
 
       // Step 2: Siapkan data baru untuk insert
       const values = subRows.map(item => {
