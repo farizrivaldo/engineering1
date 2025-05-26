@@ -1056,7 +1056,7 @@ LEFT JOIN
     (SELECT SUM(data_format_0) as s 
          FROM parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum19`;
-    
+
     db3.query(queryGet, (err, result) => {
       return response.status(200).send(result);
     });
@@ -2177,7 +2177,7 @@ LEFT JOIN
   ChillerGraph: async (request, response) => {
     const { area, start, finish, chiller, komp } = request.query;
 
-    const areaFormatted = area.replace(/[-.]/g, '_');
+    const areaFormatted = area.replace(/[-.]/g, "_");
 
     const queryGet = `
             SELECT
@@ -2203,7 +2203,7 @@ LEFT JOIN
             ORDER BY
                 x;
         `;
-    
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2265,7 +2265,7 @@ LEFT JOIN
     ) AS combined
     ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2275,12 +2275,11 @@ LEFT JOIN
       return response.status(200).send(result);
     });
   },
-  
 
   // Chiller Status Backend
   ChillerKondisi: async (request, response) => {
     const { start, finish, chiller, komp, oliats } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2371,7 +2370,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2381,12 +2380,11 @@ LEFT JOIN
       return response.status(200).send(result);
     });
   },
-  
 
   // Chiller Nama Backend
   ChillerNama: async (request, response) => {
     const { start, finish, chiller } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2455,7 +2453,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2469,7 +2467,7 @@ LEFT JOIN
   // Chiller Data 1 Backend
   ChillerData1: async (request, response) => {
     const { start, finish, chiller } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2530,7 +2528,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     db3.query(queryGet, (err, result) => {
       if (err) {
         console.error(err);
@@ -2543,7 +2541,7 @@ LEFT JOIN
   // Chiller Data 2 Backend
   ChillerData2: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2604,7 +2602,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     db3.query(queryGet, (err, result) => {
       if (err) {
         console.error(err);
@@ -2617,7 +2615,7 @@ LEFT JOIN
   // Chiller Data 3 Backend
   ChillerData3: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2670,7 +2668,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     db3.query(queryGet, (err, result) => {
       if (err) {
         console.error(err);
@@ -2683,7 +2681,7 @@ LEFT JOIN
   // Chiller Data 4 Backend
   ChillerData4: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2744,7 +2742,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     db3.query(queryGet, (err, result) => {
       if (err) {
         console.error(err);
@@ -2757,7 +2755,7 @@ LEFT JOIN
   // Chiller Data 5 Backend
   ChillerData5: async (request, response) => {
     const { start, finish, chiller, komp, fan } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2818,7 +2816,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-    
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2832,7 +2830,7 @@ LEFT JOIN
   // Chiller Data 6 Backend
   ChillerData6: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2893,7 +2891,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2907,7 +2905,7 @@ LEFT JOIN
   // Chiller Data 7 Backend
   ChillerData7: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -2968,7 +2966,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -2982,7 +2980,7 @@ LEFT JOIN
   // Chiller Data 8 Backend
   ChillerData8: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -3043,7 +3041,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -3057,7 +3055,7 @@ LEFT JOIN
   // Chiller Data 9 Backend
   ChillerData9: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+
     const queryGet = `
       SELECT * FROM (
         SELECT
@@ -3118,7 +3116,7 @@ LEFT JOIN
       ) AS combined
       ORDER BY time;
     `;
-  
+
     //console.log(queryGet);
     db3.query(queryGet, (err, result) => {
       if (err) {
@@ -4755,7 +4753,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   SearchPMARecord3: async (request, response) => {
     const { data } = request.query;
     const area = "cMT-GEA-L3_EBR_PMA_L3_data"; // Static value
-  
+
     const getAllColumns = () => {
       return new Promise((resolve, reject) => {
         const query = `
@@ -4772,7 +4770,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         });
       });
     };
-  
+
     const getColumnMappings = () => {
       return new Promise((resolve, reject) => {
         const query = `
@@ -4785,15 +4783,15 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         });
       });
     };
-  
+
     try {
       const columns = await getAllColumns();
       const columnMappings = await getColumnMappings();
-  
+
       // Pisahkan data_index dari kolom lainnya
       const dataIndexCol = "`data_index`";
       const mappedColumns = columns
-        .filter(col => col !== "data_index")
+        .filter((col) => col !== "data_index")
         .map((col) => {
           const match = col.match(/data_format_(\d+)/);
           if (match) {
@@ -4807,7 +4805,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           }
           return `\`${col}\``;
         });
-  
+
       const queryGet = `
         SELECT
           ${dataIndexCol},
@@ -4825,7 +4823,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         ORDER BY
           \`time@timestamp\` ASC;
       `;
-  
+
       db.query(queryGet, [`%${data}%`], (err, result) => {
         if (err) {
           console.log(err);
@@ -4838,7 +4836,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(500).send("Database query failed");
     }
   },
-  
+
   SearchWetmillRecord3: async (request, response) => {
     const { data } = request.query;
     const area = "cMT-GEA-L3_EBR_WETMILL_data"; // Static value
@@ -4917,7 +4915,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   SearchFBDRecord3: async (request, response) => {
     const { data } = request.query;
-    const area = "cMT-GEA-L3_EBR_FBD_L3_data"; 
+    const area = "cMT-GEA-L3_EBR_FBD_L3_data";
 
     const getAllColumns = () => {
       return new Promise((resolve, reject) => {
@@ -4993,7 +4991,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   SearchEPHRecord3: async (request, response) => {
     const { data } = request.query;
-    const area = "cMT-GEA-L3_EBR_EPH_L3_data"; 
+    const area = "cMT-GEA-L3_EBR_EPH_L3_data";
 
     const getAllColumns = () => {
       return new Promise((resolve, reject) => {
@@ -5069,7 +5067,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   SearchHMRecord3: async (request, response) => {
     const { data } = request.query;
-    const area = "cMT-GEA-L3_EBR_EPH_L3_data"; 
+    const area = "cMT-GEA-L3_EBR_EPH_L3_data";
 
     const getAllColumns = () => {
       return new Promise((resolve, reject) => {
@@ -6288,7 +6286,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     SELECT 
         YEAR(d1.date) AS year,
         MONTH(d1.date) AS month,
-        DATE(FROM_UNIXTIME(UNIX_TIMESTAMP(d1.date))) AS time,  -- Format date without time for Grafana
+        DATE(FROM_UNIXTIME(UNIX_TIMESTAMP(d1.date))) AS time,
         SUM(ABS(d1.daily_diff)) AS monthly_total
     FROM (
         SELECT 
@@ -6296,11 +6294,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             t1.data_format_0 - COALESCE(t2.data_format_0, 0) AS daily_diff
         FROM (
             SELECT \`time@timestamp\`, data_format_0
-            FROM \`parammachine_saka\`.\`${area}\`
+            FROM \`ems_saka\`.\`${area}\`
         ) t1
         LEFT JOIN (
             SELECT \`time@timestamp\`, data_format_0
-            FROM \`parammachine_saka\`.\`${area}\`
+            FROM \`ems_saka\`.\`${area}\`
         ) t2
         ON DATE(FROM_UNIXTIME(t1.\`time@timestamp\`)) = DATE_SUB(DATE(FROM_UNIXTIME(t2.\`time@timestamp\`)), INTERVAL 1 DAY)
     ) d1
@@ -6308,6 +6306,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     GROUP BY year, month
     ORDER BY year, month;
     `;
+
     db4.query(queryGet, (err, result) => {
       if (err) {
         console.log(err);
@@ -6317,13 +6316,15 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
-//-------------------------Mesin Report-------------HM-------------
+  //-------------------------Mesin Report-------------HM-------------
 
   HM1Report: async (request, response) => {
     const { tanggal, shift, area } = request.query;
 
     if (!tanggal || !shift) {
-      return response.status(400).send({ error: 'Tanggal dan shift harus diisi' });
+      return response
+        .status(400)
+        .send({ error: "Tanggal dan shift harus diisi" });
     }
 
     const checkExistQuery = `
@@ -6334,8 +6335,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     db3.query(checkExistQuery, [tanggal, shift], (err, existResult) => {
       if (err) {
-        console.error('Database check error:', err);
-        return response.status(500).send({ error: 'Database check error' });
+        console.error("Database check error:", err);
+        return response.status(500).send({ error: "Database check error" });
       }
 
       const sendFilteredResponse = () => {
@@ -6352,8 +6353,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         //console.log(selectQuery);
         db3.query(selectQuery, [tanggal, shift, area], (err, rows) => {
           if (err) {
-            console.error('Select error:', err);
-            return response.status(500).send({ error: 'Select error' });
+            console.error("Select error:", err);
+            return response.status(500).send({ error: "Select error" });
           }
           return response.status(200).send(rows);
         });
@@ -6363,8 +6364,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         return sendFilteredResponse();
       }
 
-      let queryGet = '';
-      if (shift === '1') {
+      let queryGet = "";
+      if (shift === "1") {
         queryGet = `
           SELECT
             FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
@@ -6376,7 +6377,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             AND data_format_0 = 0
           ORDER BY \`time@timestamp\`
         `;
-      } else if (shift === '2') {
+      } else if (shift === "2") {
         queryGet = `
           SELECT
             FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
@@ -6388,7 +6389,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             AND data_format_0 = 0
           ORDER BY \`time@timestamp\`
         `;
-      } else if (shift === '3') {
+      } else if (shift === "3") {
         queryGet = `
           SELECT
             FROM_UNIXTIME(\`time@timestamp\`) AS waktu,
@@ -6404,14 +6405,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           ORDER BY \`time@timestamp\`
         `;
       } else {
-        return response.status(400).send({ error: 'Shift tidak valid' });
+        return response.status(400).send({ error: "Shift tidak valid" });
       }
 
       //console.log(queryGet);
       db3.query(queryGet, (err, result) => {
         if (err) {
-          console.error('Database query error:', err);
-          return response.status(500).send({ error: 'Database query error' });
+          console.error("Database query error:", err);
+          return response.status(500).send({ error: "Database query error" });
         }
 
         const grouped = [];
@@ -6421,17 +6422,19 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         for (let row of result) {
           const currentTime = new Date(row.waktu);
 
-          if (!currentGroup || (prevTime && (currentTime - prevTime) > 60000)) {
+          if (!currentGroup || (prevTime && currentTime - prevTime > 60000)) {
             if (currentGroup) {
               grouped.push({
                 start: currentGroup.start,
                 finish: currentGroup.finish,
-                total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+                total_minutes: Math.round(
+                  (currentGroup.finish - currentGroup.start) / 60000
+                ),
               });
             }
             currentGroup = {
               start: currentTime,
-              finish: currentTime
+              finish: currentTime,
             };
           } else {
             currentGroup.finish = currentTime;
@@ -6444,11 +6447,13 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           grouped.push({
             start: currentGroup.start,
             finish: currentGroup.finish,
-            total_minutes: Math.round((currentGroup.finish - currentGroup.start) / 60000)
+            total_minutes: Math.round(
+              (currentGroup.finish - currentGroup.start) / 60000
+            ),
           });
         }
 
-        const filtered = grouped.filter(item => item.total_minutes >= 3);
+        const filtered = grouped.filter((item) => item.total_minutes >= 3);
 
         if (filtered.length === 0) {
           return response.status(200).send([]);
@@ -6462,29 +6467,36 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
         db3.query(checkExistingQuery, [tanggal, shift], (err, existingRows) => {
           if (err) {
-            console.error('Check existing entries error:', err);
-            return response.status(500).send({ error: 'Check existing entries error' });
+            console.error("Check existing entries error:", err);
+            return response
+              .status(500)
+              .send({ error: "Check existing entries error" });
           }
 
           const existingSet = new Set(
-            existingRows.map(row => `${row.shift}|${row.start.toISOString()}|${row.finish.toISOString()}`)
+            existingRows.map(
+              (row) =>
+                `${
+                  row.shift
+                }|${row.start.toISOString()}|${row.finish.toISOString()}`
+            )
           );
 
-          const newEntries = filtered.filter(item => {
+          const newEntries = filtered.filter((item) => {
             const key = `${shift}|${item.start.toISOString()}|${item.finish.toISOString()}`;
             return !existingSet.has(key);
           });
 
           if (newEntries.length === 0) {
-            return sendFilteredResponse(); 
+            return sendFilteredResponse();
           }
 
-          const insertValues = newEntries.map(item => [
+          const insertValues = newEntries.map((item) => [
             parseInt(shift),
             new Date(item.start.getTime() - 7 * 60 * 60 * 1000),
             new Date(item.finish.getTime() - 7 * 60 * 60 * 1000),
             item.total_minutes,
-            area
+            area,
           ]);
 
           const insertQuery = `
@@ -6494,8 +6506,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
           db3.query(insertQuery, [insertValues], (insertErr) => {
             if (insertErr) {
-              console.error('Insert error:', insertErr);
-              return response.status(500).send({ error: 'Insert error' });
+              console.error("Insert error:", insertErr);
+              return response.status(500).send({ error: "Insert error" });
             }
 
             return sendFilteredResponse();
@@ -6506,32 +6518,50 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   alldowntime: async (request, response) => {
-      const { type } = request.query;
-  
-      // Cek apakah parameter type ada
-      if (!type) {
-        return response.status(400).send({ error: "Parameter 'type' diperlukan" });
+    const { type } = request.query;
+
+    // Cek apakah parameter type ada
+    if (!type) {
+      return response
+        .status(400)
+        .send({ error: "Parameter 'type' diperlukan" });
+    }
+
+    // Query hanya kolom keterangan_downtime dengan filter downtime_type
+    const queryData = `SELECT detail FROM parammachine_saka.alldowntime_db WHERE downtime_type = '${type}'`;
+
+    console.log(queryData);
+    db3.query(queryData, (err, result) => {
+      if (err) {
+        return response
+          .status(500)
+          .send({ error: "Database error", detail: err });
       }
-  
-      // Query hanya kolom keterangan_downtime dengan filter downtime_type
-      const queryData = `SELECT detail FROM parammachine_saka.alldowntime_db WHERE downtime_type = '${type}'`;
-      
-      console.log(queryData);
-      db3.query(queryData, (err, result) => {
-        if (err) {
-          return response.status(500).send({ error: "Database error", detail: err });
-        }
-  
-        return response.status(200).send(result);
-      });
+
+      return response.status(200).send(result);
+    });
   },
-  
+
   HM1InsertDowntime: async (req, res) => {
-    const { id, downtime_type, downtime_detail, username, submitted_at, keterangan } = req.body;
+    const {
+      id,
+      downtime_type,
+      downtime_detail,
+      username,
+      submitted_at,
+      keterangan,
+    } = req.body;
 
     // Validasi field
-    if (!id || !downtime_type || !downtime_detail || !username || !submitted_at || !keterangan) {
-      return res.status(400).send({ error: "Semua field harus diisi" }); 
+    if (
+      !id ||
+      !downtime_type ||
+      !downtime_detail ||
+      !username ||
+      !submitted_at ||
+      !keterangan
+    ) {
+      return res.status(400).send({ error: "Semua field harus diisi" });
     }
 
     try {
@@ -6553,7 +6583,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         }
 
         if (results.length === 0) {
-          return res.status(400).send({ error: "Data tidak ditemukan atau sudah terisi" });
+          return res
+            .status(400)
+            .send({ error: "Data tidak ditemukan atau sudah terisi" });
         }
 
         // Update data jika valid
@@ -6570,13 +6602,24 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
         db3.query(
           updateQuery,
-          [downtime_type, downtime_detail, username, submitted_at, keterangan, id],
+          [
+            downtime_type,
+            downtime_detail,
+            username,
+            submitted_at,
+            keterangan,
+            id,
+          ],
           (err, result) => {
             if (err) {
               console.error("Update error:", err);
-              return res.status(500).send({ error: "Gagal update data di database" });
+              return res
+                .status(500)
+                .send({ error: "Gagal update data di database" });
             }
-            return res.status(200).send({ success: true, message: "Data berhasil diupdate" });
+            return res
+              .status(200)
+              .send({ success: true, message: "Data berhasil diupdate" });
           }
         );
       });
@@ -6587,61 +6630,63 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-  const {id, subRows } = req.body;
+    const { id, subRows } = req.body;
 
-  if (!Array.isArray(subRows) || subRows.length === 0) {
-    return res.status(400).send({ error: "Data subRows kosong atau tidak valid" });
-  }
+    if (!Array.isArray(subRows) || subRows.length === 0) {
+      return res
+        .status(400)
+        .send({ error: "Data subRows kosong atau tidak valid" });
+    }
 
-  
-  const insertQuery = `
+    const insertQuery = `
     INSERT INTO Downtime_Mesin
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
     VALUES ?
   `;
 
-  try {
-    const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
-    // Step 1: Hapus data lama
-    db3.query(deleteQuery, [id], (deleteErr) => {
-      if (deleteErr) {
-        return res.status(500).send({ error: "Gagal hapus data lama" });
-      }
-
-      // Step 2: Siapkan data baru untuk insert
-      const values = subRows.map(item => {
-        const fullStart = `${item.tanggal} ${item.start}`;
-        const fullFinish = `${item.tanggal} ${item.finish}`;
-
-        return [
-          item.shift,
-          fullStart,
-          fullFinish,
-          item.total_menit,
-          item.mesin || item.area,
-          item.downtime_type,
-          item.detail || item.downtime_detail,
-          item.user || item.username,
-          item.submit_date || item.submitted_at,
-          item.keterangan || "",
-        ];
-      });
-
-      // Step 3: Insert data baru
-      db3.query(insertQuery, [values], (insertErr) => {
-        if (insertErr) {
-          console.error("Insert error:", insertErr);
-          return res.status(500).send({ error: "Gagal insert data baru" });
+    try {
+      const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
+      // Step 1: Hapus data lama
+      db3.query(deleteQuery, [id], (deleteErr) => {
+        if (deleteErr) {
+          return res.status(500).send({ error: "Gagal hapus data lama" });
         }
 
-        return res.status(200).send({ success: true, message: "Data berhasil diganti dengan sub-row baru" });
+        // Step 2: Siapkan data baru untuk insert
+        const values = subRows.map((item) => {
+          const fullStart = `${item.tanggal} ${item.start}`;
+          const fullFinish = `${item.tanggal} ${item.finish}`;
+
+          return [
+            item.shift,
+            fullStart,
+            fullFinish,
+            item.total_menit,
+            item.mesin || item.area,
+            item.downtime_type,
+            item.detail || item.downtime_detail,
+            item.user || item.username,
+            item.submit_date || item.submitted_at,
+            item.keterangan || "",
+          ];
+        });
+
+        // Step 3: Insert data baru
+        db3.query(insertQuery, [values], (insertErr) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).send({ error: "Gagal insert data baru" });
+          }
+
+          return res.status(200).send({
+            success: true,
+            message: "Data berhasil diganti dengan sub-row baru",
+          });
+        });
       });
-    });
-
-  } catch (error) {
-    console.error("Server error:", error);
-    return res.status(500).send({ error: "Terjadi kesalahan di server" });
-  }
-},
-
+    } catch (error) {
+      console.error("Server error:", error);
+      return res.status(500).send({ error: "Terjadi kesalahan di server" });
+    }
+  },
 };
