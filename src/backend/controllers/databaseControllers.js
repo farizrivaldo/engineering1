@@ -6316,6 +6316,41 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
+  GrafanaPDAMyear: async (request, response) => {
+    const { area } = request.query;
+    const queryGet = `
+    SELECT 
+        YEAR(d1.date) AS year,
+        MONTH(d1.date) AS month,
+        DATE(FROM_UNIXTIME(UNIX_TIMESTAMP(d1.date))) AS time,
+        SUM(ABS(d1.daily_diff)) AS monthly_total
+    FROM (
+        SELECT 
+            DATE(FROM_UNIXTIME(t1.\`time@timestamp\`)) AS date,
+            t1.data_format_0 - COALESCE(t2.data_format_0, 0) AS daily_diff
+        FROM (
+            SELECT \`time@timestamp\`, data_format_0
+            FROM \`parammachine_saka\`.\`${area}\`
+        ) t1
+        LEFT JOIN (
+            SELECT \`time@timestamp\`, data_format_0
+            FROM \`parammachine_saka\`.\`${area}\`
+        ) t2
+        ON DATE(FROM_UNIXTIME(t1.\`time@timestamp\`)) = DATE_SUB(DATE(FROM_UNIXTIME(t2.\`time@timestamp\`)), INTERVAL 1 DAY)
+    ) d1
+    WHERE d1.daily_diff IS NOT NULL
+    GROUP BY year, month
+    ORDER BY year, month;
+    `;
+
+    db3.query(queryGet, (err, result) => {
+      if (err) {
+        console.log(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  },
   //-------------------------Mesin Report-------------HM-------------
 
   HM1Report: async (request, response) => {
