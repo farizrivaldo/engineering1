@@ -740,3 +740,30 @@ HM1Report: async (request, response) => {
     });
   });
 },
+
+
+fetchVibrate: async (request, response) => {
+  const start = request.query.start;
+  const finish = request.query.finish;
+  const table = request.query.machine;
+
+  const query = `
+    SELECT COALESCE(\`data_index\`, 0) as 'id', \`time@timestamp\` as 'time', \`data_format_0\`
+    FROM \`${table}\`
+    WHERE \`time@timestamp\` BETWEEN '${start}' AND '${finish}'
+  `;
+
+  // Jalankan query ke dua database
+  db1.query(query, (err1, result1) => {
+    if (err1) return response.status(500).send({ error: 'DB1 error', detail: err1 });
+
+    db2.query(query, (err2, result2) => {
+      if (err2) return response.status(500).send({ error: 'DB2 error', detail: err2 });
+
+      // Gabungkan hasil dari kedua DB
+      const combined = [...result1, ...result2];
+
+      return response.status(200).send(combined);
+    });
+  });
+}

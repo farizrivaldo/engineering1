@@ -3388,7 +3388,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ` ` +
       request.query.finish;
 
-    db4.query(fetchQuerry, (err, result) => {
+    db.query(fetchQuerry, (err, result) => {
       return response.status(200).send(result);
     });
   },
