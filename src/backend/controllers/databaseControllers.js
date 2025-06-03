@@ -6665,23 +6665,19 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-  const { id, subRows } = req.body;
+  const { mainRow, subRows } = req.body;
+  const parsedId = parseInt(mainRow?.id);
 
-  console.log("Body:", req.body);
+  console.log("Parsed ID:", parsedId);
+  console.log("SubRows:", subRows);
 
-  // Validasi subRows
   if (!Array.isArray(subRows) || subRows.length === 0) {
-    return res
-      .status(400)
-      .send({ error: "Data subRows kosong atau tidak valid" });
+    return res.status(400).send({ error: "Data subRows kosong atau tidak valid" });
   }
 
-  // Validasi dan parsing ID
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) {
+  if (!parsedId || isNaN(parsedId)) {
     return res.status(400).send({ error: "ID tidak valid" });
   }
-
 
   const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
   const insertQuery = `
@@ -6691,7 +6687,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   `;
 
   try {
-    // Step 1: Hapus data lama
     db3.query(deleteQuery, [parsedId], (deleteErr, deleteResult) => {
       if (deleteErr) {
         console.error("Delete error:", deleteErr);
@@ -6700,7 +6695,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
       console.log("Rows deleted:", deleteResult.affectedRows);
 
-      // Step 2: Siapkan data baru untuk insert
       const values = subRows.map((item) => {
         const fullStart = `${item.tanggal} ${item.start}`;
         const fullFinish = `${item.tanggal} ${item.finish}`;
@@ -6719,14 +6713,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         ];
       });
 
-      // Step 3: Insert data baru
       db3.query(insertQuery, [values], (insertErr, insertResult) => {
         if (insertErr) {
           console.error("Insert error:", insertErr);
           return res.status(500).send({ error: "Gagal insert data baru" });
         }
 
-        console.log("Insert success:", insertResult.affectedRows);
         return res.status(200).send({
           success: true,
           message: "Data berhasil diganti dengan sub-row baru",
@@ -6738,5 +6730,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     return res.status(500).send({ error: "Terjadi kesalahan di server" });
   }
 }
+
 
 };
