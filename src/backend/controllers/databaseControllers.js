@@ -6667,7 +6667,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   HM1InsertDowntimeWithSubRows: async (req, res) => {
     const { id, subRows } = req.body;
 
-    console.log(req.body)
     if (!Array.isArray(subRows) || subRows.length === 0) {
       return res
         .status(400)
