@@ -6665,71 +6665,77 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-    const { id, subRows } = req.body;
+  const { id, subRows } = req.body;
 
-    console.log(id);
-    if (!Array.isArray(subRows) || subRows.length === 0) {
-      return res
-        .status(400)
-        .send({ error: "Data subRows kosong atau tidak valid" });
-    }
+  console.log("Body:", req.body);
 
-    // Validasi dan parsing ID
-    const parsedId = Number(id);
-    if (!parsedId || isNaN(parsedId)) {
-      return res.status(400).send({ error: "ID tidak valid" });
-    }
+  // Validasi subRows
+  if (!Array.isArray(subRows) || subRows.length === 0) {
+    return res
+      .status(400)
+      .send({ error: "Data subRows kosong atau tidak valid" });
+  }
 
-    const insertQuery = `
+  // Validasi dan parsing ID
+  const parsedId = Number(id);
+  if (!parsedId || isNaN(parsedId)) {
+    return res.status(400).send({ error: "ID tidak valid" });
+  }
+
+  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
+  const insertQuery = `
     INSERT INTO Downtime_Mesin
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
     VALUES ?
   `;
 
-    try {
-      const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
-      // Step 1: Hapus data lama
-      console.log(id);
-      db3.query(deleteQuery, [parsedId], (deleteErr) => {
-        if (deleteErr) {
-          return res.status(500).send({ error: "Gagal hapus data lama" });
+  try {
+    // Step 1: Hapus data lama
+    db3.query(deleteQuery, [parsedId], (deleteErr, deleteResult) => {
+      if (deleteErr) {
+        console.error("Delete error:", deleteErr);
+        return res.status(500).send({ error: "Gagal hapus data lama" });
+      }
+
+      console.log("Rows deleted:", deleteResult.affectedRows);
+
+      // Step 2: Siapkan data baru untuk insert
+      const values = subRows.map((item) => {
+        const fullStart = `${item.tanggal} ${item.start}`;
+        const fullFinish = `${item.tanggal} ${item.finish}`;
+
+        return [
+          item.shift,
+          fullStart,
+          fullFinish,
+          item.total_menit,
+          item.mesin || item.area,
+          item.downtime_type,
+          item.detail || item.downtime_detail,
+          item.user || item.username,
+          item.submit_date || item.submitted_at,
+          item.keterangan || "",
+        ];
+      });
+
+      // Step 3: Insert data baru
+      db3.query(insertQuery, [values], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error("Insert error:", insertErr);
+          return res.status(500).send({ error: "Gagal insert data baru" });
         }
 
-        // Step 2: Siapkan data baru untuk insert
-        const values = subRows.map((item) => {
-          const fullStart = `${item.tanggal} ${item.start}`;
-          const fullFinish = `${item.tanggal} ${item.finish}`;
-
-          return [
-            item.shift,
-            fullStart,
-            fullFinish,
-            item.total_menit,
-            item.mesin || item.area,
-            item.downtime_type,
-            item.detail || item.downtime_detail,
-            item.user || item.username,
-            item.submit_date || item.submitted_at,
-            item.keterangan || "",
-          ];
-        });
-
-        // Step 3: Insert data baru
-        db3.query(insertQuery, [values], (insertErr) => {
-          if (insertErr) {
-            console.error("Insert error:", insertErr);
-            return res.status(500).send({ error: "Gagal insert data baru" });
-          }
-
-          return res.status(200).send({
-            success: true,
-            message: "Data berhasil diganti dengan sub-row baru",
-          });
+        console.log("Insert success:", insertResult.affectedRows);
+        return res.status(200).send({
+          success: true,
+          message: "Data berhasil diganti dengan sub-row baru",
         });
       });
-    } catch (error) {
-      console.error("Server error:", error);
-      return res.status(500).send({ error: "Terjadi kesalahan di server" });
-    }
-  },
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).send({ error: "Terjadi kesalahan di server" });
+  }
+}
+
 };
