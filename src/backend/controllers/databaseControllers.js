@@ -3359,43 +3359,43 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   `;
 
   // Fungsi pengecekan tabel di database
-  const checkTableExists = (dbConn, machine, callback) => {
-    const checkQuery = `SHOW TABLES LIKE '${machine}'`;
-    dbConn.query(checkQuery, (err, result) => {
-      if (err) return callback(err, false);
-      return callback(null, result.length > 0);
-    });
-  };
+    const checkTableExists = (dbConn, machine, callback) => {
+      const checkQuery = `SHOW TABLES LIKE '${machine}'`;
+      dbConn.query(checkQuery, (err, result) => {
+        if (err) return callback(err, false);
+        return callback(null, result.length > 0);
+      });
+    };
 
   // Cek tabel di DB1
-  checkTableExists(db, tableName, (err1, existsInDB1) => {
-    if (err1) return response.status(500).send({ error: 'Error checking table in DB1', detail: err1 });
+    checkTableExists(db, tableName, (err1, existsInDB1) => {
+      if (err1) return response.status(500).send({ error: 'Error checking table in DB1', detail: err1 });
 
-    if (existsInDB1) {
-      // Jalankan query di DB1
-      db.query(fetchQuery, (err, result) => {
-        if (err) return response.status(500).send({ error: 'DB1 query error', detail: err });
-        return response.status(200).send(result);
-      });
-    } else {
-      // Cek tabel di DB2
-      checkTableExists(db3, tableName, (err2, existsInDB2) => {
-        if (err2) return response.status(500).send({ error: 'Error checking table in DB2', detail: err2 });
+      if (existsInDB1) {
+        // Jalankan query di DB1
+        db.query(fetchQuery, (err, result) => {
+          if (err) return response.status(500).send({ error: 'DB1 query error', detail: err });
+          return response.status(200).send(result);
+        });
+      } else {
+        // Cek tabel di DB2
+        checkTableExists(db3, tableName, (err2, existsInDB2) => {
+          if (err2) return response.status(500).send({ error: 'Error checking table in DB2', detail: err2 });
 
-        if (existsInDB2) {
-          // Jalankan query di DB2
-          db3.query(fetchQuery, (err, result) => {
-            if (err) return response.status(500).send({ error: 'DB2 query error', detail: err });
-            return response.status(200).send(result);
-          });
-        } else {
+          if (existsInDB2) {
+            // Jalankan query di DB2
+            db3.query(fetchQuery, (err, result) => {
+              if (err) return response.status(500).send({ error: 'DB2 query error', detail: err });
+              return response.status(200).send(result);
+            });
+          } else {
           // Tabel tidak ditemukan di kedua DB
           return response.status(404).send({ error: 'Table not found in both databases' });
-        }
-      });
-    }
-  });
-},
+          }
+        });
+      }
+    });
+  },
 
 
   fetch138: async (request, response) => {
@@ -3407,22 +3407,54 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   vibrateChart: async (request, response) => {
-    let fetchQuerry =
-      "SELECT COALESCE(`data_index`, 0) as 'x', `time@timestamp` as 'label', `data_format_0` as 'y' FROM " +
-      " " +
-      "`" +
-      request.query.machine +
-      "`" +
-      "WHERE `time@timestamp` BETWEEN" +
-      " " +
-      request.query.start +
-      ` ` +
-      "and" +
-      ` ` +
-      request.query.finish;
+    const tableName = request.query.machine;
+    const start = request.query.start;
+    const finish = request.query.finish;
 
-    db.query(fetchQuerry, (err, result) => {
-      return response.status(200).send(result);
+    const fetchQuery = `
+      SELECT COALESCE(data_index, 0) AS x,
+            \`time@timestamp\` AS label,
+            data_format_0 AS y
+      FROM \`${tableName}\`
+      WHERE \`time@timestamp\` BETWEEN ${start} AND ${finish}
+    `;
+
+
+    const checkTableExists = (dbConn, machine, callback) => {
+      const checkQuery = `SHOW TABLES LIKE '${machine}'`;
+      dbConn.query(checkQuery, (err, result) => {
+        if (err) return callback(err, false);
+        return callback(null, result.length > 0);
+      });
+    };
+
+  // Cek tabel di DB1
+    checkTableExists(db, tableName, (err1, existsInDB1) => {
+      if (err1) return response.status(500).send({ error: 'Error checking table in DB1', detail: err1 });
+
+      if (existsInDB1) {
+        // Jalankan query di DB1
+        db.query(fetchQuery, (err, result) => {
+          if (err) return response.status(500).send({ error: 'DB1 query error', detail: err });
+          return response.status(200).send(result);
+        });
+      } else {
+        // Cek tabel di DB2
+        checkTableExists(db3, tableName, (err2, existsInDB2) => {
+          if (err2) return response.status(500).send({ error: 'Error checking table in DB2', detail: err2 });
+
+          if (existsInDB2) {
+            // Jalankan query di DB2
+            db3.query(fetchQuery, (err, result) => {
+              if (err) return response.status(500).send({ error: 'DB2 query error', detail: err });
+              return response.status(200).send(result);
+            });
+          } else {
+          // Tabel tidak ditemukan di kedua DB
+          return response.status(404).send({ error: 'Table not found in both databases' });
+          }
+        });
+      }
     });
   },
 
