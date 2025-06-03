@@ -6677,10 +6677,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   }
 
   // Validasi dan parsing ID
-  const parsedId = Number(id);
-  if (!parsedId || isNaN(parsedId)) {
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) {
     return res.status(400).send({ error: "ID tidak valid" });
   }
+
 
   const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
   const insertQuery = `
