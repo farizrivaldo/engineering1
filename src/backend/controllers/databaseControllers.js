@@ -6674,6 +6674,12 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         .send({ error: "Data subRows kosong atau tidak valid" });
     }
 
+    // Validasi dan parsing ID
+    const parsedId = Number(id);
+    if (!parsedId || isNaN(parsedId)) {
+      return res.status(400).send({ error: "ID tidak valid" });
+    }
+
     const insertQuery = `
     INSERT INTO Downtime_Mesin
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
@@ -6684,7 +6690,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
       // Step 1: Hapus data lama
       console.log(id);
-      db3.query(deleteQuery, [id], (deleteErr) => {
+      db3.query(deleteQuery, [parsedId], (deleteErr) => {
         if (deleteErr) {
           return res.status(500).send({ error: "Gagal hapus data lama" });
         }
