@@ -6683,6 +6683,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     try {
       const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
       // Step 1: Hapus data lama
+      console.log(id);
       db3.query(deleteQuery, [id], (deleteErr) => {
         if (deleteErr) {
           return res.status(500).send({ error: "Gagal hapus data lama" });
