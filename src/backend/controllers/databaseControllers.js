@@ -4071,7 +4071,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`parammachine_saka\`.\`cMT-GEA-L3_EBR_FBD_L3_data\`
+            \`parammachine_saka\`.\`cMT-GEA-L3_Data_FBD_L3_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -4980,7 +4980,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   SearchFBDRecord3: async (request, response) => {
     const { data } = request.query;
-    const area = "cMT-GEA-L3_EBR_FBD_L3_data";
+    const area = "cMT-GEA-L3_Data_FBD_L3_data";
 
     const getAllColumns = () => {
       return new Promise((resolve, reject) => {
