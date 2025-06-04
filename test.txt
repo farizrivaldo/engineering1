@@ -837,3 +837,5 @@ HM1InsertDowntimeWithSubRows: async (req, res) => {
       return res.status(500).send({ error: "Terjadi kesalahan di server" });
     }
   },
+
+  cMT-GEA-L3_Data_FBD_L3_data
