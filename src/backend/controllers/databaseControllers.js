@@ -4816,91 +4816,85 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   SearchPMARecord3: async (request, response) => {
-    const { data } = request.query;
-    const area = "cMT-GEA-L3_EBR_PMA_L3_data"; // Static value
+  const { data } = request.query;
+  const pmaArea = "cMT-GEA-L3_EBR_PMA_L3_data";
+  const wetArea = "cMT-GEA-L3_EBR_WETMILL_data";
 
-    const getAllColumns = () => {
-      return new Promise((resolve, reject) => {
-        const query = `
-          SELECT COLUMN_NAME
-          FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_SCHEMA = 'parammachine_saka'
+  const getMappedColumns = (area, excludeCols = []) => {
+    return new Promise((resolve, reject) => {
+      const queryCols = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = 'parammachine_saka'
           AND TABLE_NAME = ?
-          AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1', 'time@timestamp')
-        `;
-        db.query(query, [area], (err, results) => {
-          if (err) return reject(err);
-          const columns = results.map((result) => result.COLUMN_NAME);
+          AND COLUMN_NAME NOT IN (${excludeCols.map(() => '?').join(', ')})
+      `;
+      const queryMap = `
+        SELECT data_format_index, comment FROM \`${area}_format\`
+      `;
+      db.query(queryCols, [area, ...excludeCols], (err, colResults) => {
+        if (err) return reject(err);
+        db.query(queryMap, (err2, mapResults) => {
+          if (err2) return reject(err2);
+
+          const columns = colResults.map(({ COLUMN_NAME }) => {
+            const match = COLUMN_NAME.match(/data_format_(\d+)/);
+            if (match) {
+              const index = parseInt(match[1], 10);
+              const mapping = mapResults.find(m => m.data_format_index === index);
+              if (mapping) {
+                return `\`${area}\`.\`${COLUMN_NAME}\` AS \`${mapping.comment}\``;
+              }
+            }
+            return `\`${area}\`.\`${COLUMN_NAME}\``;
+          });
+
           resolve(columns);
         });
       });
-    };
+    });
+  };
 
-    const getColumnMappings = () => {
-      return new Promise((resolve, reject) => {
-        const query = `
-          SELECT data_format_index, comment
-          FROM \`${area}_format\`
-        `;
-        db.query(query, (err, results) => {
-          if (err) return reject(err);
-          resolve(results);
-        });
-      });
-    };
+  try {
+    const [pmaColumns, wetColumns] = await Promise.all([
+      getMappedColumns(pmaArea, ['data_format_0', 'data_format_1', 'time@timestamp', 'data_index']),
+      getMappedColumns(wetArea, ['data_format_0', 'time@timestamp', 'data_index']),
+    ]);
 
-    try {
-      const columns = await getAllColumns();
-      const columnMappings = await getColumnMappings();
+    const query = `
+      SELECT
+        \`${pmaArea}\`.data_index AS PMA_INDEX,
+        DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
+        ${pmaColumns.join(',')},
+        CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) AS PMA_BATCH,
+        CONVERT(\`${pmaArea}\`.\`data_format_1\` USING utf8) AS PMA_PROCESS,
 
-      // Pisahkan data_index dari kolom lainnya
-      const dataIndexCol = "`data_index`";
-      const mappedColumns = columns
-        .filter((col) => col !== "data_index")
-        .map((col) => {
-          const match = col.match(/data_format_(\d+)/);
-          if (match) {
-            const index = parseInt(match[1], 10);
-            const mapping = columnMappings.find(
-              (mapping) => mapping.data_format_index === index
-            );
-            if (mapping) {
-              return `\`${col}\` AS \`${mapping.comment}\``;
-            }
-          }
-          return `\`${col}\``;
-        });
+        \`${wetArea}\`.data_index AS WET_INDEX,
+        DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${wetArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS WET_time,
+        ${wetColumns.join(',')},
+        CONVERT(\`${wetArea}\`.\`data_format_0\` USING utf8) AS WET_PROCESS
 
-      const queryGet = `
-        SELECT
-          ${dataIndexCol},
-          DATE_FORMAT(
-            FROM_UNIXTIME(FLOOR(\`time@timestamp\`)),
-            '%Y-%m-%d %H:%i'
-          ) AS \`time@timestamp\`,
-          ${mappedColumns.join(", ")},
-          CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`,
-          CONVERT(\`data_format_1\` USING utf8) AS \`PROCESS\`
-        FROM
-          \`parammachine_saka\`.\`${area}\`
-        WHERE
-          CONVERT(\`data_format_0\` USING utf8) LIKE ?
-        ORDER BY
-          \`time@timestamp\` ASC;
-      `;
+      FROM \`parammachine_saka\`.\`${pmaArea}\`
+      LEFT JOIN \`parammachine_saka\`.\`${wetArea}\`
+        ON ABS(\`${pmaArea}\`.\`time@timestamp\` - \`${wetArea}\`.\`time@timestamp\`) <= 60
+      WHERE
+        CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) LIKE ?
+      ORDER BY \`${pmaArea}\`.\`time@timestamp\` ASC;
+    `;
 
-      db.query(queryGet, [`%${data}%`], (err, result) => {
-        if (err) {
-          console.log(err);
-          return response.status(500).send("Database query failed");
-        }
-        return response.status(200).send(result);
-      });
-    } catch (error) {
-      console.log(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+    //console.log(query);
+    db.query(query, [`%${data}%`], (err, result) => {
+      if (err) {
+        console.error(err);
+        return response.status(500).send("Database query failed");
+      }
+      return response.status(200).send(result);
+    });
+  } catch (err) {
+    console.error(err);
+    return response.status(500).send("Error combining PMA & WET data");
+  }
+},
 
   SearchWetmillRecord3: async (request, response) => {
     const { data } = request.query;
@@ -4957,7 +4951,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       const queryGet = `
       SELECT
         ${mappedColumns.join(", ")},
-        CONVERT(\`data_format_0\` USING utf8) AS \`BATCH\`
+        CONVERT(\`data_format_0\` USING utf8) AS \`PROSES\`
         FROM
         \`parammachine_saka\`.\`${area}\`
       WHERE
