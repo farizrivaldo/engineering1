@@ -181,14 +181,14 @@ routers.get("/HMRecord3", databaseControllers.HMRecord3);
 
 routers.get("/SearchPMARecord1", databaseControllers.SearchPMARecord1);
 routers.get("/SearchBinderRecord1", databaseControllers.SearchBinderRecord1);
-routers.get("/SearchWetMillRecord1", databaseControllers.SearchWetMillRecord1);
+//routers.get("/SearchWetMillRecord1", databaseControllers.SearchWetMillRecord1);
 routers.get("/SearchFBDRecord1", databaseControllers.SearchFBDRecord1);
 routers.get("/SearchEPHRecord1", databaseControllers.SearchEPHRecord1);
 routers.get("/SearchTumblerRecord1", databaseControllers.SearchTumblerRecord1);
 routers.get("/SearchFetteRecord1", databaseControllers.SearchFetteRecord1);
 
 routers.get("/SearchPMARecord3", databaseControllers.SearchPMARecord3);
-routers.get("/SearchWetmillRecord3", databaseControllers.SearchWetmillRecord3);
+//routers.get("/SearchWetmillRecord3", databaseControllers.SearchWetmillRecord3);
 routers.get("/SearchFBDRecord3", databaseControllers.SearchFBDRecord3);
 routers.get("/SearchEPHRecord3", databaseControllers.SearchEPHRecord3);
 routers.get("/SearchHMRecord3", databaseControllers.SearchHMRecord3);
