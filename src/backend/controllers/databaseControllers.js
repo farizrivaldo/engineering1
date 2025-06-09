@@ -4321,13 +4321,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
       const query = `
         SELECT
-          \`${pmaArea}\`.data_index AS PMA_INDEX,
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
           ${pmaColumns.join(',')},
           CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) AS PMA_BATCH,
           CONVERT(\`${pmaArea}\`.\`data_format_1\` USING utf8) AS PMA_PROCESS,
 
-          \`${wetArea}\`.data_index AS WET_INDEX,
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${wetArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS WET_time,
           ${wetColumns.join(',')},
           CONVERT(\`${wetArea}\`.\`data_format_0\` USING utf8) AS WET_PROCESS
@@ -4788,12 +4786,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
       const query = `
         SELECT 
-        DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
+          DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
           ${pmaColumns.join(',')},
           CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) AS PMA_BATCH,
           CONVERT(\`${pmaArea}\`.\`data_format_1\` USING utf8) AS PMA_PROCESS,
 
-          \`${wetArea}\`.data_index AS WET_INDEX,
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${wetArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS WET_time,
           ${wetColumns.join(',')},
           CONVERT(\`${wetArea}\`.\`data_format_0\` USING utf8) AS WET_PROCESS
