@@ -1157,3 +1157,5 @@ SearchPMARecord3: async (request, response) => {
       return response.status(500).send("Database query failed");
     }
   },
+
+  ${pmaArea}\`.data_index AS PMA_INDEX,

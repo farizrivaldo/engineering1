@@ -4787,8 +4787,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ]);
 
       const query = `
-        SELECT
-          \`${pmaArea}\`.data_index AS PMA_INDEX,
+        SELECT \`
+
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
           ${pmaColumns.join(',')},
           CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) AS PMA_BATCH,
