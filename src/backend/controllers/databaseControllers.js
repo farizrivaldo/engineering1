@@ -6637,85 +6637,40 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
  //-------------------------Data Login--------------------------
 
-LoginData: async (req, res) => {
+  LoginData: async (req, res) => {
     const {
-      
+      name,
+      id,
+      isAdmin,
+      level,
+      imagePath
     } = req.body;
 
-    // Validasi field
+    // Validasi field (cek null atau undefined, bukan hanya falsy)
     if (
+      !name ||
       !id ||
-      !downtime_type ||
-      !downtime_detail ||
-      !username ||
-      !submitted_at ||
-      !keterangan
+      !isAdmin ||
+      !level ||
+      !imagePath 
     ) {
       return res.status(400).send({ error: "Semua field harus diisi" });
     }
 
-    try {
-      const checkQuery = `
-        SELECT * FROM Downtime_Mesin
-        WHERE id = ?
-          AND downtime_type IS NULL
-          AND detail IS NULL
-          AND user IS NULL
-          AND submit_date IS NULL
-          AND keterangan IS NULL
-        LIMIT 1
-      `;
+    const insertQuery = `
+      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath)
+      VALUES (?, ?, ?, ?, ?)
+    `;
 
-      db.query(checkQuery, [id], (err, results) => {
-        if (err) {
-          console.error("Check error:", err);
-          return res.status(500).send({ error: "Gagal cek data di database" });
-        }
+    const insertValues = [name, id, isAdmin, level, imagePath];
 
-        if (results.length === 0) {
-          return res
-            .status(400)
-            .send({ error: "Data tidak ditemukan atau sudah terisi" });
-        }
+    db3.query(insertQuery, insertValues, (insertErr) => {
+      if (insertErr) {
+        console.error("Insert error:", insertErr);
+        return res.status(500).send({ error: "Gagal menyimpan data login" });
+      }
 
-        // Update data jika valid
-        const updateQuery = `
-          UPDATE Downtime_Mesin
-          SET downtime_type = ?, detail = ?, user = ?, submit_date = ?, keterangan = ?
-          WHERE id = ?
-            AND downtime_type IS NULL
-            AND detail IS NULL
-            AND user IS NULL
-            AND submit_date IS NULL
-            AND keterangan IS NULL
-        `;
-
-        db.query(
-          updateQuery,
-          [
-            downtime_type,
-            downtime_detail,
-            username,
-            submitted_at,
-            keterangan,
-            id,
-          ],
-          (err, result) => {
-            if (err) {
-              console.error("Update error:", err);
-              return res
-                .status(500)
-                .send({ error: "Gagal update data di database" });
-            }
-            return res
-              .status(200)
-              .send({ success: true, message: "Data berhasil diupdate" });
-          }
-        );
-      });
-    } catch (err) {
-      console.error("Server error:", err);
-      res.status(500).send({ error: "Terjadi kesalahan pada server" });
-    }
-  },
+      return res.status(200).send({ message: "Data login berhasil disimpan" });
+    });
+  }
 };
