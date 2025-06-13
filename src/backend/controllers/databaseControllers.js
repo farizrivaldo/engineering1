@@ -6662,9 +6662,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       VALUES (?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath];
-
-    db3.query(insertQuery, insertValues, (insertErr) => {
+    db3.query(insertQuery, (insertErr) => {
       if (insertErr) {
         console.error("Insert error:", insertErr);
         return res.status(500).send({ error: "Gagal menyimpan data login" });
