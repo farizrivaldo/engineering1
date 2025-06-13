@@ -6255,7 +6255,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
-  //-------------------------Mesin Report-------------HM-------------
+  //-------------------------Mesin Report--------------------------
 
   HM1Report: async (request, response) => {
     const { tanggal, shift, area } = request.query;
@@ -6633,7 +6633,89 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     console.error("Server error:", error);
     return res.status(500).send({ error: "Terjadi kesalahan di server" });
   }
-}
+},
 
+ //-------------------------Data Login--------------------------
 
+LoginData: async (req, res) => {
+    const {
+      
+    } = req.body;
+
+    // Validasi field
+    if (
+      !id ||
+      !downtime_type ||
+      !downtime_detail ||
+      !username ||
+      !submitted_at ||
+      !keterangan
+    ) {
+      return res.status(400).send({ error: "Semua field harus diisi" });
+    }
+
+    try {
+      const checkQuery = `
+        SELECT * FROM Downtime_Mesin
+        WHERE id = ?
+          AND downtime_type IS NULL
+          AND detail IS NULL
+          AND user IS NULL
+          AND submit_date IS NULL
+          AND keterangan IS NULL
+        LIMIT 1
+      `;
+
+      db.query(checkQuery, [id], (err, results) => {
+        if (err) {
+          console.error("Check error:", err);
+          return res.status(500).send({ error: "Gagal cek data di database" });
+        }
+
+        if (results.length === 0) {
+          return res
+            .status(400)
+            .send({ error: "Data tidak ditemukan atau sudah terisi" });
+        }
+
+        // Update data jika valid
+        const updateQuery = `
+          UPDATE Downtime_Mesin
+          SET downtime_type = ?, detail = ?, user = ?, submit_date = ?, keterangan = ?
+          WHERE id = ?
+            AND downtime_type IS NULL
+            AND detail IS NULL
+            AND user IS NULL
+            AND submit_date IS NULL
+            AND keterangan IS NULL
+        `;
+
+        db.query(
+          updateQuery,
+          [
+            downtime_type,
+            downtime_detail,
+            username,
+            submitted_at,
+            keterangan,
+            id,
+          ],
+          (err, result) => {
+            if (err) {
+              console.error("Update error:", err);
+              return res
+                .status(500)
+                .send({ error: "Gagal update data di database" });
+            }
+            return res
+              .status(200)
+              .send({ success: true, message: "Data berhasil diupdate" });
+          }
+        );
+      });
+    } catch (err) {
+      console.error("Server error:", err);
+      res.status(500).send({ error: "Terjadi kesalahan pada server" });
+    }
+  },
 };

@@ -227,5 +227,5 @@ routers.post("/HM1Report", databaseControllers.HM1Report);
 routers.get("/alldowntime", databaseControllers.alldowntime);
 routers.post("/HM1InsertDowntime", databaseControllers.HM1InsertDowntime);
 routers.post("/HM1InsertDowntimeWithSubRows", databaseControllers.HM1InsertDowntimeWithSubRows);
-
+routers.post("/LoginData", databaseControllers.LoginData);
 module.exports = routers;
