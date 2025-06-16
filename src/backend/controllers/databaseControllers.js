@@ -6652,18 +6652,19 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       !id ||
       !isAdmin ||
       !level ||
-      !imagePath 
+      !imagePath ||
+      !loginAt
     ) {
       return res.status(400).send({ error: "Semua field harus diisi" });
     }
 
     let clientIp = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || "").replace(/^::ffff:/, "");
     const insertQuery = `
-      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address, Date&Hour)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath, clientIp];
+    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, loginAt];
 
     db3.query(insertQuery, insertValues, (insertErr) => {
       if (insertErr) {
@@ -6674,4 +6675,18 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(200).send({ message: "Data login berhasil disimpan" });
     });
   },
+
+  LogData: async (req, res) => {
+  const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
+  console.log(queryData);
+
+  db3.query(queryData, (err, result) => {
+    if (err) {
+      return res.status(500).send({ error: "Database error", detail: err });
+    }
+    return res.status(200).send(result);
+  });
+}
+
+
 };
