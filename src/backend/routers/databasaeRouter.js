@@ -223,7 +223,7 @@ routers.get("/GrafanaPDAMyear", databaseControllers.GrafanaPDAMyear);
 //==============ReportMesin ========================================ReportMesin======================================================
 routers.get("/HM1Report", databaseControllers.HM1Report);
 routers.post("/HM1Report", databaseControllers.HM1Report);
-routers.get("/LogData", databaseControllers.LogData);
+//routers.get("/LogData", databaseControllers.LogData);
 routers.get("/alldowntime", databaseControllers.alldowntime);
 routers.post("/HM1InsertDowntime", databaseControllers.HM1InsertDowntime);
 routers.post("/HM1InsertDowntimeWithSubRows", databaseControllers.HM1InsertDowntimeWithSubRows);

@@ -6664,7 +6664,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, loginAt];
+    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, LoginAt];
 
     db3.query(insertQuery, insertValues, (insertErr) => {
       if (insertErr) {
@@ -6675,18 +6675,4 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(200).send({ message: "Data login berhasil disimpan" });
     });
   },
-
-  LogData: async (req, res) => {
-  const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
-  console.log(queryData);
-
-  db3.query(queryData, (err, result) => {
-    if (err) {
-      return res.status(500).send({ error: "Database error", detail: err });
-    }
-    return res.status(200).send(result);
-  });
-}
-
-
 };

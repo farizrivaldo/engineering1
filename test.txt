@@ -1159,3 +1159,18 @@ SearchPMARecord3: async (request, response) => {
   },
 
   ${pmaArea}\`.data_index AS PMA_INDEX,
+
+
+
+
+   LogData: async (req, res) => {
+    const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
+    console.log(queryData);
+
+    db3.query(queryData, (err, result) => {
+      if (err) {
+        return res.status(500).send({ error: "Database error", detail: err });
+      }
+      return res.status(200).send(result);
+    });
+  },
