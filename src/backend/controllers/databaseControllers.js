@@ -6643,7 +6643,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       id,
       isAdmin,
       level,
-      imagePath
+      imagePath,
+      loginAt
     } = req.body;
 
     // Validasi field (cek null atau undefined, bukan hanya falsy)
