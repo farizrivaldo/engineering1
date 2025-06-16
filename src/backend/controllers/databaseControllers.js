@@ -6657,12 +6657,13 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(400).send({ error: "Semua field harus diisi" });
     }
 
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
     const insertQuery = `
-      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address)
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath];
+    const insertValues = [name, id, isAdmin, level, imagePath, clientIp];
 
     db3.query(insertQuery, insertValues, (insertErr) => {
       if (insertErr) {
