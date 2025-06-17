@@ -6654,18 +6654,19 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       !isAdmin ||
       !level ||
       !imagePath ||
-      !loginAt
+      !loginAt ||
+      !email
     ) {
       return res.status(400).send({ error: "Semua field harus diisi" });
     }
 
     let clientIp = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || "").replace(/^::ffff:/, "");
     const insertQuery = `
-      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address, Date)
+      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address, Date, email)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, loginAt];
+    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, loginAt, email];
 
     db3.query(insertQuery, insertValues, (insertErr) => {
       if (insertErr) {
