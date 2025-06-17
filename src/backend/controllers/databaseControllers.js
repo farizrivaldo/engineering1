@@ -6676,4 +6676,19 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(200).send({ message: "Data login berhasil disimpan" });
     });
   },
+
+  LogData: async (req, res) => {
+    const { id_char } = req.params;
+
+    const query = `SELECT * FROM Log_Data_Login WHERE id_char = ? ORDER BY ID DESC`;
+
+    db3.query(query, [id_char], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).send({ error: "Gagal mengambil data login user" });
+      }
+
+      return res.status(200).json(results);
+    });
+  },
 };
