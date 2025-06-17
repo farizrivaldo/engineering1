@@ -6661,11 +6661,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     let clientIp = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || "").replace(/^::ffff:/, "");
     const insertQuery = `
-      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address, Date&Hour)
+      INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address, Date)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, LoginAt];
+    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, loginAt];
 
     db3.query(insertQuery, insertValues, (insertErr) => {
       if (insertErr) {
