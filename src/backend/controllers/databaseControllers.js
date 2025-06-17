@@ -6678,17 +6678,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   LogData: async (req, res) => {
-    const { id_char } = req.params;
+    const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
+    console.log(queryData);
 
-    const query = `SELECT * FROM Log_Data_Login WHERE id_char = ? ORDER BY ID DESC`;
-
-    db3.query(query, [id_char], (err, results) => {
+    db3.query(queryData, (err, result) => {
       if (err) {
-        console.error("Database error:", err);
-        return res.status(500).send({ error: "Gagal mengambil data login user" });
+        return res.status(500).send({ error: "Database error", detail: err });
       }
-
-      return res.status(200).json(results);
+      return res.status(200).send(result);
     });
   },
 };
