@@ -6697,9 +6697,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   LogoutData: async (req, res) => {
-    const { id_char, logout_time } = req.body;
+    const { id, logout_time } = req.body;
 
-    if (!id_char || !logout_time) {
+    if (!id || !logout_time) {
       return res.status(400).send({ error: "id_char dan logout_time harus diisi" });
     }
 
@@ -6711,7 +6711,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ORDER BY ID DESC LIMIT 1
     `;
 
-    db3.query(updateQuery, [logout_time, id_char], (err, result) => {
+    db3.query(updateQuery, [logout_time], (err, result) => {
       if (err) {
         return res.status(500).send({ error: "Database error", detail: err });
       }
