@@ -6650,13 +6650,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     // Validasi field (cek null atau undefined, bukan hanya falsy)
     if (
-      name ||
-      id ||
-      isAdmin ||
-      level ||
-      imagePath ||
-      !loginAt ||
-      !email
+      name == null ||
+      id == null ||
+      isAdmin == null ||
+      level == null ||
+      imagePath == null
     ) {
       return res.status(400).send({ error: "Semua field harus diisi" });
     }
