@@ -6711,7 +6711,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       ORDER BY ID DESC LIMIT 1
     `;
 
-    db3.query(updateQuery, [logout_time], (err, result) => {
+    db3.query(updateQuery, [logout_time, id_char], (err, result) => {
       if (err) {
         return res.status(500).send({ error: "Database error", detail: err });
       }
