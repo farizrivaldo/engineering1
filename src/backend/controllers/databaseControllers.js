@@ -6680,13 +6680,14 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   LogData: async (req, res) => {
     //const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
     const queryData = `SELECT t1.*
-      FROM parammachine_saka.Log_Data_Login t1
-      INNER JOIN (
-          SELECT id_char, MAX(Date) AS max_login
-          FROM parammachine_saka.Log_Data_Login
-          GROUP BY id_char
-      ) t2 ON t1.id_char = t2.id_char AND t1.Date = t2.max_login
-      ORDER BY t1.Date DESC`;
+    FROM parammachine_saka.Log_Data_Login t1
+    INNER JOIN (
+        SELECT id_char, MAX(STR_TO_DATE(Date, '%m/%d/%Y, %r')) AS max_login
+        FROM parammachine_saka.Log_Data_Login
+        GROUP BY id_char
+    ) t2 ON t1.id_char = t2.id_char AND STR_TO_DATE(t1.Date, '%m/%d/%Y, %r') = max_login
+    ORDER BY STR_TO_DATE(t1.Date, '%m/%d/%Y, %r') DESC;
+    `;
 
     db3.query(queryData, (err, result) => {
       if (err) {
