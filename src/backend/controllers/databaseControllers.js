@@ -6697,9 +6697,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   LogoutData: async (req, res) => {
-    const { id, logout_time } = req.body;
+    const { id_char, logout_time } = req.body;
 
-    if (!id || !logout_time) {
+    if (!id_char || !logout_time) {
       return res.status(400).send({ error: "id_char dan logout_time harus diisi" });
     }
 
