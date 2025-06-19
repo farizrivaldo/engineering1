@@ -6650,11 +6650,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     // Validasi field (cek null atau undefined, bukan hanya falsy)
     if (
-      !name ||
-      !id ||
-      !isAdmin ||
-      !level ||
-      !imagePath ||
+      name ||
+      id ||
+      isAdmin ||
+      level ||
+      imagePath ||
       !loginAt ||
       !email
     ) {
@@ -6680,14 +6680,44 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   LogData: async (req, res) => {
-    const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
-    console.log(queryData);
+    //const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login`;
+    const queryData = `SELECT t1.*
+      FROM parammachine_saka.Log_Data_Login t1
+      INNER JOIN (
+          SELECT id_char, MAX(Date) AS max_login
+          FROM parammachine_saka.Log_Data_Login
+          GROUP BY id_char
+      ) t2 ON t1.id_char = t2.id_char AND t1.Date = t2.max_login
+      ORDER BY t1.Date DESC`;
 
     db3.query(queryData, (err, result) => {
       if (err) {
         return res.status(500).send({ error: "Database error", detail: err });
       }
       return res.status(200).send(result);
+    });
+  },
+
+  LogoutData: async (req, res) => {
+    const { id_char, logout_time } = req.body;
+
+    if (!id_char || !logout_time) {
+      return res.status(400).send({ error: "id_char dan logout_time harus diisi" });
+    }
+
+    // Update baris terakhir yang masih aktif
+    const updateQuery = `
+      UPDATE parammachine_saka.Log_Data_Login
+      SET logout_time = ?, status = 'completed'
+      WHERE id_char = ? AND (status IS NULL OR status = 'active')
+      ORDER BY ID DESC LIMIT 1
+    `;
+
+    db3.query(updateQuery, [logout_time, id_char], (err, result) => {
+      if (err) {
+        return res.status(500).send({ error: "Database error", detail: err });
+      }
+      return res.status(200).send({ message: "Logout time berhasil diupdate" });
     });
   },
 };
