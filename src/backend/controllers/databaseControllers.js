@@ -6698,7 +6698,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },*/
 
   LogData: async (req, res) => {
-    const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login ORDER BY Date DESC`;
+    const queryData = `SELECT * FROM parammachine_saka.Log_Data_Login ORDER BY STR_TO_DATE(Date, '%m/%d/%Y, %r') DESC`;
     console.log(queryData);
 
     db3.query(queryData, (err, result) => {
