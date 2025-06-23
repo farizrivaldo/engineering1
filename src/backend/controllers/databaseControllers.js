@@ -4441,7 +4441,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         AND TABLE_NAME = ?
         AND COLUMN_NAME NOT IN ('data_format_0', 'data_format_1')
       `;
-        db3.query(query, [area], (err, results) => {
+        db4.query(query, [area], (err, results) => {
           if (err) return reject(err);
           const columns = results.map((result) => result.COLUMN_NAME);
           resolve(columns);
@@ -4455,7 +4455,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         SELECT data_format_index, comment
         FROM \`${area}_format\`
       `;
-        db3.query(query, (err, results) => {
+        db4.query(query, (err, results) => {
           if (err) return reject(err);
           resolve(results);
         });
@@ -4493,7 +4493,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         DATE(FROM_UNIXTIME(\`time@timestamp\`)) ASC;
     `;
 
-      db3.query(queryGet, [`%${data}%`], (err, result) => {
+      db4.query(queryGet, [`%${data}%`], (err, result) => {
         if (err) {
           console.log(err);
           return response.status(500).send("Database query failed");
