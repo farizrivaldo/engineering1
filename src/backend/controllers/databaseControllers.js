@@ -3737,7 +3737,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`parammachine_saka\`.\`cMT-FHDGEA1_EBR_FBD_data\`
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_FBD_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3745,6 +3745,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         ORDER BY
             label;
     `;
+
+    console.log(queryGet);
     try {
       const result = await new Promise((resolve, reject) => {
         db4.query(queryGet, (err, result) => {
