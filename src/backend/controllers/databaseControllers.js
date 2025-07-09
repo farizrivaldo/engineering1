@@ -923,7 +923,7 @@ LEFT JOIN
       \`time@timestamp\`;
     `;
 
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       if (err) {
         console.error("Error executing query:", err);
         return response.status(500).send("Internal Server Error");
