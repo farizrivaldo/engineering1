@@ -902,9 +902,9 @@ LEFT JOIN
   //=====================EMS Backend====================================
 
   getTableEMS: async (request, response) => {
-    const queryData = `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE (TABLE_NAME LIKE '%cMT-DB-EMS-UTY%' OR TABLE_NAME LIKE '_data') AND TABLE_NAME NOT LIKE '%_data_format' AND TABLE_NAME NOT LIKE '%_data_section';`;
+    const queryData = `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE (TABLE_NAME LIKE '%cMT-DB-EMS-UTY2%' OR TABLE_NAME LIKE '_data') AND TABLE_NAME NOT LIKE '%_data_format' AND TABLE_NAME NOT LIKE '%_data_section';`;
 
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
@@ -3346,11 +3346,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   //==============VIBRATE========================================VIBRATE==========================================
 
   fetchVibrate: async (request, response) => {
-  const tableName = request.query.machine;
-  const start = request.query.start;
-  const finish = request.query.finish;
+    const tableName = request.query.machine;
+    const start = request.query.start;
+    const finish = request.query.finish;
 
-  const fetchQuery = `
+    const fetchQuery = `
     SELECT COALESCE(data_index, 0) AS id,
            \`time@timestamp\` AS time,
            data_format_0
@@ -3358,7 +3358,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     WHERE \`time@timestamp\` BETWEEN ${start} AND ${finish}
   `;
 
-  // Fungsi pengecekan tabel di database
+    // Fungsi pengecekan tabel di database
     const checkTableExists = (dbConn, machine, callback) => {
       const checkQuery = `SHOW TABLES LIKE '${machine}'`;
       dbConn.query(checkQuery, (err, result) => {
@@ -3367,36 +3367,49 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       });
     };
 
-  // Cek tabel di DB1
+    // Cek tabel di DB1
     checkTableExists(db, tableName, (err1, existsInDB1) => {
-      if (err1) return response.status(500).send({ error: 'Error checking table in DB1', detail: err1 });
+      if (err1)
+        return response
+          .status(500)
+          .send({ error: "Error checking table in DB1", detail: err1 });
 
       if (existsInDB1) {
         // Jalankan query di DB1
         db.query(fetchQuery, (err, result) => {
-          if (err) return response.status(500).send({ error: 'DB1 query error', detail: err });
+          if (err)
+            return response
+              .status(500)
+              .send({ error: "DB1 query error", detail: err });
           return response.status(200).send(result);
         });
       } else {
         // Cek tabel di DB2
         checkTableExists(db3, tableName, (err2, existsInDB2) => {
-          if (err2) return response.status(500).send({ error: 'Error checking table in DB2', detail: err2 });
+          if (err2)
+            return response
+              .status(500)
+              .send({ error: "Error checking table in DB2", detail: err2 });
 
           if (existsInDB2) {
             // Jalankan query di DB2
             db3.query(fetchQuery, (err, result) => {
-              if (err) return response.status(500).send({ error: 'DB2 query error', detail: err });
+              if (err)
+                return response
+                  .status(500)
+                  .send({ error: "DB2 query error", detail: err });
               return response.status(200).send(result);
             });
           } else {
-          // Tabel tidak ditemukan di kedua DB
-          return response.status(404).send({ error: 'Table not found in both databases' });
+            // Tabel tidak ditemukan di kedua DB
+            return response
+              .status(404)
+              .send({ error: "Table not found in both databases" });
           }
         });
       }
     });
   },
-
 
   fetch138: async (request, response) => {
     let fetchQuerry =
@@ -3419,7 +3432,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       WHERE \`time@timestamp\` BETWEEN ${start} AND ${finish}
     `;
 
-
     const checkTableExists = (dbConn, machine, callback) => {
       const checkQuery = `SHOW TABLES LIKE '${machine}'`;
       dbConn.query(checkQuery, (err, result) => {
@@ -3428,30 +3440,44 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       });
     };
 
-  // Cek tabel di DB1
+    // Cek tabel di DB1
     checkTableExists(db, tableName, (err1, existsInDB1) => {
-      if (err1) return response.status(500).send({ error: 'Error checking table in DB1', detail: err1 });
+      if (err1)
+        return response
+          .status(500)
+          .send({ error: "Error checking table in DB1", detail: err1 });
 
       if (existsInDB1) {
         // Jalankan query di DB1
         db.query(fetchQuery, (err, result) => {
-          if (err) return response.status(500).send({ error: 'DB1 query error', detail: err });
+          if (err)
+            return response
+              .status(500)
+              .send({ error: "DB1 query error", detail: err });
           return response.status(200).send(result);
         });
       } else {
         // Cek tabel di DB2
         checkTableExists(db3, tableName, (err2, existsInDB2) => {
-          if (err2) return response.status(500).send({ error: 'Error checking table in DB2', detail: err2 });
+          if (err2)
+            return response
+              .status(500)
+              .send({ error: "Error checking table in DB2", detail: err2 });
 
           if (existsInDB2) {
             // Jalankan query di DB2
             db3.query(fetchQuery, (err, result) => {
-              if (err) return response.status(500).send({ error: 'DB2 query error', detail: err });
+              if (err)
+                return response
+                  .status(500)
+                  .send({ error: "DB2 query error", detail: err });
               return response.status(200).send(result);
             });
           } else {
-          // Tabel tidak ditemukan di kedua DB
-          return response.status(404).send({ error: 'Table not found in both databases' });
+            // Tabel tidak ditemukan di kedua DB
+            return response
+              .status(404)
+              .send({ error: "Table not found in both databases" });
           }
         });
       }
@@ -4287,7 +4313,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           FROM INFORMATION_SCHEMA.COLUMNS
           WHERE TABLE_SCHEMA = 'ems_saka'
             AND TABLE_NAME = ?
-            AND COLUMN_NAME NOT IN (${excludeCols.map(() => '?').join(', ')})
+            AND COLUMN_NAME NOT IN (${excludeCols.map(() => "?").join(", ")})
         `;
         const queryMap = `
           SELECT data_format_index, comment FROM \`${area}_format\`
@@ -4301,7 +4327,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
               const match = COLUMN_NAME.match(/data_format_(\d+)/);
               if (match) {
                 const index = parseInt(match[1], 10);
-                const mapping = mapResults.find(m => m.data_format_index === index);
+                const mapping = mapResults.find(
+                  (m) => m.data_format_index === index
+                );
                 if (mapping) {
                   return `\`${area}\`.\`${COLUMN_NAME}\` AS \`${mapping.comment}\``;
                 }
@@ -4317,19 +4345,28 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     try {
       const [pmaColumns, wetColumns] = await Promise.all([
-        getMappedColumns(pmaArea, ['data_format_0', 'data_format_1', 'time@timestamp', 'data_index']),
-        getMappedColumns(wetArea, ['data_format_0', 'time@timestamp', 'data_index']),
+        getMappedColumns(pmaArea, [
+          "data_format_0",
+          "data_format_1",
+          "time@timestamp",
+          "data_index",
+        ]),
+        getMappedColumns(wetArea, [
+          "data_format_0",
+          "time@timestamp",
+          "data_index",
+        ]),
       ]);
 
       const query = `
         SELECT
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
-          ${pmaColumns.join(',')},
+          ${pmaColumns.join(",")},
           CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) AS PMA_BATCH,
           CONVERT(\`${pmaArea}\`.\`data_format_1\` USING utf8) AS PMA_PROCESS,
 
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${wetArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS WET_time,
-          ${wetColumns.join(',')},
+          ${wetColumns.join(",")},
           CONVERT(\`${wetArea}\`.\`data_format_0\` USING utf8) AS WET_PROCESS
 
         FROM \`ems_saka\`.\`${pmaArea}\`
@@ -4752,7 +4789,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           FROM INFORMATION_SCHEMA.COLUMNS
           WHERE TABLE_SCHEMA = 'parammachine_saka'
             AND TABLE_NAME = ?
-            AND COLUMN_NAME NOT IN (${excludeCols.map(() => '?').join(', ')})
+            AND COLUMN_NAME NOT IN (${excludeCols.map(() => "?").join(", ")})
         `;
         const queryMap = `
           SELECT data_format_index, comment FROM \`${area}_format\`
@@ -4766,7 +4803,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
               const match = COLUMN_NAME.match(/data_format_(\d+)/);
               if (match) {
                 const index = parseInt(match[1], 10);
-                const mapping = mapResults.find(m => m.data_format_index === index);
+                const mapping = mapResults.find(
+                  (m) => m.data_format_index === index
+                );
                 if (mapping) {
                   return `\`${area}\`.\`${COLUMN_NAME}\` AS \`${mapping.comment}\``;
                 }
@@ -4782,19 +4821,28 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
     try {
       const [pmaColumns, wetColumns] = await Promise.all([
-        getMappedColumns(pmaArea, ['data_format_0', 'data_format_1', 'time@timestamp', 'data_index']),
-        getMappedColumns(wetArea, ['data_format_0', 'time@timestamp', 'data_index']),
+        getMappedColumns(pmaArea, [
+          "data_format_0",
+          "data_format_1",
+          "time@timestamp",
+          "data_index",
+        ]),
+        getMappedColumns(wetArea, [
+          "data_format_0",
+          "time@timestamp",
+          "data_index",
+        ]),
       ]);
 
       const query = `
         SELECT 
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${pmaArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS PMA_time,
-          ${pmaColumns.join(',')},
+          ${pmaColumns.join(",")},
           CONVERT(\`${pmaArea}\`.\`data_format_0\` USING utf8) AS PMA_BATCH,
           CONVERT(\`${pmaArea}\`.\`data_format_1\` USING utf8) AS PMA_PROCESS,
 
           DATE_FORMAT(FROM_UNIXTIME(FLOOR(\`${wetArea}\`.\`time@timestamp\`)), '%Y-%m-%d %H:%i') AS WET_time,
-          ${wetColumns.join(',')},
+          ${wetColumns.join(",")},
           CONVERT(\`${wetArea}\`.\`data_format_0\` USING utf8) AS WET_PROCESS
 
         FROM \`parammachine_saka\`.\`${pmaArea}\`
@@ -6039,77 +6087,77 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   GetDailyEMSUTY: async (request, response) => {
     const fatchquerry = `
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_Area_N33_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_Area_N33_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_Area_P10_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_Area_P10_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_Area_W25toN33_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_Area_W25toN33_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_Area_W25toP10_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_Area_W25toP10_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_GAC_WH2_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_GAC_WH2_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_GBAC1_WH1_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_GBAC1_WH1_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_GBAC2_WH1_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_GBAC2_WH1_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_PackagingF_Ln1_N_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_PackagingF_Ln1_N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_PackagingF_Ln2_N_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_PackagingF_Ln2_N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_PackagingF_Ln3_N_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_PackagingF_Ln3_N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K27_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K27_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K30_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K30_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K31_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K31_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K32_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K32_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K33_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K33_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K34_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K34_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K35_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K35_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.K36_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.K36_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.N03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.N03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.N04_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.N04_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.N05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.N05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.N06_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.N06_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.Tools1_WG_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.Tools1_WG_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W04_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W04_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W06-1_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W06-1_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W06-2_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W06-2_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W09_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W09_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W17(Spare)_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W17(Spare)_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W18_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W18_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W19_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W19_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W20_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W20_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W21_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W21_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W22_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W22_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W23_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W23_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W24_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W24_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R.W25_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R.W25_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N07_Coridor_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N07_Coridor_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N07_Machine_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N07_Machine_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N08_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N08_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N10_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N10_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N11_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N11_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N13_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N13_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N14_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N14_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N15_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N15_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N16_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N16_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N18_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N18_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N20_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N20_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_N28_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_N28_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P01_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P01_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P02_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P02_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P06_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P06_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P11_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P11_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P12_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P12_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P13_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P13_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_P14_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_P14_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X01_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X01_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X02_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X02_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X04_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X04_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X06_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X06_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X09_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X09_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X10_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X10_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY_R_X11_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY_R_X11_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_Area_N33_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_Area_N33_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_Area_P10_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_Area_P10_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_Area_W25toN33_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_Area_W25toN33_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_Area_W25toP10_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_Area_W25toP10_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_GAC_WH2_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_GAC_WH2_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_GBAC1_WH1_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_GBAC1_WH1_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_GBAC2_WH1_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_GBAC2_WH1_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_PackagingF_Ln1_N_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_PackagingF_Ln1_N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_PackagingF_Ln2_N_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_PackagingF_Ln2_N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_PackagingF_Ln3_N_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_PackagingF_Ln3_N_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K27_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K27_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K30_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K30_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K31_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K31_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K32_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K32_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K33_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K33_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K34_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K34_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K35_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K35_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.K36_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.K36_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.N03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.N03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.N04_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.N04_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.N05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.N05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.N06_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.N06_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.Tools1_WG_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.Tools1_WG_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W04_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W04_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W06-1_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W06-1_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W06-2_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W06-2_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W09_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W09_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W17(Spare)_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W17(Spare)_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W18_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W18_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W19_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W19_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W20_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W20_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W21_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W21_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W22_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W22_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W23_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W23_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W24_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W24_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R.W25_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R.W25_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N07_Coridor_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N07_Coridor_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N07_Machine_Nw_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N07_Machine_Nw_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N08_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N08_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N10_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N10_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N11_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N11_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N13_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N13_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N14_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N14_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N15_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N15_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N16_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N16_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N18_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N18_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N20_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N20_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_N28_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_N28_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P01_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P01_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P02_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P02_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P06_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P06_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P11_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P11_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P12_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P12_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P13_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P13_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_P14_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_P14_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X01_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X01_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X02_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X02_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X03_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X03_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X04_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X04_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X05_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X05_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X06_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X06_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X09_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X09_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X10_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X10_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+    SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-EMS-UTY2_R_X11_New_data\` FROM parammachine_saka.\`cMT-DB-EMS-UTY2_R_X11_New_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
     `;
 
-    db.query(fatchquerry, (err, result) => {
+    db4.query(fatchquerry, (err, result) => {
       if (err) {
         console.log(err);
         return response.status(500).send("Database query failed");
@@ -6571,84 +6619,78 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   HM1InsertDowntimeWithSubRows: async (req, res) => {
-  const { mainRow, subRows } = req.body;
-  const parsedId = parseInt(mainRow?.id);
+    const { mainRow, subRows } = req.body;
+    const parsedId = parseInt(mainRow?.id);
 
-  console.log("Parsed ID:", parsedId);
-  console.log("SubRows:", subRows);
+    console.log("Parsed ID:", parsedId);
+    console.log("SubRows:", subRows);
 
-  if (!Array.isArray(subRows) || subRows.length === 0) {
-    return res.status(400).send({ error: "Data subRows kosong atau tidak valid" });
-  }
+    if (!Array.isArray(subRows) || subRows.length === 0) {
+      return res
+        .status(400)
+        .send({ error: "Data subRows kosong atau tidak valid" });
+    }
 
-  if (!parsedId || isNaN(parsedId)) {
-    return res.status(400).send({ error: "ID tidak valid" });
-  }
+    if (!parsedId || isNaN(parsedId)) {
+      return res.status(400).send({ error: "ID tidak valid" });
+    }
 
-  const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
-  const insertQuery = `
+    const deleteQuery = `DELETE FROM Downtime_Mesin WHERE id = ?`;
+    const insertQuery = `
     INSERT INTO Downtime_Mesin
     (shift, start, finish, total_menit, mesin, downtime_type, detail, user, submit_date, keterangan)
     VALUES ?
   `;
 
-  try {
-    db3.query(deleteQuery, [parsedId], (deleteErr, deleteResult) => {
-      if (deleteErr) {
-        console.error("Delete error:", deleteErr);
-        return res.status(500).send({ error: "Gagal hapus data lama" });
-      }
-
-      console.log("Rows deleted:", deleteResult.affectedRows);
-
-      const values = subRows.map((item) => {
-        const fullStart = `${item.tanggal} ${item.start}`;
-        const fullFinish = `${item.tanggal} ${item.finish}`;
-
-        return [
-          item.shift,
-          fullStart,
-          fullFinish,
-          item.total_menit,
-          item.mesin || item.area,
-          item.downtime_type,
-          item.detail || item.downtime_detail,
-          item.user || item.username,
-          item.submit_date || item.submitted_at,
-          item.keterangan || "",
-        ];
-      });
-
-      db3.query(insertQuery, [values], (insertErr, insertResult) => {
-        if (insertErr) {
-          console.error("Insert error:", insertErr);
-          return res.status(500).send({ error: "Gagal insert data baru" });
+    try {
+      db3.query(deleteQuery, [parsedId], (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error("Delete error:", deleteErr);
+          return res.status(500).send({ error: "Gagal hapus data lama" });
         }
 
-        return res.status(200).send({
-          success: true,
-          message: "Data berhasil diganti dengan sub-row baru",
+        console.log("Rows deleted:", deleteResult.affectedRows);
+
+        const values = subRows.map((item) => {
+          const fullStart = `${item.tanggal} ${item.start}`;
+          const fullFinish = `${item.tanggal} ${item.finish}`;
+
+          return [
+            item.shift,
+            fullStart,
+            fullFinish,
+            item.total_menit,
+            item.mesin || item.area,
+            item.downtime_type,
+            item.detail || item.downtime_detail,
+            item.user || item.username,
+            item.submit_date || item.submitted_at,
+            item.keterangan || "",
+          ];
+        });
+
+        db3.query(insertQuery, [values], (insertErr, insertResult) => {
+          if (insertErr) {
+            console.error("Insert error:", insertErr);
+            return res.status(500).send({ error: "Gagal insert data baru" });
+          }
+
+          return res.status(200).send({
+            success: true,
+            message: "Data berhasil diganti dengan sub-row baru",
+          });
         });
       });
-    });
-  } catch (error) {
-    console.error("Server error:", error);
-    return res.status(500).send({ error: "Terjadi kesalahan di server" });
-  }
-},
+    } catch (error) {
+      console.error("Server error:", error);
+      return res.status(500).send({ error: "Terjadi kesalahan di server" });
+    }
+  },
 
- //-------------------------Data Login--------------------------
+  //-------------------------Data Login--------------------------
 
   LoginData: async (req, res) => {
-    const {
-      name,
-      id,
-      isAdmin,
-      level,
-      imagePath,
-      loginAt, 
-      email
-    } = req.body;
+    const { name, id, isAdmin, level, imagePath, loginAt, email } = req.body;
 
     // Validasi field (cek null atau undefined, bukan hanya falsy)
     if (
@@ -6661,13 +6703,26 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(400).send({ error: "Semua field harus diisi" });
     }
 
-    let clientIp = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || "").replace(/^::ffff:/, "");
+    let clientIp = (
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.socket.remoteAddress ||
+      ""
+    ).replace(/^::ffff:/, "");
     const insertQuery = `
       INSERT INTO Log_Data_Login (name, id_char, isAdmin, level, imagePath, ip_address, Date, email)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const insertValues = [name, id, isAdmin, level, imagePath, clientIp, loginAt, email];
+    const insertValues = [
+      name,
+      id,
+      isAdmin,
+      level,
+      imagePath,
+      clientIp,
+      loginAt,
+      email,
+    ];
 
     db3.query(insertQuery, insertValues, (insertErr) => {
       if (insertErr) {
@@ -6715,7 +6770,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const { id_char, logout_time } = req.body;
 
     if (!id_char || !logout_time) {
-      return res.status(400).send({ error: "id_char dan logout_time harus diisi" });
+      return res
+        .status(400)
+        .send({ error: "id_char dan logout_time harus diisi" });
     }
 
     // Update baris terakhir yang masih aktif
@@ -6730,7 +6787,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       if (err) {
         return res.status(500).send({ error: "Database error", detail: err });
       }
-      return res.status(200).send({ message: "Logout time berhasil diupdate" });
+      return res.status(200).send({ message: "Logout time berhasil diupdate" });
     });
   },
 };
