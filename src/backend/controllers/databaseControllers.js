@@ -953,7 +953,7 @@ LEFT JOIN
     ORDER BY
       \`time@timestamp\``;
 
-    db.query(queryData, (err, result) => {
+    db4.query(queryData, (err, result) => {
       return response.status(200).send(result);
     });
   },
