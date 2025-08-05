@@ -23,6 +23,11 @@ const express = require("express");
 
 const app = express(); // Tambahkan ini jika belum ada
 
+//db  = 55, paramachine_saka
+//db2 = 55, ems_saka
+//db3 =  138, 
+
+
 const corsOptions = {
   origin: "http://http://10.126.15.7:3000/", // Ganti dengan domain Grafana Anda
   methods: ["GET", "POST", "OPTIONS"],
