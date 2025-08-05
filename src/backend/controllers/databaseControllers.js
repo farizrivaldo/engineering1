@@ -4874,7 +4874,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   SearchFBDRecord3: async (request, response) => {
     const { data } = request.query;
-    const area = "cMT-GEA-L3_EBR_FBD_L3_data";
+    const area = "cMT-GEA-L3_Data_FBD_L3_data";
 
     const getAllColumns = () => {
       return new Promise((resolve, reject) => {
