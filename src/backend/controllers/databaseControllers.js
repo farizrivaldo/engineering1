@@ -25,8 +25,8 @@ const app = express(); // Tambahkan ini jika belum ada
 
 //db  = 55, paramachine_saka
 //db2 = 55, ems_saka
-//db3 =  138, 
-
+//db3 =  138, parmammachine
+//db4 = 138,ems_saka
 
 const corsOptions = {
   origin: "http://http://10.126.15.7:3000/", // Ganti dengan domain Grafana Anda
@@ -1005,61 +1005,61 @@ LEFT JOIN
     s AS "AirMancur"
     FROM 
     (SELECT SUM(data_format_0) as a 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_PDAM_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' ) as sum1,
     (SELECT SUM(data_format_0) as b 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Dom_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Dom_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum2,
     (SELECT SUM(data_format_0) as c 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Softwater_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum3,
     (SELECT SUM(data_format_0) as d 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Boiler_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum4,
     (SELECT SUM(data_format_0) as e 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Inlet_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum5,
     (SELECT SUM(data_format_0) as f 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Outlet_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum6,
     (SELECT SUM(data_format_0) as g 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_RO_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_RO_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum7,
     (SELECT SUM(data_format_0) as h 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Chiller_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum8,
     (SELECT SUM(data_format_0) as i 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Taman_sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Taman_sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum9,
     (SELECT SUM(data_format_0) as j 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_1d_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum10,
     (SELECT SUM(data_format_0) as k 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_1d_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum11,
     (SELECT SUM(data_format_0) as l 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_1d_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum12,
     (SELECT SUM(data_format_0) as m 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_CIP_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum13,
     (SELECT SUM(data_format_0) as n 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Hotwater_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum14,
     (SELECT SUM(data_format_0) as o 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Lab_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum15,
     (SELECT SUM(data_format_0) as p 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Atas QC_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum16,
     (SELECT SUM(data_format_0) as q 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_AtsToilet_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum17,
     (SELECT SUM(data_format_0) as r 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Workshop_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum18,
     (SELECT SUM(data_format_0) as s 
-         FROM parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` WHERE
+         FROM parammachine_saka.\`cMT-DB-WATER-UTY2_AirMancur_Sehari_data\` WHERE
     date(FROM_UNIXTIME(\`time@timestamp\`) ) BETWEEN '${start}' AND '${finish}' ) as sum19`;
 
     db3.query(queryGet, (err, result) => {
@@ -1095,52 +1095,52 @@ LEFT JOIN
     round(wa.data_format_0,2) as washing,
     round(l1.data_format_0,2) as lantai1,
     round(pd.data_format_0,2) as pdam
-         \` FROM parammachine_saka.\`cMT-DB-WATER-UTY_Dom_sehari_data\` as d
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` as c on 
+         \` FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Dom_sehari_data\` as d
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Chiller_sehari_data\` as c on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(c.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` as s on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Softwater_sehari_data\` as s on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` as b on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Boiler_sehari_data\` as b on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(b.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` as ip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Inlet_Sehari_data\` as ip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` as op on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Outlet_sehari_data\` as op on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(op.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_RO_sehari_data\` as ro on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_RO_sehari_data\` as ro on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ro.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Taman_sehari_data\` as t on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Taman_sehari_data\` as t on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(t.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` as iwk on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_1d_data\` as iwk on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwk.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` as iwb on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_1d_data\` as iwb on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwb.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` as ow on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_1d_data\` as ow on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ow.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` as cip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_CIP_Sehari_data\` as cip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(cip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` as h on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Hotwater_Sehari_data\` as h on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(h.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` as l on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Lab_Sehari_data\` as l on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` as atl on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_AtsToilet_Sehari_data\` as atl on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atl.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` as atlq on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Atas QC_Sehari_data\` as atlq on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atlq.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` as w on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Workshop_Sehari_data\` as w on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(w.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` as am on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_AirMancur_Sehari_data\` as am on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(am.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Osmotron_Sehari_data\` as os on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Osmotron_Sehari_data\` as os on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(os.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Loopo_Sehari_data\` as lo on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Loopo_Sehari_data\` as lo on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(lo.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Produksi_Sehari_data\` as p on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Produksi_Sehari_data\` as p on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(p.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Washing_Sehari_data\` as wa on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Washing_Sehari_data\` as wa on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(wa.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Lantai1_Sehari_data\` as l1 on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Lantai1_Sehari_data\` as l1 on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l1.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` as pd on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_PDAM_Sehari_data\` as pd on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
     where  date(FROM_UNIXTIME(d.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' 
     order by date(FROM_UNIXTIME(d.\`time@timestamp\`));`;
@@ -1179,52 +1179,52 @@ LEFT JOIN
     round(wa.data_format_0,2) as washing,
     round(l1.data_format_0,2) as lantai1,
     round(pd.data_format_0,2) as pdam
-         \` FROM parammachine_saka.\`cMT-DB-WATER-UTY_Met_Domestik_data\` as d
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Chiller_data\` as c on 
+         \` FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Domestik_data\` as d
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Chiller_data\` as c on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(c.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Softwater_data\` as s on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Softwater_data\` as s on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Boiler_data\` as b on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Boiler_data\` as b on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(b.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Inlet_Pt_data\` as ip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Inlet_Pt_data\` as ip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Outlet_Pt_data\` as op on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Outlet_Pt_data\` as op on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(op.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_RO_data\` as ro on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_RO_data\` as ro on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ro.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Taman_data\` as t on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Taman_data\` as t on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(t.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_data\` as iwk on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_data\` as iwk on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwk.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_data\` as iwb on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_data\` as iwb on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwb.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_data\` as ow on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_data\` as ow on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ow.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_CIP_data\` as cip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_CIP_data\` as cip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(cip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Hotwater_data\` as h on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Hotwater_data\` as h on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(h.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Lab_data\` as l on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Lab_data\` as l on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Atas Toilet2_data\` as atl on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Atas Toilet2_data\` as atl on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atl.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Atas Lab QC_data\` as atlq on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Atas Lab QC_data\` as atlq on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atlq.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Workshop_data\` as w on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Workshop_data\` as w on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(w.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Air Mancur_data\` as am on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Air Mancur_data\` as am on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(am.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Osmotron_data\` as os on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Osmotron_data\` as os on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(os.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Loopo_data\` as lo on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Loopo_data\` as lo on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(lo.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Produksi_data\` as p on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Produksi_data\` as p on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(p.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Washing_data\` as wa on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Washing_data\` as wa on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(wa.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Lantai1_data\` as l1 on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Lantai1_data\` as l1 on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l1.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_PDAM_data\` as pd on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_PDAM_data\` as pd on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
     where  date(FROM_UNIXTIME(d.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'`;
 
@@ -1262,52 +1262,52 @@ LEFT JOIN
     sum(round(wa.data_format_0,2)) as washing,
     sum(round(l1.data_format_0,2)) as lantai1,
     sum(round(pd.data_format_0,2)) as pdam
-         \` FROM parammachine_saka.\`cMT-DB-WATER-UTY_Dom_sehari_data\` as d
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` as c on 
+         \` FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Dom_sehari_data\` as d
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Chiller_sehari_data\` as c on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(c.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` as s on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Softwater_sehari_data\` as s on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` as b on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Boiler_sehari_data\` as b on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(b.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` as ip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Inlet_Sehari_data\` as ip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` as op on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Outlet_sehari_data\` as op on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(op.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_RO_sehari_data\` as ro on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_RO_sehari_data\` as ro on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ro.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Taman_sehari_data\` as t on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Taman_sehari_data\` as t on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(t.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` as iwk on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_1d_data\` as iwk on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwk.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` as iwb on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_1d_data\` as iwb on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwb.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` as ow on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_1d_data\` as ow on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ow.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` as cip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_CIP_Sehari_data\` as cip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(cip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` as h on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Hotwater_Sehari_data\` as h on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(h.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` as l on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Lab_Sehari_data\` as l on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` as atl on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_AtsToilet_Sehari_data\` as atl on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atl.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` as atlq on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Atas QC_Sehari_data\` as atlq on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atlq.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` as w on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Workshop_Sehari_data\` as w on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(w.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` as am on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_AirMancur_Sehari_data\` as am on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(am.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Osmotron_Sehari_data\` as os on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Osmotron_Sehari_data\` as os on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(os.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Loopo_Sehari_data\` as lo on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Loopo_Sehari_data\` as lo on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(lo.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Produksi_Sehari_data\` as p on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Produksi_Sehari_data\` as p on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(p.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Washing_Sehari_data\` as wa on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Washing_Sehari_data\` as wa on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(wa.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Lantai1_Sehari_data\` as l1 on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Lantai1_Sehari_data\` as l1 on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l1.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` as pd on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_PDAM_Sehari_data\` as pd on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
     where  DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m') BETWEEN '${start}' AND '${finish}' 
     GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`))), 
@@ -1350,55 +1350,55 @@ LEFT JOIN
     FROM (Select
       max(DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y')) as Tgld,
       d.data_index as id
-           \` FROM parammachine_saka.\`cMT-DB-WATER-UTY_Met_Domestik_data\` as d 
+           \` FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Domestik_data\` as d 
       GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`))), 
       MONTH(date(FROM_UNIXTIME(d.\`time@timestamp\`)))) as tgl,
-          parammachine_saka.\`cMT-DB-WATER-UTY_Met_Domestik_data\` as d
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Chiller_data\` as c on 
+          parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Domestik_data\` as d
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Chiller_data\` as c on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(c.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Softwater_data\` as s on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Softwater_data\` as s on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Boiler_data\` as b on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Boiler_data\` as b on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(b.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Inlet_Pt_data\` as ip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Inlet_Pt_data\` as ip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Outlet_Pt_data\` as op on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Outlet_Pt_data\` as op on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(op.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_RO_data\` as ro on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_RO_data\` as ro on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ro.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Taman_data\` as t on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Taman_data\` as t on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(t.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_data\` as iwk on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_data\` as iwk on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwk.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_data\` as iwb on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_data\` as iwb on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwb.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_data\` as ow on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_data\` as ow on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ow.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_CIP_data\` as cip on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_CIP_data\` as cip on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(cip.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Hotwater_data\` as h on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Hotwater_data\` as h on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(h.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Lab_data\` as l on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Lab_data\` as l on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Atas Toilet2_data\` as atl on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Atas Toilet2_data\` as atl on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atl.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Atas Lab QC_data\` as atlq on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Atas Lab QC_data\` as atlq on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atlq.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Workshop_data\` as w on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Workshop_data\` as w on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(w.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Air Mancur_data\` as am on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Air Mancur_data\` as am on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(am.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Osmotron_data\` as os on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Osmotron_data\` as os on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(os.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Loopo_data\` as lo on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Loopo_data\` as lo on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(lo.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Produksi_data\` as p on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Produksi_data\` as p on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(p.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Washing_data\` as wa on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Washing_data\` as wa on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(wa.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Lantai1_data\` as l1 on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Lantai1_data\` as l1 on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l1.\`time@timestamp\`), '%Y-%m-%d')
-          left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_PDAM_data\` as pd on 
+          left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_PDAM_data\` as pd on 
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
     where DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') = Tgld and
     DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m') BETWEEN '${start}' AND '${finish}'`;
@@ -1437,52 +1437,52 @@ LEFT JOIN
       sum(round(wa.data_format_0,2)) as washing,
       sum(round(l1.data_format_0,2)) as lantai1,
       sum(round(pd.data_format_0,2)) as pdam
-           \` FROM parammachine_saka.\`cMT-DB-WATER-UTY_Dom_sehari_data\` as d
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` as c on 
+           \` FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Dom_sehari_data\` as d
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Chiller_sehari_data\` as c on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(c.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` as s on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Softwater_sehari_data\` as s on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` as b on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Boiler_sehari_data\` as b on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(b.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` as ip on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Inlet_Sehari_data\` as ip on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ip.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` as op on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Outlet_sehari_data\` as op on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(op.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_RO_sehari_data\` as ro on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_RO_sehari_data\` as ro on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ro.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Taman_sehari_data\` as t on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Taman_sehari_data\` as t on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(t.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` as iwk on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_1d_data\` as iwk on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwk.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` as iwb on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_1d_data\` as iwb on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwb.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` as ow on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_1d_data\` as ow on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ow.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` as cip on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_CIP_Sehari_data\` as cip on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(cip.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` as h on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Hotwater_Sehari_data\` as h on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(h.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` as l on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Lab_Sehari_data\` as l on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` as atl on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_AtsToilet_Sehari_data\` as atl on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atl.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` as atlq on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Atas QC_Sehari_data\` as atlq on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atlq.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` as w on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Workshop_Sehari_data\` as w on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(w.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` as am on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_AirMancur_Sehari_data\` as am on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(am.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Osmotron_Sehari_data\` as os on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Osmotron_Sehari_data\` as os on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(os.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Loopo_Sehari_data\` as lo on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Loopo_Sehari_data\` as lo on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(lo.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Produksi_Sehari_data\` as p on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Produksi_Sehari_data\` as p on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(p.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Washing_Sehari_data\` as wa on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Washing_Sehari_data\` as wa on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(wa.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Lantai1_Sehari_data\` as l1 on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Lantai1_Sehari_data\` as l1 on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l1.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` as pd on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_PDAM_Sehari_data\` as pd on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
       where  DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') BETWEEN '${start}' AND '${finish}' 
       GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`)))`;
@@ -1524,54 +1524,54 @@ LEFT JOIN
       FROM (Select
         max(DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y')) as Tgld,
         d.data_index as id
-             \` FROM parammachine_saka.\`cMT-DB-WATER-UTY_Met_Domestik_data\` as d 
+             \` FROM parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Domestik_data\` as d 
         GROUP BY YEAR(date(FROM_UNIXTIME(d.\`time@timestamp\`)))) as tgl,
-            parammachine_saka.\`cMT-DB-WATER-UTY_Met_Domestik_data\` as d
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Chiller_data\` as c on 
+            parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Domestik_data\` as d
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Chiller_data\` as c on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(c.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Softwater_data\` as s on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Softwater_data\` as s on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(s.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Boiler_data\` as b on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Boiler_data\` as b on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(b.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Inlet_Pt_data\` as ip on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Inlet_Pt_data\` as ip on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ip.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Outlet_Pt_data\` as op on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Outlet_Pt_data\` as op on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(op.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_RO_data\` as ro on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_RO_data\` as ro on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ro.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Taman_data\` as t on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Taman_data\` as t on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(t.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Kimia_data\` as iwk on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Kimia_data\` as iwk on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwk.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Biologi_data\` as iwb on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Biologi_data\` as iwb on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(iwb.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_WWTP_Outlet_data\` as ow on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_WWTP_Outlet_data\` as ow on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(ow.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_CIP_data\` as cip on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_CIP_data\` as cip on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(cip.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Hotwater_data\` as h on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Hotwater_data\` as h on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(h.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Lab_data\` as l on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Lab_data\` as l on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Atas Toilet2_data\` as atl on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Atas Toilet2_data\` as atl on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atl.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Atas Lab QC_data\` as atlq on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Atas Lab QC_data\` as atlq on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(atlq.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Workshop_data\` as w on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Workshop_data\` as w on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(w.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Air Mancur_data\` as am on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Air Mancur_data\` as am on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(am.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Osmotron_data\` as os on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Osmotron_data\` as os on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(os.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Loopo_data\` as lo on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Loopo_data\` as lo on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(lo.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Produksi_data\` as p on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Produksi_data\` as p on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(p.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Washing_data\` as wa on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Washing_data\` as wa on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(wa.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_Lantai1_data\` as l1 on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_Lantai1_data\` as l1 on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(l1.\`time@timestamp\`), '%Y-%m-%d')
-            left join parammachine_saka.\`cMT-DB-WATER-UTY_Met_PDAM_data\` as pd on 
+            left join parammachine_saka.\`cMT-DB-WATER-UTY2_Met_PDAM_data\` as pd on 
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y-%m-%d') = DATE_FORMAT(FROM_UNIXTIME(pd.\`time@timestamp\`), '%Y-%m-%d')
       where DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%d-%m-%Y') = Tgld and
       DATE_FORMAT(FROM_UNIXTIME(d.\`time@timestamp\`), '%Y') BETWEEN '${start}' AND '${finish}'`;
@@ -3212,7 +3212,7 @@ LEFT JOIN
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)- INTERVAL 7 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000 AS x,
           round(data_format_0,2) AS y
-          FROM parammachine_saka.\`cMT-DB-WATER-UTY_${area}_data\`
+          FROM parammachine_saka.\`cMT-DB-WATER-UTY2_${area}_data\`
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)- INTERVAL 7 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
@@ -3230,7 +3230,7 @@ LEFT JOIN
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)- INTERVAL 7 HOUR, '%Y-%m-%d %H:%i') AS label,
           \`time@timestamp\`*1000 AS x,
           round(data_format_0,2) AS y
-          FROM parammachine_saka.\`cMT-DB-WATER-UTY_${area}_data\`
+          FROM parammachine_saka.\`cMT-DB-WATER-UTY2_${area}_data\`
           WHERE
           DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)- INTERVAL 7 HOUR, '%Y-%m-%d') BETWEEN '${start}' AND '${finish}'
           ORDER BY
@@ -5931,140 +5931,140 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
 
   GetDailyWATER: async (request, response) => {
     const fatchquerry = `
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_AirMancur_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_AirMancur_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Atas QC_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Atas QC_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_AtsToilet_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Boiler_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Boiler_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_CIP_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_CIP_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Chiller_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Chiller_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Dom_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Dom_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_FT270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_FT270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Hotwater_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Hotwater_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Inlet_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Inlet_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Lab_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Lab_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Lantai1_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Lantai1_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Loopo_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Loopo_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Air Mancur_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Air Mancur_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Atas Lab QC_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Atas Lab QC_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Atas Toilet2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Atas Toilet2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Boiler_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Boiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_CIP_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_CIP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Chiller_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Chiller_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Domestik_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Domestik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Hotwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Hotwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Inlet_Pt_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Inlet_Pt_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Lab_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Lab_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Lantai1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Lantai1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Loopo_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Loopo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Osmotron_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Osmotron_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Outlet_Pt_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Outlet_Pt_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_PDAM_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_PDAM_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Produksi_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Produksi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_RO_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_RO_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Softwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Softwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Taman_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Taman_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Washing_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Washing_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Met_Workshop_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Met_Workshop_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Osmotron_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Osmotron_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Outlet_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Outlet_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_PDAM_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_PDAM_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Produksi_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Produksi_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_QE845A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_QE845A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_QE845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_QE845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_RO_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_RO_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Softwater_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Softwater_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_TE845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_TE845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Taman_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Taman_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_WWTP_Biologi_1d_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_WWTP_Biologi_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_WWTP_Biologi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_WWTP_Kimia_1d_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_WWTP_Kimia_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_WWTP_Kimia_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_WWTP_Outlet_1d_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_WWTP_Outlet_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_WWTP_Outlet_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Washing_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Washing_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_Workshop_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_Workshop_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_airmancur_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_airmancur_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_boiler_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_boiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_chiller_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_chiller_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_cip_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_cip_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_domestik_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_domestik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_hotwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_hotwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_inletpr_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_inletpr_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_lab_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_lab_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_labqc_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_labqc_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_lantai1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_lantai1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_loopo_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_loopo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_osmotron_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_osmotron_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_outletpr_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_outletpr_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_pdam_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_pdam_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_produksi_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_produksi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_ro_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_ro_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_softwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_softwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_taman_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_taman_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_toiletlt2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_toiletlt2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_washing_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_washing_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_workshop_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_workshop_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_wwtpbio_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_wwtpbio_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_wwtpkimia_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_wwtpkimia_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_alarm_wwtpoutlet_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_alarm_wwtpoutlet_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_A845A_2.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_A845A_2.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_FT845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_FT845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_LT560A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_LT560A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_P845A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_P845A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_PT845A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_PT845A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_PT845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_PT845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_QE845A_4.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_QE845A_4.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_QE845A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_QE845A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_RunHour_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_RunHour_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_TT845A_3.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_TT845A_3.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_lopo_V845A_3.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_lopo_V845A_3.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_B270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_B270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_ET270A_6.11_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_ET270A_6.11_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_ET270A_6.12_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_ET270A_6.12_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_FIT270A_5.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_FIT270A_5.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_FIT270_5.50_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_FIT270_5.50_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_FT270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_FT270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_FT270A_5.51_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_FT270A_5.51_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_FT270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_FT270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_FT270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_FT270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_11.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_11.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_12.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_12.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_13.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_13.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_5.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_5.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_P270A_7.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_P270A_7.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PDY270A_5.4_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PDY270A_5.4_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PDY270A_5.7_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PDY270A_5.7_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_5.4_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_5.4_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_5.5_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_5.5_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_5.6_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_5.6_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_5.7_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_5.7_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_5.8_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_5.8_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_PT270A_6.3_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_PT270A_6.3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_QE270A_11.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_QE270A_11.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_QE270A_12.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_QE270A_12.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_QE270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_QE270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_QE270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_QE270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_QE270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_QE270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_TE270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_TE270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_TE270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_TE270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_TT270A_5.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_TT270A_5.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_V270A_5.10_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_V270A_5.10_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_V270A_5.50_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_V270A_5.50_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_V270A_5.51_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_V270A_5.51_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_V270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_V270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_V270A_6.5_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_V270A_6.5_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_W270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_W270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
-      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY_osmo_WCF_Factor_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY_osmo_WCF_Factor_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_AirMancur_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_AirMancur_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Atas QC_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Atas QC_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_AtsToilet_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_AtsToilet_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Boiler_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Boiler_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_CIP_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_CIP_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Chiller_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Chiller_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Dom_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Dom_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_FT270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_FT270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Hotwater_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Hotwater_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Inlet_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Inlet_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Lab_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Lab_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Lantai1_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Lantai1_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Loopo_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Loopo_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Air Mancur_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Air Mancur_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Atas Lab QC_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Atas Lab QC_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Atas Toilet2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Atas Toilet2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Boiler_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Boiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_CIP_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_CIP_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Chiller_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Chiller_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Domestik_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Domestik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Hotwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Hotwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Inlet_Pt_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Inlet_Pt_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Lab_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Lab_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Lantai1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Lantai1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Loopo_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Loopo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Osmotron_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Osmotron_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Outlet_Pt_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Outlet_Pt_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_PDAM_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_PDAM_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Produksi_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Produksi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_RO_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_RO_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Softwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Softwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Taman_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Taman_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Washing_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Washing_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Met_Workshop_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Met_Workshop_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Osmotron_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Osmotron_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Outlet_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Outlet_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_PDAM_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_PDAM_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Produksi_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Produksi_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_QE845A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_QE845A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_QE845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_QE845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_RO_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_RO_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Softwater_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Softwater_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_TE845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_TE845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Taman_sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Taman_sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_WWTP_Biologi_1d_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_WWTP_Biologi_1d_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_WWTP_Biologi_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_WWTP_Biologi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_WWTP_Kimia_1d_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_WWTP_Kimia_1d_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_WWTP_Kimia_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_WWTP_Kimia_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_WWTP_Outlet_1d_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_WWTP_Outlet_1d_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_WWTP_Outlet_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_WWTP_Outlet_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Washing_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Washing_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_Workshop_Sehari_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_Workshop_Sehari_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_airmancur_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_airmancur_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_boiler_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_boiler_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_chiller_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_chiller_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_cip_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_cip_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_domestik_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_domestik_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_hotwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_hotwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_inletpr_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_inletpr_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_lab_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_lab_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_labqc_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_labqc_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_lantai1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_lantai1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_loopo_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_loopo_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_osmotron_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_osmotron_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_outletpr_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_outletpr_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_pdam_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_pdam_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_produksi_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_produksi_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_ro_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_ro_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_softwater_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_softwater_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_taman_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_taman_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_toiletlt2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_toiletlt2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_washing_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_washing_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_workshop_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_workshop_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_wwtpbio_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_wwtpbio_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_wwtpkimia_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_wwtpkimia_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_alarm_wwtpoutlet_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_alarm_wwtpoutlet_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_A845A_2.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_A845A_2.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_FT845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_FT845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_LT560A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_LT560A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_P845A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_P845A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_PT845A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_PT845A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_PT845A_8.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_PT845A_8.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_QE845A_4.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_QE845A_4.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_QE845A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_QE845A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_RunHour_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_RunHour_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_TT845A_3.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_TT845A_3.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_lopo_V845A_3.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_lopo_V845A_3.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_B270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_B270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_ET270A_6.11_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_ET270A_6.11_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_ET270A_6.12_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_ET270A_6.12_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_FIT270A_5.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_FIT270A_5.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_FIT270_5.50_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_FIT270_5.50_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_FT270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_FT270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_FT270A_5.51_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_FT270A_5.51_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_FT270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_FT270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_FT270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_FT270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_11.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_11.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_12.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_12.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_13.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_13.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_5.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_5.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_P270A_7.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_P270A_7.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PDY270A_5.4_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PDY270A_5.4_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PDY270A_5.7_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PDY270A_5.7_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_1.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_1.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_5.4_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_5.4_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_5.5_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_5.5_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_5.6_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_5.6_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_5.7_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_5.7_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_5.8_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_5.8_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_PT270A_6.3_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_PT270A_6.3_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_QE270A_11.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_QE270A_11.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_QE270A_12.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_QE270A_12.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_QE270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_QE270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_QE270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_QE270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_QE270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_QE270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_TE270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_TE270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_TE270A_6.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_TE270A_6.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_TT270A_5.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_TT270A_5.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_V270A_5.10_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_V270A_5.10_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_V270A_5.50_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_V270A_5.50_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_V270A_5.51_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_V270A_5.51_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_V270A_6.2_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_V270A_6.2_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_V270A_6.5_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_V270A_6.5_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_W270A_5.1_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_W270A_5.1_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
+      SELECT DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS \`Tanggal_cMT-DB-WATER-UTY2_osmo_WCF_Factor_data\` FROM \`parammachine_saka\`.\`cMT-DB-WATER-UTY2_osmo_WCF_Factor_data\` ORDER BY \`time@timestamp\` DESC LIMIT 1;
     `;
 
-    db3.query(fatchquerry, (err, result) => {
+    db3.query(fatchquerry, (err, result) => {   
       if (err) {
         console.log(err);
         return response.status(500).send("Database query failed");
