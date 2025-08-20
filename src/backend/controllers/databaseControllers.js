@@ -6402,7 +6402,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         return response.status(400).send({ error: "Shift tidak valid" });
       }
 
-      //console.log(queryGet);
+      console.log(queryGet);
       db3.query(queryGet, (err, result) => {
         if (err) {
           console.error("Database query error:", err);
