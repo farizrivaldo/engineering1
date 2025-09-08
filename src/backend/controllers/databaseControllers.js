@@ -6770,7 +6770,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(200).send(result);
     });
   },
-
+ 
   LogoutData: async (req, res) => {
     const { id_char, logout_time } = req.body;
 
