@@ -2221,7 +2221,7 @@ LEFT JOIN
   // Chiller Status Backend
   ChillerStatus: async (request, response) => {
     const { start, finish, chiller, komp } = request.query;
-  
+    
     const queryGet = `
     SELECT * FROM (
       SELECT
