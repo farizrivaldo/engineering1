@@ -10,7 +10,7 @@ const {
   query4,
   query5,
 } = require("../database");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("../helpers/nodemailers");
 const { request, response } = require("express");
@@ -22,6 +22,9 @@ const cors = require("cors");
 const express = require("express");
 
 const app = express(); // Tambahkan ini jika belum ada
+
+const fs = require('fs');
+const csv = require('csv-parser');
 
 //db  = 55, paramachine_saka
 //db2 = 55, ems_saka
@@ -35,6 +38,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+const CSV_FILE_PATH = 'C:\\Users\\Acer\\Documents\\GitHub\\engineering1\\src\\backend\\excel\\PMP MAINTENANCE 2025 - NOV 25.csv';
+const DB_TABLE_NAME = 'extracted_maintenance_data'; 
+const HEADER_ROW_INDEX = 5;
+const FINAL_COLUMNS = ['machine_name', 'asset_number', 'wo_no'];
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -161,7 +169,7 @@ module.exports = {
       return response.status(200).send(result);
     });
   },
-
+  
   fetchEdit: async (request, response) => {
     var fatchquerry = `SELECT * FROM parammachine_saka.part`;
 
@@ -4096,37 +4104,37 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
-  FBDRecord3: async (request, response) => {
-    const { start, finish } = request.query;
-    const queryGet = `
-        SELECT 
-            data_index AS x, 
-            CONVERT(data_format_0 USING utf8) AS BATCH,
-            DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
-        FROM 
-            \`parammachine_saka\`.\`cMT-GEA-L3_EBR_FBD_L3_data\`
-        WHERE 
-            DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
-        GROUP BY 
-            data_format_0
-        ORDER BY
-            label;
-    `;
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db.query(queryGet, (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          resolve(result);
+    FBDRecord3: async (request, response) => {
+      const { start, finish } = request.query;
+      const queryGet = `
+          SELECT 
+              data_index AS x, 
+              CONVERT(data_format_0 USING utf8) AS BATCH,
+              DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
+          FROM 
+              \`parammachine_saka\`.\`cMT-GEA-L3_EBR_FBD_L3_data\`
+          WHERE 
+              DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
+          GROUP BY 
+              data_format_0
+          ORDER BY
+              label;
+      `;
+      try {
+        const result = await new Promise((resolve, reject) => {
+          db.query(queryGet, (err, result) => {
+            if (err) {
+              return reject(err);
+            }
+            resolve(result);
+          });
         });
-      });
-      return response.status(200).send(result);
-    } catch (error) {
-      console.error(error);
-      return response.status(500).send("Database query failed");
-    }
-  },
+        return response.status(200).send(result);
+      } catch (error) {
+        console.error(error);
+        return response.status(500).send("Database query failed");
+      }
+    },
 
   EPHRecord3: async (request, response) => {
     const { start, finish } = request.query;
@@ -6310,6 +6318,8 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return response.status(200).send(result);
     });
   },
+
+  
   //-------------------------Mesin Report--------------------------
 
   HM1Report: async (request, response) => {
@@ -6344,8 +6354,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL AND mesin = ?
         `;
 
+
+
         //console.log(selectQuery);
         db3.query(selectQuery, [tanggal, shift, area], (err, rows) => {
+          console.log('Backend Raw Query Results:', rows); 
           if (err) {
             console.error("Select error:", err);
             return response.status(500).send({ error: "Select error" });
@@ -6353,6 +6366,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           return response.status(200).send(rows);
         });
       };
+      
 
       if (existResult.length > 0) {
         return sendFilteredResponse();
@@ -6692,7 +6706,61 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     }
   },
 
+
+  // New function to fetch ONLY planned downtime records
+
+
+// You would then register this in your router:
+// router.get('/GetPlannedDowntime', GetPlannedDowntime);
+
   //-------------------------Data Login--------------------------
+
+  GetPlannedDowntime: async (request, response) => {
+    const { tanggal, shift, area } = request.query;
+
+    if (!tanggal || !shift || !area) {
+        return response
+            .status(400)
+            .send({ error: "Tanggal, shift, dan area harus diisi." });
+    }
+
+    // FIX: Normalize the shift parameter to match the database value ('1', '2', or '3').
+    const normalizedShift = shift.toString().replace(/\D/g, '').trim(); 
+    if (!normalizedShift) {
+        return response.status(400).send({ error: "Shift tidak valid." });
+    }
+
+    // The Direct SQL Query
+    const plannedQuery = `
+        SELECT 
+            id,
+            DATE_FORMAT(start, '%H:%i') AS start,
+            DATE_FORMAT(finish, '%H:%i') AS finish,
+            total_menit,
+            downtime_type,
+            detail,
+            keterangan
+        FROM 
+            Downtime_Mesin
+        WHERE 
+            DATE(start) = ? 
+            AND TRIM(shift) = ? 
+            AND TRIM(mesin) = ?
+            AND downtime_type = 'Planned'  -- **<< Filters only 'Planned' records**
+        ORDER BY start
+    `;
+
+    const queryParams = [tanggal, normalizedShift, area];
+
+    db3.query(plannedQuery, queryParams, (err, rows) => {
+        if (err) {
+            console.error("Planned Downtime Select error:", err);
+            return response.status(500).send({ error: "Database error fetching planned data." });
+        }
+        
+        return response.status(200).send(rows);
+    });
+},
 
   LoginData: async (req, res) => {
     const { name, id, isAdmin, level, imagePath, loginAt, email } = req.body;
@@ -6795,4 +6863,1075 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       return res.status(200).send({ message: "Logout time berhasil diupdate" });
     });
   },
-};
+
+// Function to fetch downtime records based on user filters
+// Function to fetch downtime records based on user filters
+downtimeAnalysis: async (request, response) => {
+    const { tanggal, shift, area } = request.query; 
+
+    // Validate essential fields
+    if (!tanggal || !shift || !area) {
+        return response.status(400).send({ error: "Tanggal, shift, dan area (machine) harus diisi" });
+    }
+
+    // 🔴 FIX: Use '?' placeholders for secure, parameterized query
+    const queryGetChartData = `
+        SELECT 
+            id,
+            total_menit, 
+            downtime_type,
+            detail,
+            keterangan
+        FROM 
+            Downtime_Mesin
+        WHERE 
+            DATE(start) = ? 
+            AND shift = ? 
+            AND mesin = ?
+            AND downtime_type IS NOT NULL 
+            AND detail IS NOT NULL
+        ORDER BY
+            start ASC;
+    `;
+    
+    // Create an array of values corresponding to the placeholders (?)
+    const queryValues = [tanggal, shift, area];
+
+    try {
+        // 🔴 FIX: Convert to promise for cleaner error handling 
+        const result = await new Promise((resolve, reject) => {
+            // Pass the query string and the array of values
+            db3.query(queryGetChartData, queryValues, (err, data) => {
+                if (err) return reject(err);
+                resolve(data);
+            });
+        });
+        
+        // Success: Return the results
+        return response.status(200).send(result);
+        
+    } catch (error) {
+        // This catch now handles both the promise rejection and any other runtime errors
+        console.error("Server error in downtimeAnalysis:", error);
+        return response.status(500).send({ error: "Terjadi kesalahan pada server saat fetching analysis data" });
+    }
+}, // <-- Ensure this is correctly part of module.exports
+bulkImportPMPData: async (request, response) => {
+    let currentRow = 0;
+    
+    try {
+        console.log("✅ Starting bulk data import via Database Controller.");
+        
+        const records = [];
+
+        // This process MUST be wrapped in a Promise to use await
+        await new Promise((resolve, reject) => {
+            fs.createReadStream(CSV_FILE_PATH)
+                .pipe(csv())
+                .on('data', (row) => {
+                    if (currentRow >= HEADER_ROW_INDEX) {
+                        const cleanedRow = {};
+                        let isDataRow = false; 
+
+                        FINAL_COLUMNS.forEach(finalName => {
+                             // 'finalName' will be 'Nama Mesin', 'Asset Number', etc.
+                             const value = row[finalName]; 
+                             cleanedRow[finalName] = value || null;
+
+                             // FIX: Check against the correct column 'Nama Mesin'
+                             if (finalName === 'Nama Mesin' && value) {
+                                isDataRow = true;
+                             }
+                        });
+
+                        if (isDataRow) {
+                            records.push(cleanedRow);
+                        }
+                    }
+                    currentRow++;
+                })
+                .on('end', () => {
+                    console.log(`✅ CSV parsing and cleanup complete. Found ${records.length} clean records.`);
+                    resolve();
+                })
+                .on('error', reject);
+        });
+
+        if (records.length === 0) {
+            console.log("No data found to import.");
+            return response.status(200).send({ message: "No data imported or 0 rows found." });
+        }
+
+        // --- 2. CONSTRUCT AND EXECUTE MYSQL BATCH INSERT (Callback Style) ---
+        const columns = `(\`${FINAL_COLUMNS.join('\`, \`')}\`)`;
+        const values = records.map(record => FINAL_COLUMNS.map(col => record[col]));
+        const sql = `INSERT INTO \`${DB_TABLE_NAME}\` ${columns} VALUES ?`;
+
+        connectionToUse.query(sql, [values], (err, result) => {
+            if (err) {
+                console.error('❌ Database Insertion Error:', err.message);
+                return response.status(500).send({ error: "Database insertion failed", details: err.message });
+            }
+            console.log(`✨ Data import successful. Inserted ${result.affectedRows} rows.`);
+            return response.status(200).send({ message: "Import successful", insertedRows: result.affectedRows });
+        });
+
+    } catch (error) {
+        console.error('❌ File/Parsing Error:', error.message);
+        return response.status(500).send({ error: "File processing failed", details: error.message });
+    }
+  },
+
+createPMPData: async (request, response) => {
+        const { machine_name, asset_number, wo_no, operations, month } = request.body;
+        
+        const sql = "INSERT INTO extracted_maintenance_data (machine_name, asset_number, wo_no, operations, month) VALUES (?, ?, ?, ?, ?)";
+        
+        db4.query(sql, [machine_name, asset_number, wo_no, operations, month], (err, result) => {
+            if (err) {
+                console.error('❌ Database CREATE Error:', err.message);
+                return response.status(500).send({ error: "Database insertion failed", details: err.message });
+            }
+            console.log(`✨ Record created with ID: ${result.insertId}`);
+            return response.status(201).send({ message: "Record created", insertedId: result.insertId });
+        });
+    },
+
+    /**
+     * READ: Get all PMP records
+     * Called by: GET /part/pmp-data
+     */
+    readPMPData: async (request, response) => {
+        const sql = "SELECT * FROM extracted_maintenance_data ORDER BY record_id DESC";
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error:', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    /**
+     * UPDATE: Update an existing PMP record
+     * Called by: PUT /part/pmp-data/:id
+     */
+    updatePMPData: async (request, response) => {
+        const { id } = request.params;
+        const { machine_name, asset_number, wo_no, operations, month } = request.body;
+        
+        const sql = "UPDATE extracted_maintenance_data SET machine_name = ?, asset_number = ?, wo_no = ?, operations = ?, month = ? WHERE record_id = ?";
+        
+        db4.query(sql, [machine_name, asset_number, wo_no, operations, month, id], (err, result) => {
+            if (err) {
+                console.error('❌ Database UPDATE Error:', err.message);
+                return response.status(500).send({ error: "Database update failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Record not found, no update performed." });
+            }
+            console.log(`✨ Record ${id} updated.`);
+            return response.status(200).send({ message: "Record updated" });
+        });
+    },
+
+    /**
+     * DELETE: Delete a PMP record
+     * Called by: DELETE /part/pmp-data/:id
+     */
+    deletePMPData: async (request, response) => {
+        const { id } = request.params;
+        const sql = "DELETE FROM extracted_maintenance_data WHERE record_id = ?";
+        
+        db4.query(sql, [id], (err, result) => {
+            if (err) {
+                console.error('❌ Database DELETE Error:', err.message);
+                return response.status(500).send({ error: "Database delete failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Record not found, no deletion performed." });
+            }
+            console.log(`✨ Record ${id} deleted.`);
+            return response.status(200).send({ message: "Record deleted" });
+        });
+    },
+
+    getMachinesList: async (request, response) => {
+        const sql = "SELECT machine_id, machine_name, asset_number FROM pmp_machines";
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (pmp_machines):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+
+    // Master Data PMP Machines CRUD Operations //
+    getMachinesList: async (request, response) => {
+        const sql = "SELECT machine_id, machine_name, asset_number FROM pmp_machines ORDER BY machine_name";
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (pmp_machines):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    /**
+     * READ: Get all default operations for a *specific machine*
+     * Called by: GET /part/default-operations/:machine_id
+     */
+    getDefaultOperations: async (request, response) => {
+        const { machine_id } = request.params;
+        const sql = "SELECT * FROM pmp_default_operations WHERE machine_id = ? ORDER BY default_op_id";
+        
+        db4.query(sql, [machine_id], (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (default_ops):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    /**
+     * CREATE: Add a new default operation
+     * Called by: POST /part/default-operations
+     */
+   createDefaultOperation: async (request, response) => {
+        // Now expecting an array of descriptions
+        const { machine_id, descriptions } = request.body; 
+
+        if (!machine_id || !descriptions || !Array.isArray(descriptions) || descriptions.length === 0) {
+            return response.status(400).send({ error: "Invalid input: machine_id and a non-empty descriptions array are required." });
+        }
+
+        // --- Build a Bulk Insert Query ---
+        // 1. Create the placeholders: (?, ?), (?, ?), (?, ?)
+        const placeholders = descriptions.map(() => "(?, ?)").join(', ');
+        
+        // 2. Create the data array: [1, 'Desc1', 1, 'Desc2', 1, 'Desc3']
+        const values = [];
+        descriptions.forEach(desc => {
+            values.push(machine_id, desc);
+        });
+
+        const sql = `INSERT INTO pmp_default_operations (machine_id, description) VALUES ${placeholders}`;
+        
+        db4.query(sql, values, (err, result) => {
+            if (err) {
+                console.error('❌ Database BATCH CREATE Error (default_ops):', err.message);
+                return response.status(500).send({ error: "Database insertion failed", details: err.message });
+            }
+            console.log(`✨ ${result.affectedRows} default operations created.`);
+            return response.status(201).send({ message: "Operations created", insertedRows: result.affectedRows });
+        });
+    },
+
+    /**
+     * DELETE: Delete a default operation
+     * Called by: DELETE /part/default-operations/:op_id
+     */
+    deleteDefaultOperation: async (request, response) => {
+        const { op_id } = request.params;
+        const sql = "DELETE FROM pmp_default_operations WHERE default_op_id = ?";
+        
+        db4.query(sql, [op_id], (err, result) => {
+            if (err) {
+                console.error('❌ Database DELETE Error (default_ops):', err.message);
+                return response.status(500).send({ error: "Database delete failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Operation not found" });
+            }
+            console.log(`✨ Default operation ${op_id} deleted.`);
+            return response.status(200).send({ message: "Operation deleted" });
+        });
+    },
+
+    getAllOperationsList: async (request, response) => {
+        // 'DISTINCT' ensures we only get one copy of each description
+        const sql = "SELECT DISTINCT description FROM pmp_default_operations ORDER BY description";
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (all_ops):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            // Send back a simple array of strings: ["Check oil", "Clean filter", ...]
+            const descriptions = result.map(op => op.description);
+            return response.status(200).send(descriptions);
+        });
+    },
+
+    bulkImportPMPData: async (request, response) => {
+    console.log('Starting bulk import from JSON...');
+    
+    // 1. Get the array of jobs from the request body
+    const jobs = request.body; 
+
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+      return response.status(400).send({ error: "Missing job data array." });
+    }
+
+    let createdCount = 0;
+    const errors = [];
+    const db2Promise = db2.promise();
+
+    try {
+      // 2. Get ALL machines and default ops into maps
+      const [machines] = await db2Promise.query('SELECT machine_id, asset_number FROM pmp_machines');
+      const [defaultOps] = await db2Promise.query('SELECT machine_id, description FROM pmp_default_operations');
+
+      const machineMap = new Map(); // Map<asset_number, machine_id>
+      machines.forEach(m => machineMap.set(m.asset_number, m.machine_id));
+
+      const opsMap = new Map(); // Map<machine_id, string[]>
+      defaultOps.forEach(op => {
+        if (!opsMap.has(op.machine_id)) {
+          opsMap.set(op.machine_id, []);
+        }
+        opsMap.get(op.machine_id).push(op.description);
+      });
+      
+      console.log(`Loaded ${machineMap.size} machines and ${opsMap.size} operation templates.`);
+
+      // 3. Process each job from the JSON array
+      for (const job of jobs) {
+        const { asset_number, wo_number, scheduled_date } = job;
+
+        if (!asset_number || !wo_number || !scheduled_date) {
+          errors.push(`Skipping row, incomplete data: ${JSON.stringify(job)}`);
+          continue; 
+        }
+
+        const machineId = machineMap.get(asset_number);
+        if (!machineId) {
+          errors.push(`Machine not found for asset number: ${asset_number}`);
+          continue;
+        }
+
+        // --- This is the core logic ---
+        try {
+          // A) Create the Work Order
+          const [woResult] = await db2Promise.query(
+            'INSERT INTO pmp_work_orders (machine_id, wo_number, scheduled_date, status) VALUES (?, ?, ?, ?)',
+            [machineId, wo_number, scheduled_date, 'Open']
+          );
+          const newWorkOrderId = woResult.insertId;
+
+          // B) Find its default operations
+          const operationsToCopy = opsMap.get(machineId);
+
+          // C) Copy the operations
+          if (operationsToCopy && operationsToCopy.length > 0) {
+            const opsPlaceholders = operationsToCopy.map(() => '(?, ?)').join(', ');
+            const opsValues = [];
+            operationsToCopy.forEach(desc => {
+              opsValues.push(newWorkOrderId, desc);
+            });
+            
+            await db2Promise.query(
+              `INSERT INTO pmp_work_order_operations (work_order_id, description) VALUES ${opsPlaceholders}`,
+              opsValues
+            );
+          }
+          createdCount++;
+
+        } catch (err) {
+          if (err.code === 'ER_DUP_ENTRY') {
+            errors.push(`Skipped: Work Order ${wo_number} already exists.`);
+          } else {
+            errors.push(`Failed to import WO ${wo_number}: ${err.message}`);
+          }
+        }
+      }
+
+    } catch (err) {
+      console.error('Fatal import error:', err);
+      return response.status(500).send({ error: `Fatal import error: ${err.message}` });
+    }
+
+    // 4. Finished! Send response.
+    console.log(`Import finished. ${createdCount} jobs created.`);
+    if (errors.length > 0) {
+      return response.status(207).send({ 
+        message: `Import partially successful. ${createdCount} jobs created.`,
+        createdCount: createdCount,
+        errors: errors 
+      });
+    }
+
+    return response.status(201).send({ 
+      message: `Import successful. ${createdCount} jobs created.`,
+      createdCount: createdCount
+    });
+  },
+
+ bulkImportPendingJobs: async (request, response) => {
+    console.log('Starting bulk JSON import to holding pen...');
+    
+    // 1. Get the array of jobs from the request body
+    const jobs = request.body; 
+    
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+      return response.status(400).send({ error: "Missing job data array." });
+    }
+
+    let createdCount = 0;
+    const errors = [];
+    const db4Promise = db4.promise(); // Use promise-based connection
+
+    try {
+      // 2. Get ALL machines into a map for fast lookup
+      const [machines] = await db4Promise.query('SELECT machine_id, asset_number FROM pmp_machines');
+      const machineMap = new Map(); // Map<asset_number, machine_id>
+      machines.forEach(m => machineMap.set(m.asset_number, m.machine_id));
+      
+      console.log(`Loaded ${machineMap.size} machines.`);
+
+      // 3. Process each job from the JSON array
+      for (const job of jobs) {
+        const { asset_number, wo_number } = job;
+
+        if (!asset_number || !wo_number) {
+          errors.push(`Skipping row, incomplete data: ${JSON.stringify(job)}`);
+          continue; 
+        }
+
+        const machineId = machineMap.get(asset_number);
+        if (!machineId) {
+          errors.push(`Machine not found for asset: ${asset_number} (WO: ${wo_number})`);
+          continue;
+        }
+
+        // 4. Insert into the pending_jobs table
+        try {
+            await db4Promise.query(
+                'INSERT INTO pmp_pending_jobs (machine_id, wo_number, status) VALUES (?, ?, ?)',
+                [machineId, wo_number, 'Pending']
+            );
+            createdCount++;
+
+        } catch (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                errors.push(`Skipped: WO ${wo_number} already exists.`);
+            } else {
+                errors.push(`Failed to import WO ${wo_number}: ${err.message}`);
+            }
+        }
+      } // End of for...loop
+
+    } catch (err) {
+      console.error('Fatal import error:', err);
+      return response.status(500).send({ error: `Fatal import error: ${err.message}` });
+    }
+
+    // 5. Finished!
+    console.log(`Import finished. ${createdCount} pending jobs created.`);
+    
+    return response.status(201).send({ 
+        message: `Import successful. ${createdCount} jobs added to the pending list.`,
+        createdCount: createdCount,
+        errors: errors 
+    });
+  },
+
+  readPendingJobs: async (request, response) => {
+        // We JOIN with pmp_machines to get the user-friendly names
+        const sql = `
+            SELECT 
+                pj.pending_id, 
+                pj.wo_number,
+                m.machine_name,
+                m.asset_number
+            FROM pmp_pending_jobs AS pj
+            JOIN pmp_machines AS m ON pj.machine_id = m.machine_id
+            WHERE pj.status = 'Pending'
+            ORDER BY pj.wo_number;
+        `;
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (pending_jobs):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    createPendingJob: async (request, response) => {
+        // Note: We get machine_id directly from the frontend
+        const { machine_id, wo_number } = request.body;
+
+        if (!machine_id || !wo_number) {
+            return response.status(400).send({ error: "Missing machine_id or wo_number" });
+        }
+        
+        const sql = "INSERT INTO pmp_pending_jobs (machine_id, wo_number, status) VALUES (?, ?, ?)";
+        
+        db2.query(sql, [machine_id, wo_number, 'Pending'], (err, result) => {
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return response.status(409).send({ error: "That Work Order number already exists." });
+                }
+                console.error('❌ Database CREATE Error (pending_job):', err.message);
+                return response.status(500).send({ error: "Database insertion failed", details: err.message });
+            }
+            return response.status(201).send({ message: "Pending job created", insertedId: result.insertId });
+        });
+    },
+
+    /**
+     * UPDATE: Update a pending job (e.g., fix a typo in the WO number)
+     * Called by: PUT /part/pending-job/:id
+     */
+    updatePendingJob: async (request, response) => {
+        const { id } = request.params; // This is the 'pending_id'
+        const { machine_id, wo_number } = request.body;
+        
+        const sql = "UPDATE pmp_pending_jobs SET machine_id = ?, wo_number = ? WHERE pending_id = ?";
+
+        db4.query(sql, [machine_id, wo_number, id], (err, result) => {
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return response.status(409).send({ error: "That Work Order number already exists." });
+                }
+                console.error('❌ Database UPDATE Error (pending_job):', err.message);
+                return response.status(500).send({ error: "Database update failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Job not found" });
+            }
+            return response.status(200).send({ message: "Pending job updated" });
+        });
+    },
+
+    /**
+     * DELETE: Delete a job from the pending list
+     * Called by: DELETE /part/pending-job/:id
+     */
+    deletePendingJob: async (request, response) => {
+        const { id } = request.params; // This is the 'pending_id'
+        const sql = "DELETE FROM pmp_pending_jobs WHERE pending_id = ?";
+        
+        db4.query(sql, [id], (err, result) => {
+            if (err) {
+                console.error('❌ Database DELETE Error (pending_job):', err.message);
+                return response.status(500).send({ error: "Database delete failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Job not found" });
+            }
+            return response.status(200).send({ message: "Pending job deleted" });
+        });
+    },
+
+    /**
+     * ASSIGN JOBS: This is the core logic.
+     * It moves jobs from 'pending' to 'live' work orders.
+     * Called by: POST /part/assign-jobs
+     */
+   assignJobs: async (request, response) => {
+        const { jobIds, scheduled_date } = request.body; 
+
+        if (!jobIds || !scheduled_date || jobIds.length === 0) {
+            return response.status(400).send({ error: "Missing job IDs or scheduled date." });
+        }
+
+        // Get the promise-wrapped version of your single db4 connection
+        const db4Promise = db4.promise();
+        let assignedCount = 0;
+        const errors = [];
+
+        for (const pendingId of jobIds) {
+            // We no longer need 'let connection' here
+            try {
+                // --- THIS IS THE FIX ---
+                // We start the transaction directly on the db4 connection
+                await db4Promise.beginTransaction(); 
+
+                // 1. Get the pending job info
+                const [pendingRows] = await db4Promise.query(
+                    'SELECT machine_id, wo_number FROM pmp_pending_jobs WHERE pending_id = ? AND status = ?',
+                    [pendingId, 'Pending']
+                );
+
+                if (pendingRows.length === 0) {
+                    throw new Error(`Job ID ${pendingId} is not pending.`);
+                }
+                const pendingJob = pendingRows[0];
+                const machineId = pendingJob.machine_id;
+
+                // 2. Create the new "live" work order
+                const [woResult] = await db4Promise.query(
+                    'INSERT INTO pmp_work_orders (machine_id, wo_number, scheduled_date, status) VALUES (?, ?, ?, ?)',
+                    [machineId, pendingJob.wo_number, scheduled_date, 'Open']
+                );
+                const newWorkOrderId = woResult.insertId;
+
+                // 3. Find all default operations
+                const [opsToCopy] = await db4Promise.query(
+                    'SELECT description FROM pmp_default_operations WHERE machine_id = ?',
+                    [machineId]
+                );
+
+                // 4. Copy those operations
+                if (opsToCopy.length > 0) {
+                    const opsPlaceholders = opsToCopy.map(() => '(?, ?)').join(', ');
+                    const opsValues = [];
+                    opsToCopy.forEach(op => {
+                        opsValues.push(newWorkOrderId, op.description);
+                    });
+                    
+                    await db4Promise.query(
+                        `INSERT INTO pmp_work_order_operations (work_order_id, description) VALUES ${opsPlaceholders}`,
+                        opsValues
+                    );
+                }
+
+                // 5. Update the pending job to "Assigned"
+                await db4Promise.query(
+                    "UPDATE pmp_pending_jobs SET status = 'Assigned' WHERE pending_id = ?",
+                    [pendingId]
+                );
+
+                // 6. Commit changes for THIS job
+                await db4Promise.commit();
+                assignedCount++;
+
+            } catch (err) {
+                // If any step failed, roll back the transaction
+                await db4Promise.rollback();
+                
+                if (err.code === 'ER_DUP_ENTRY') {
+                    errors.push(`Failed for WO ${pendingId}: This Work Order number already exists in the live table.`);
+                } else {
+                    errors.push(`Failed for WO ${pendingId}: ${err.message}`);
+                }
+            }
+            // We don't use 'finally' or 'release()' because 
+            // we are re-using the same single connection for the next loop.
+        } // End of for...loop
+
+        // --- Response Logic ---
+        if (errors.length > 0 && assignedCount === 0) {
+            return response.status(409).send({ 
+                message: `All ${jobIds.length} jobs failed to assign. See errors.`,
+                assignedCount: 0,
+                errors: errors,
+            });
+        }
+        if (errors.length > 0) {
+            return response.status(207).send({ 
+                message: `Assignment partially successful. ${assignedCount} jobs assigned.`,
+                assignedCount: assignedCount,
+                errors: errors,
+            });
+        }
+        return response.status(201).send({
+            message: `Assignment complete. ${assignedCount} jobs assigned.`,
+            assignedCount: assignedCount,
+            errors: [],
+        });
+    },
+
+    updatePMPTechnician: async (request, response) => {
+        const { id } = request.params;
+        
+        // 1. Get all the new fields from the request body
+        const { 
+            technician_name, 
+            technician_note, 
+            status,
+            start_time,
+            completed_time 
+        } = request.body;
+        
+        // 2. A simple, direct SQL update query
+        const sql = `
+            UPDATE pmp_work_orders 
+            SET 
+                technician_name = ?,
+                technician_note = ?,
+                status = ?,
+                start_time = ?,
+                completed_time = ?
+            WHERE work_order_id = ?
+        `;
+        
+        // 3. Pass all variables to the query
+        db4.query(sql, [technician_name, technician_note, status, start_time, completed_time, id], (err, result) => {
+            if (err) {
+                console.error('❌ Database TECH UPDATE Error:', err.message);
+                return response.status(500).send({ error: "Database update failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Record not found" });
+            }
+            console.log(`✨ Tech Update on Record ${id} successful.`);
+            return response.status(200).send({ message: "Record updated by technician" });
+        });
+    },
+
+    getOperationsForWorkOrder: async (request, response) => {
+        const { work_order_id } = request.params;
+        const sql = "SELECT * FROM pmp_work_order_operations WHERE work_order_id = ?";
+        
+        db4.query(sql, [work_order_id], (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (wo_ops):', err.message);
+                return response.status(500).send({ error: "Read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    /**
+     * UPDATE: Update a *single* operation's status and note
+     * Called by: PUT /part/work-order-operation/:operation_id
+     */
+   updateWorkOrderOperation: async (request, response) => {
+        const { operation_id } = request.params;
+        const { technician_note } = request.body; // Only get the note
+
+        const sql = "UPDATE pmp_work_order_operations SET technician_note = ? WHERE operation_id = ?";
+        
+        db4.query(sql, [technician_note, operation_id], (err, result) => {
+            if (err) {
+                console.error('❌ Database UPDATE Error (wo_ops):', err.message);
+                return response.status(500).send({ error: "Update failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Operation not found" });
+            }
+            return response.status(200).send({ message: "Operation note updated" });
+        });
+    },
+
+    unassignWorkOrder: async (request, response) => {
+        const { id } = request.params; // This 'id' is the 'work_order_id'
+        const db4Promise = db4.promise();
+        let connection;
+
+        try {
+            connection = await db4Promise.getConnection();
+            await connection.beginTransaction(); // START TRANSACTION
+
+            // 1. Get the job's WO Number and Status before deleting
+            const [jobRows] = await connection.query(
+                'SELECT wo_number, status FROM pmp_work_orders WHERE work_order_id = ?',
+                [id]
+            );
+
+            if (jobRows.length === 0) {
+                throw new Error('Work Order not found.');
+            }
+            
+            const job = jobRows[0];
+            
+            // 2. Add a business rule: CANNOT unassign a job that's already in progress or finished
+            if (job.status !== 'Open') {
+                throw new Error(`Cannot unassign job. Status is already '${job.status}'.`);
+            }
+
+            // 3. Delete the "live" work order.
+            //    This will auto-delete its tasks in 'pmp_work_order_operations'
+            await connection.query('DELETE FROM pmp_work_orders WHERE work_order_id = ?', [id]);
+
+            // 4. Update the "pending" job, setting its status back to 'Pending'
+            await connection.query(
+                "UPDATE pmp_pending_jobs SET status = 'Pending' WHERE wo_number = ?",
+                [job.wo_number]
+            );
+
+            // 5. If all steps worked, commit the changes
+            await connection.commit();
+            
+            console.log(`✨ Job ${id} (WO: ${job.wo_number}) unassigned and returned to pending list.`);
+            return response.status(200).send({ message: `Work Order ${job.wo_number} has been unassigned.` });
+
+        } catch (err) {
+            // If any step failed, roll back all changes
+            if (connection) await connection.rollback();
+            console.error(`Failed to unassign job ${id}:`, err.message);
+            return response.status(500).send({ error: `Failed to unassign job: ${err.message}` });
+        } finally {
+            if (connection) connection.release();
+        }
+    },
+
+    getLiveWorkOrders: async (request, response) => {
+        // This SQL query JOINS the two tables to get the machine_name
+        const sql = `
+            SELECT 
+                wo.*, 
+                m.machine_name 
+            FROM pmp_work_orders AS wo
+            LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
+            ORDER BY wo.scheduled_date DESC;
+        `;
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (live_work_orders):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            // Send all results back to the frontend
+            return response.status(200).send(result);
+        });
+    },
+
+
+    createMachine: async (request, response) => {
+        const { machine_name, asset_number } = request.body;
+        
+        const sql = "INSERT INTO pmp_machines (machine_name, asset_number) VALUES (?, ?)";
+        
+        db4.query(sql, [machine_name, asset_number], (err, result) => {
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return response.status(409).send({ error: "Duplicate Entry", details: "That Asset Number already exists." });
+                }
+                console.error('❌ Database CREATE Error (pmp_machines):', err.message);
+                return response.status(500).send({ error: "Database insertion failed", details: err.message });
+            }
+            console.log(`✨ Machine created with ID: ${result.insertId}`);
+            return response.status(201).send({ message: "Machine created", insertedId: result.insertId });
+        });
+    },
+
+    /**
+     * READ: Get all machines
+     * Called by: GET /part/machines
+     */
+    readMachines: async (request, response) => {
+        // This is the same as your 'getMachinesList' function
+        const sql = "SELECT * FROM pmp_machines ORDER BY machine_name";
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (pmp_machines):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    /**
+     * UPDATE: Update an existing machine
+     * Called by: PUT /part/machines/:id
+     */
+    updateMachine: async (request, response) => {
+        const { id } = request.params;
+        const { machine_name, asset_number } = request.body;
+        
+        const sql = "UPDATE pmp_machines SET machine_name = ?, asset_number = ? WHERE machine_id = ?";
+        
+        db4.query(sql, [machine_name, asset_number, id], (err, result) => {
+            if (err) {
+                 if (err.code === 'ER_DUP_ENTRY') {
+                    return response.status(409).send({ error: "Duplicate Entry", details: "That Asset Number already exists." });
+                }
+                console.error('❌ Database UPDATE Error (pmp_machines):', err.message);
+                return response.status(500).send({ error: "Database update failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Machine not found" });
+            }
+            console.log(`✨ Machine ${id} updated.`);
+            return response.status(200).send({ message: "Machine updated" });
+        });
+    },
+
+    /**
+     * DELETE: Delete a machine
+     * Called by: DELETE /part/machines/:id
+     */
+    deleteMachine: async (request, response) => {
+        const { id } = request.params;
+        const sql = "DELETE FROM pmp_machines WHERE machine_id = ?";
+        
+        db4.query(sql, [id], (err, result) => {
+            if (err) {
+                // Handle foreign key constraint error
+                if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+                     return response.status(409).send({ error: "Cannot delete: Machine is in use", details: "This machine has pending jobs or operations. You must delete them first." });
+                }
+                console.error('❌ Database DELETE Error (pmp_machines):', err.message);
+                return response.status(500).send({ error: "Database delete failed", details: err.message });
+            }
+            if (result.affectedRows === 0) {
+                return response.status(404).send({ error: "Machine not found" });
+            }
+            console.log(`✨ Machine ${id} deleted.`);
+            return response.status(200).send({ message: "Machine deleted" });
+        });
+    },
+
+    getOpenJobCount: async (request, response) => {
+        const sql = "SELECT COUNT(*) as openJobs FROM pmp_work_orders WHERE status = 'Open'";
+        
+        db4.query(sql, (err, result) => {
+            if (err) {
+                console.error('❌ Database COUNT Error (work_orders):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            // Send back the count, e.g., { "openJobs": 5 }
+            return response.status(200).send(result[0]);
+        });
+    },
+
+    getCompletedJobs: async (request, response) => {
+        // Get filter parameters from the URL query (e.g., ?month=11&year=2025)
+        const { month, year } = request.query;
+        
+        const params = [];
+        let sql = `
+            SELECT 
+                wo.work_order_id, wo.wo_number, wo.scheduled_date, wo.status,
+                wo.start_time, wo.completed_time, wo.technician_name, wo.technician_note,
+                m.machine_name, m.asset_number
+            FROM pmp_work_orders AS wo
+            LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
+            WHERE wo.status = 'Finished'
+        `;
+
+        // Dynamically add filters if they exist
+        if (month) {
+            sql += " AND MONTH(wo.completed_time) = ?";
+            params.push(month);
+        }
+        if (year) {
+            sql += " AND YEAR(wo.completed_time) = ?";
+            params.push(year);
+        }
+
+        // Add sorting - This sorts by "most recently finished" by default
+        sql += " ORDER BY wo.completed_time DESC";
+
+        db4.query(sql, params, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (completed_jobs):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    getEBRData: async (request, response) => {
+        // Get filter parameters from the URL query
+        const { start_time, end_time, batch } = request.query;
+
+        // --- 1. Identify the table and connection ---
+        // I'm using 'db' (DB_DATABASE1) and the table name from your screenshot.
+        // PLEASE VERIFY this is the correct table name.
+// --- 1. Identify the table and connection ---
+        const TABLE_NAME = "`cMT-GEA-L3_PMA_KWmeter_data`"; 
+        const connectionToUse = db; // Using 'db2' for parammachine_saka
+
+        // --- 2. Build the SQL Query (UPDATED) ---
+        let params = [];
+        let sql = `
+            SELECT 
+                \`time@timestamp\` as timestamp, 
+                data_format_0 as batch_id, 
+                data_format_1 as process_id, 
+                data_format_2 as 'Chopper RPM',
+                data_format_3 as 'Chopper Current',
+                data_format_4 as 'Impeller RPM',
+                data_format_5 as 'Impeller Current',
+                data_format_6 as 'Impeller KWh'
+            FROM ${TABLE_NAME}
+            WHERE 1=1
+        `; // 'WHERE 1=1' is a trick to make appending 'AND' clauses easy
+
+        // Dynamically add filters if they were provided
+        if (start_time && end_time) {
+            sql += " AND \`time@timestamp\` BETWEEN ? AND ?";
+            params.push(start_time, end_time);
+        }
+        if (batch) {
+            sql += " AND data_format_0 = ?";
+            params.push(batch);
+        }
+
+        sql += " ORDER BY \`time@timestamp\` DESC"; // Show newest first
+
+        // --- 3. Execute the Query (using callback style) ---
+        connectionToUse.query(sql, params, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (EBR Data):', err.message);
+                return response.status(500).send({ error: "Database read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
+
+    /**
+     * Fetches all combined details for a single Work Order by its WO Number.
+     * This is used to auto-fill the entire form.
+     */
+getWorkOrderDetailsByNumber: async (request, response) => {
+        const { wo_number } = request.params;
+
+        // 1. GET MAIN DETAILS (Header + Time)
+        const mainSql = `
+            SELECT 
+                w.work_order_id, 
+                w.machine_id, 
+                w.technician_name, 
+                w.start_time,       
+                w.completed_time,   
+                w.scheduled_date, 
+                m.asset_number, 
+                m.asset_Area, 
+                m.gl_Charging, 
+                m.asset_Activity, 
+                m.wo_description 
+            FROM pmp_work_orders w
+            JOIN pmp_machines m ON w.machine_id = m.machine_id
+            WHERE w.wo_number = ?
+        `;
+
+        db4.query(mainSql, [wo_number], (err, mainResult) => {
+            if (err) return response.status(500).send({ error: "Read failed", details: err.message });
+            if (mainResult.length === 0) return response.status(404).send({ error: "Work Order not found" });
+
+            const mainData = mainResult[0];
+            const { work_order_id } = mainData; // We only need work_order_id now
+
+            // 2. GET OPERATIONS (Directly from the transaction table)
+            // We select rows that belong specifically to THIS work_order_id
+            const operationsSql = `
+                SELECT 
+                    operation_id AS id, 
+                    description, 
+                    technician_note 
+                FROM pmp_work_order_operations 
+                WHERE work_order_id = ?
+                ORDER BY operation_id ASC;
+            `;
+            
+            // Note: We only pass [work_order_id] now
+            db4.query(operationsSql, [work_order_id], (opsErr, opsResult) => {
+                if (opsErr) return response.status(500).send({ error: "Read failed", details: opsErr.message });
+
+                const responseData = {
+                    ...mainData,
+                    operations: opsResult 
+                };
+
+                return response.status(200).send(responseData);
+            });
+        });
+    },
+
+
+}

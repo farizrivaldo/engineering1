@@ -11,6 +11,9 @@ const axios = require("axios");
 const http = require("http");
 const WebSocket = require("ws");
 
+// Add this line with your other imports
+const databaseControllers = require("./controllers/databaseControllers.js");
+
 const port = 8002;
 const app = express();
 
@@ -241,6 +244,17 @@ wss.on("connection", (ws) => {
     }
   });
 });
+
+app.post(
+  "/api/import-pmp-data",
+  upload.single("pmpfile"), // We use your existing 'upload' middleware
+  databaseControllers.bulkImportPMPData
+);
+
+app.post(
+  '/api/bulk-import-pending',
+  databaseControllers.bulkImportPendingJobs // <-- Now it handles JSON
+);
 
 server.listen(port, () => {
   console.log("SERVER RUNNING IN PORT " + port);

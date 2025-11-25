@@ -4,6 +4,8 @@ const databaseControllers = require("../controllers/databaseControllers");
 const routers = express.Router();
 const { veryfyToken, checkRole } = require("../middleware/auth");
 
+routers.get("/downtimeAnalysis", databaseControllers.downtimeAnalysis);
+
 routers.get("/get", databaseControllers.getData);
 routers.get("/fetch", databaseControllers.fetchEdit);
 routers.post("/add", databaseControllers.addData);
@@ -229,4 +231,67 @@ routers.post("/HM1InsertDowntime", databaseControllers.HM1InsertDowntime);
 routers.post("/HM1InsertDowntimeWithSubRows", databaseControllers.HM1InsertDowntimeWithSubRows);
 routers.post("/LoginData", databaseControllers.LoginData);
 routers.post("/LogoutData", databaseControllers.LogoutData);
+
+routers.get('/GetPlannedDowntime', databaseControllers.GetPlannedDowntime);
+
+routers.get('/bulkImportPMPData', databaseControllers.bulkImportPMPData);
+
+// --- ADD YOUR NEW CRUD ROUTES HERE ---
+routers.post('/pmp-data', databaseControllers.createPMPData);
+routers.get('/pmp-data', databaseControllers.readPMPData);
+routers.put('/pmp-data/:id', databaseControllers.updatePMPData);
+routers.delete('/pmp-data/:id', databaseControllers.deletePMPData);
+
+routers.get("/machines-list", databaseControllers.getMachinesList);
+// --- END OF NEW ROUTES ---
+
+// --- PMP DEFAULT OPERATIONS (TEMPLATE) ROUTES ---
+routers.get("/default-operations/:machine_id", databaseControllers.getDefaultOperations);
+routers.post("/default-operations", databaseControllers.createDefaultOperation);
+routers.delete("/default-operations/:op_id", databaseControllers.deleteDefaultOperation)
+routers.get("/all-operations-list", databaseControllers.getAllOperationsList);
+
+// We removed the 'upload.single' middleware because we are sending JSON
+routers.post('/bulk-import-pmp', databaseControllers.bulkImportPMPData);
+
+// --- ADD THESE NEW ROUTES ---
+routers.post("/pending-job", databaseControllers.createPendingJob); // Create one
+routers.put("/pending-job/:id", databaseControllers.updatePendingJob); // Update one
+routers.delete("/pending-job/:id", databaseControllers.deletePendingJob); // Delete one
+
+// --- PMP DAILY ASSIGNMENT ROUTES ---
+routers.get("/pending-jobs", databaseControllers.readPendingJobs);
+routers.post("/assign-jobs", databaseControllers.assignJobs);
+
+// --- ADD THE NEW TECHNICIAN PAGE ROUTE ---
+routers.get("/live-work-orders", databaseControllers.getLiveWorkOrders);
+routers.put('/pmp-data-tech/:id', databaseControllers.updatePMPTechnician);
+
+// --- ADD THE NEW UNASSIGN ROUTE ---
+routers.put("/unassign-job/:id", databaseControllers.unassignWorkOrder);
+
+// In databaseRouter.js, this must exactly match the frontend:
+
+// --- PMP MACHINES (Master List) CRUD ROUTES ---
+routers.post("/machines", databaseControllers.createMachine);
+routers.get("/machines", databaseControllers.readMachines); // Note: This replaces '/machines-list'
+routers.put("/machines/:id", databaseControllers.updateMachine);
+routers.delete("/machines/:id", databaseControllers.deleteMachine);
+
+// --- TECHNICIAN'S OPERATIONS CHECKLIST ROUTES ---
+routers.get("/work-order-operations/:work_order_id", databaseControllers.getOperationsForWorkOrder);
+routers.put("/work-order-operation/:operation_id", databaseControllers.updateWorkOrderOperation);
+
+// --- ADD THIS ROUTE FOR THE NOTIFICATION BADGE ---
+routers.get("/open-jobs-count", databaseControllers.getOpenJobCount);
+
+// --- ADD THIS ROUTE FOR THE COMPLETED JOBS PAGE ---
+routers.get("/completed-jobs", databaseControllers.getCompletedJobs);
+
+// --- ADD THIS ROUTE FOR THE EBR EXPORT PAGE ---
+routers.get("/ebr-data-export", databaseControllers.getEBRData);
+
+routers.get("/work-order/details/:wo_number", databaseControllers.getWorkOrderDetailsByNumber);
+
 module.exports = routers;
+
