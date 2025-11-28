@@ -16,7 +16,7 @@ const veryfyToken = (req, res, next) => {
     // Verifikasi token
     const verifiedUser = jwt.verify(token, "khaerul");
     req.user = verifiedUser;
-    //console.log(verifiedUser); // Log user yang diverifikasi
+    // console.log(verifiedUser); // Log user yang diverifikasi
     next();
   } catch (err) {
     // Tangani error token, termasuk jika expired

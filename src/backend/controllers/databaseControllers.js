@@ -6354,8 +6354,6 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
           WHERE DATE(start) = ? AND shift = ? AND downtime_type IS NULL AND mesin = ?
         `;
 
-
-
         //console.log(selectQuery);
         db3.query(selectQuery, [tanggal, shift, area], (err, rows) => {
           console.log('Backend Raw Query Results:', rows); 
@@ -7376,7 +7374,7 @@ createPMPData: async (request, response) => {
         
         const sql = "INSERT INTO pmp_pending_jobs (machine_id, wo_number, status) VALUES (?, ?, ?)";
         
-        db2.query(sql, [machine_id, wo_number, 'Pending'], (err, result) => {
+        db4.query(sql, [machine_id, wo_number, 'Pending'], (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return response.status(409).send({ error: "That Work Order number already exists." });
@@ -7789,41 +7787,42 @@ createPMPData: async (request, response) => {
     },
 
     getCompletedJobs: async (request, response) => {
-        // Get filter parameters from the URL query (e.g., ?month=11&year=2025)
-        const { month, year } = request.query;
-        
-        const params = [];
-        let sql = `
-            SELECT 
-                wo.work_order_id, wo.wo_number, wo.scheduled_date, wo.status,
-                wo.start_time, wo.completed_time, wo.technician_name, wo.technician_note,
-                m.machine_name, m.asset_number
-            FROM pmp_work_orders AS wo
-            LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
-            WHERE wo.status = 'Finished'
-        `;
+    const { month, year } = request.query;
+    
+    const params = [];
+    // UPDATED SQL: Added approved_by and approved_date
+    let sql = `
+        SELECT 
+            wo.work_order_id, wo.wo_number, wo.scheduled_date, wo.status,
+            wo.start_time, wo.completed_time, wo.technician_name, wo.technician_note,
+            wo.approved_by, wo.approved_date, 
+            m.machine_name, m.asset_number
+        FROM pmp_work_orders AS wo
+        LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
+        WHERE wo.status = 'Approved' OR wo.status = 'Completed' 
+    `;
+    // Note: I added "OR wo.status = 'Approved'" above just in case 
+    // you want to see Approved jobs here too. If not, remove it.
 
-        // Dynamically add filters if they exist
-        if (month) {
-            sql += " AND MONTH(wo.completed_time) = ?";
-            params.push(month);
+    if (month) {
+        sql += " AND MONTH(wo.completed_time) = ?";
+        params.push(month);
+    }
+    if (year) {
+        sql += " AND YEAR(wo.completed_time) = ?";
+        params.push(year);
+    }
+
+    sql += " ORDER BY wo.completed_time DESC";
+
+    db4.query(sql, params, (err, result) => {
+        if (err) {
+            console.error('❌ Database READ Error (completed_jobs):', err.message);
+            return response.status(500).send({ error: "Database read failed", details: err.message });
         }
-        if (year) {
-            sql += " AND YEAR(wo.completed_time) = ?";
-            params.push(year);
-        }
-
-        // Add sorting - This sorts by "most recently finished" by default
-        sql += " ORDER BY wo.completed_time DESC";
-
-        db4.query(sql, params, (err, result) => {
-            if (err) {
-                console.error('❌ Database READ Error (completed_jobs):', err.message);
-                return response.status(500).send({ error: "Database read failed", details: err.message });
-            }
-            return response.status(200).send(result);
-        });
-    },
+        return response.status(200).send(result);
+    });
+},
 
     getEBRData: async (request, response) => {
         // Get filter parameters from the URL query
@@ -7890,6 +7889,8 @@ getWorkOrderDetailsByNumber: async (request, response) => {
                 w.start_time,       
                 w.completed_time,   
                 w.scheduled_date, 
+                w.approved_by,
+                w.approved_date,
                 m.asset_number, 
                 m.asset_Area, 
                 m.gl_Charging, 
@@ -7930,6 +7931,97 @@ getWorkOrderDetailsByNumber: async (request, response) => {
 
                 return response.status(200).send(responseData);
             });
+        });
+    },
+
+    approveWorkOrder: async (request, response) => {
+        const { wo_number } = request.params;
+        const { approver_name } = request.body; // e.g., "Fauzi Perdana"
+
+        // Update the row with the name and CURRENT timestamp
+        const sql = `
+            UPDATE pmp_work_orders 
+            SET approved_by = ?, approved_date = NOW() 
+            WHERE wo_number = ?
+        `;
+
+        db4.query(sql, [approver_name, wo_number], (err, result) => {
+            if (err) {
+                console.error("❌ Approval Error:", err);
+                return response.status(500).send({ error: "Approval failed" });
+            }
+            return response.status(200).send({ message: "Work Order Approved", approvedBy: approver_name });
+        });
+    },
+
+    submitForApproval: async (request, response) => {
+        const { wo_number } = request.params;
+        
+        // Update status to 'Pending Approval'
+        const sql = "UPDATE pmp_work_orders SET status = 'Pending Approval' WHERE wo_number = ?";
+
+        db4.query(sql, [wo_number], (err, result) => {
+            if (err) return response.status(500).send({ error: "Submission failed" });
+            return response.status(200).send({ message: "Submitted for Approval", status: "Pending Approval" });
+        });
+    },
+
+    // 1. Fetch list of WOs waiting for approval
+    getPendingApprovals: async (request, response) => {
+        const sql = `
+            SELECT 
+                w.wo_number, 
+                w.scheduled_date, 
+                w.technician_name, 
+                m.machine_name, 
+                m.asset_number
+            FROM pmp_work_orders w
+            JOIN pmp_machines m ON w.machine_id = m.machine_id
+            WHERE w.status = 'Pending Approval'
+            ORDER BY w.scheduled_date DESC
+        `;
+
+        db4.query(sql, (err, result) => {
+            if (err) return response.status(500).send({ error: "Fetch failed" });
+            return response.status(200).send(result);
+        });
+    },
+
+    // 2. Approve Multiple WOs at once
+    bulkApproveWorkOrders: async (request, response) => {
+        const { wo_numbers } = request.body;
+
+        // 1. Get the user data from the middleware
+        // (This works because your middleware did: req.user = verifiedUser)
+        const user = request.user; 
+        
+        // Safety check: In case middleware failed or wasn't used
+        if (!user) {
+            return response.status(401).send({ error: "User not authenticated" });
+        }
+
+        // 2. Get the name. 
+        // IMPORTANT: Check your database/login code to see what you called it.
+        // It is usually user.username, user.name, or user.fullname.
+        const approver_name = user.username || user.name || "Unknown Supervisor";
+
+        if (!wo_numbers || wo_numbers.length === 0) {
+            return response.status(400).send({ error: "No WOs selected" });
+        }
+
+        const placeholders = wo_numbers.map(() => '?').join(',');
+        
+        const sql = `
+            UPDATE pmp_work_orders 
+            SET status = 'Completed', approved_by = ?, approved_date = NOW() 
+            WHERE wo_number IN (${placeholders})
+        `;
+
+        const params = [approver_name, ...wo_numbers];
+
+        db4.query(sql, params, (err, result) => {
+            if (err) return response.status(500).send({ error: "Bulk approval failed" });
+            return response.status(200).send({ message: "Selected WOs Approved by " + approver_name });
         });
     },
 

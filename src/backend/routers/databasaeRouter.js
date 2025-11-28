@@ -293,5 +293,18 @@ routers.get("/ebr-data-export", databaseControllers.getEBRData);
 
 routers.get("/work-order/details/:wo_number", databaseControllers.getWorkOrderDetailsByNumber);
 
+// Add this line with your other routes
+routers.put('/work-order/approve/:wo_number', databaseControllers.approveWorkOrder);
+
+// Submit for approval route
+routers.put('/work-order/submit/:wo_number', databaseControllers.submitForApproval);
+
+routers.get('/work-orders/pending', databaseControllers.getPendingApprovals);
+routers.put(
+    '/work-orders/bulk-approve', 
+    veryfyToken,                 // <--- THIS DOES THE SECURITY CHECK
+    databaseControllers.bulkApproveWorkOrders
+);
+
 module.exports = routers;
 
