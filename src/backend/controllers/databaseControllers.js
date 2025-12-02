@@ -7543,7 +7543,6 @@ createPMPData: async (request, response) => {
     updatePMPTechnician: async (request, response) => {
         const { id } = request.params;
         
-        // 1. Get all the new fields from the request body
         const { 
             technician_name, 
             technician_note, 
@@ -7551,21 +7550,31 @@ createPMPData: async (request, response) => {
             start_time,
             completed_time 
         } = request.body;
-        
-        // 2. A simple, direct SQL update query
+
+        // --- THE FIX ---
+        // Manually format the date string to 'YYYY-MM-DD HH:MM:SS'
+        // This stops Node.js/MySQL driver from doing timezone math (-7 hours).
+        const formatDateForSQL = (isoString) => {
+            if (!isoString) return null;
+            // Takes "2025-11-23T10:30" and makes it "2025-11-23 10:30:00"
+            return isoString.replace('T', ' ') + ':00';
+        };
+
+        const formattedStart = formatDateForSQL(start_time);
+        const formattedComplete = formatDateForSQL(completed_time);
+
         const sql = `
             UPDATE pmp_work_orders 
             SET 
                 technician_name = ?,
                 technician_note = ?,
                 status = ?,
-                start_time = ?,
+                start_time = ?, 
                 completed_time = ?
             WHERE work_order_id = ?
         `;
         
-        // 3. Pass all variables to the query
-        db4.query(sql, [technician_name, technician_note, status, start_time, completed_time, id], (err, result) => {
+        db4.query(sql, [technician_name, technician_note, status, formattedStart, formattedComplete, id], (err, result) => {
             if (err) {
                 console.error('❌ Database TECH UPDATE Error:', err.message);
                 return response.status(500).send({ error: "Database update failed", details: err.message });
@@ -7573,7 +7582,6 @@ createPMPData: async (request, response) => {
             if (result.affectedRows === 0) {
                 return response.status(404).send({ error: "Record not found" });
             }
-            console.log(`✨ Tech Update on Record ${id} successful.`);
             return response.status(200).send({ message: "Record updated by technician" });
         });
     },
@@ -7665,11 +7673,26 @@ createPMPData: async (request, response) => {
         }
     },
 
-    getLiveWorkOrders: async (request, response) => {
-        // This SQL query JOINS the two tables to get the machine_name
+getLiveWorkOrders: async (request, response) => {
         const sql = `
             SELECT 
-                wo.*, 
+                -- 1. List the normal columns you need explicitly
+                wo.work_order_id,
+                wo.machine_id,
+                wo.wo_number,
+                wo.scheduled_date,
+                wo.status,
+                wo.technician_name,
+                wo.technician_note,
+                wo.approved_by,
+                wo.approved_date,
+
+                -- 2. THE FIX: Format the time columns as Strings
+                -- This stops the timezone conversion (+7 hours / -7 hours)
+                DATE_FORMAT(wo.start_time, '%Y-%m-%dT%H:%i') as start_time,
+                DATE_FORMAT(wo.completed_time, '%Y-%m-%dT%H:%i') as completed_time,
+
+                -- 3. Get the joined data
                 m.machine_name 
             FROM pmp_work_orders AS wo
             LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
@@ -7681,7 +7704,6 @@ createPMPData: async (request, response) => {
                 console.error('❌ Database READ Error (live_work_orders):', err.message);
                 return response.status(500).send({ error: "Database read failed", details: err.message });
             }
-            // Send all results back to the frontend
             return response.status(200).send(result);
         });
     },
@@ -7880,14 +7902,20 @@ createPMPData: async (request, response) => {
 getWorkOrderDetailsByNumber: async (request, response) => {
         const { wo_number } = request.params;
 
-        // 1. GET MAIN DETAILS (Header + Time)
+        // 1. GET MAIN DETAILS
         const mainSql = `
             SELECT 
                 w.work_order_id, 
                 w.machine_id, 
                 w.technician_name, 
-                w.start_time,       
-                w.completed_time,   
+                
+                -- --- THE FIX IS HERE ---
+                -- We format it inside SQL. This prevents Node.js from doing timezone math.
+                -- The 'T' in the middle makes it ready for the frontend input.
+                DATE_FORMAT(w.start_time, '%Y-%m-%dT%H:%i') as start_time,
+                DATE_FORMAT(w.completed_time, '%Y-%m-%dT%H:%i') as completed_time,
+                -- -----------------------
+
                 w.scheduled_date, 
                 w.approved_by,
                 w.approved_date,
@@ -7906,10 +7934,9 @@ getWorkOrderDetailsByNumber: async (request, response) => {
             if (mainResult.length === 0) return response.status(404).send({ error: "Work Order not found" });
 
             const mainData = mainResult[0];
-            const { work_order_id } = mainData; // We only need work_order_id now
+            const { work_order_id } = mainData; 
 
-            // 2. GET OPERATIONS (Directly from the transaction table)
-            // We select rows that belong specifically to THIS work_order_id
+            // 2. GET OPERATIONS 
             const operationsSql = `
                 SELECT 
                     operation_id AS id, 
@@ -7920,7 +7947,6 @@ getWorkOrderDetailsByNumber: async (request, response) => {
                 ORDER BY operation_id ASC;
             `;
             
-            // Note: We only pass [work_order_id] now
             db4.query(operationsSql, [work_order_id], (opsErr, opsResult) => {
                 if (opsErr) return response.status(500).send({ error: "Read failed", details: opsErr.message });
 
