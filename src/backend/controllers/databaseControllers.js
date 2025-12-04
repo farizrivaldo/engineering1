@@ -7341,24 +7341,24 @@ createPMPData: async (request, response) => {
     });
   },
 
-  readPendingJobs: async (request, response) => {
-        // We JOIN with pmp_machines to get the user-friendly names
+readPendingJobs: async (request, response) => {
         const sql = `
             SELECT 
                 pj.pending_id, 
                 pj.wo_number,
+                pj.created_at,
                 m.machine_name,
                 m.asset_number
             FROM pmp_pending_jobs AS pj
             JOIN pmp_machines AS m ON pj.machine_id = m.machine_id
-            WHERE pj.status = 'Pending'
+            WHERE pj.status = 'Pending' -- or 'Assigned', depending on your logic
             ORDER BY pj.wo_number;
         `;
         
         db4.query(sql, (err, result) => {
             if (err) {
-                console.error('❌ Database READ Error (pending_jobs):', err.message);
-                return response.status(500).send({ error: "Database read failed", details: err.message });
+                console.error('❌ Database READ Error:', err.message);
+                return response.status(500).send({ error: "Read failed" });
             }
             return response.status(200).send(result);
         });
