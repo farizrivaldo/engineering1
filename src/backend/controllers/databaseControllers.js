@@ -3680,7 +3680,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) AS label
         FROM 
-            \`ems_saka\`.\`cMT-FHDGEA1_EBR_PMA_data\`
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_PMA_new_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3690,7 +3690,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
     try {
       const result = await new Promise((resolve, reject) => {
-        db2.query(queryGet, (err, result) => {
+        db4.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -3744,7 +3744,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`ems_saka\`.\`cMT-FHDGEA1_EBR_Wetmill_data\`
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_Wetmill_new_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3754,7 +3754,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
     try {
       const result = await new Promise((resolve, reject) => {
-        db2.query(queryGet, (err, result) => {
+        db4.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -3776,7 +3776,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`ems_saka\`.\`cMT-FHDGEA1_EBR_FBD_data\`
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_FBD_new_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3810,7 +3810,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             CONVERT(data_format_0 USING utf8) AS BATCH,
             DATE(FROM_UNIXTIME(\`time@timestamp\`) + INTERVAL 4 HOUR) AS label
         FROM 
-            \`ems_saka\`.\`cMT-FHDGEA1_EBR_EPH_data\`
+            \`ems_saka\`.\`cMT-FHDGEA1_EBR_EPH_new_data\`
         WHERE 
             DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}'
         GROUP BY 
@@ -3820,7 +3820,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
     try {
       const result = await new Promise((resolve, reject) => {
-        db2.query(queryGet, (err, result) => {
+        db4.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -7808,43 +7808,55 @@ getLiveWorkOrders: async (request, response) => {
         });
     },
 
-    getCompletedJobs: async (request, response) => {
-    const { month, year } = request.query;
-    
-    const params = [];
-    // UPDATED SQL: Added approved_by and approved_date
-    let sql = `
-        SELECT 
-            wo.work_order_id, wo.wo_number, wo.scheduled_date, wo.status,
-            wo.start_time, wo.completed_time, wo.technician_name, wo.technician_note,
-            wo.approved_by, wo.approved_date, 
-            m.machine_name, m.asset_number
-        FROM pmp_work_orders AS wo
-        LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
-        WHERE wo.status = 'Approved' OR wo.status = 'Completed' 
-    `;
-    // Note: I added "OR wo.status = 'Approved'" above just in case 
-    // you want to see Approved jobs here too. If not, remove it.
+   getCompletedJobs: async (request, response) => {
+        // 1. Get the filters
+        const { month, year, date } = request.query;
 
-    if (month) {
-        sql += " AND MONTH(wo.completed_time) = ?";
-        params.push(month);
-    }
-    if (year) {
-        sql += " AND YEAR(wo.completed_time) = ?";
-        params.push(year);
-    }
+        let sql = `
+            SELECT 
+                wo.work_order_id,
+                wo.wo_number,
+                wo.status,
+                wo.technician_name,
+                wo.approved_by,
+                DATE_FORMAT(wo.completed_time, '%Y-%m-%dT%H:%i') as completed_time,
+                DATE_FORMAT(wo.approved_date, '%Y-%m-%d') as approved_date,
+                m.machine_name 
+            FROM pmp_work_orders AS wo
+            LEFT JOIN pmp_machines AS m ON wo.machine_id = m.machine_id
+            WHERE wo.status = 'Completed'
+        `;
 
-    sql += " ORDER BY wo.completed_time DESC";
+        const params = [];
 
-    db4.query(sql, params, (err, result) => {
-        if (err) {
-            console.error('❌ Database READ Error (completed_jobs):', err.message);
-            return response.status(500).send({ error: "Database read failed", details: err.message });
+        // 2. Apply Filters (PRIORITY: Date > Month/Year)
+        if (date) {
+            // If a specific date is provided, filter by that EXACT date
+            sql += ` AND DATE(wo.completed_time) = ?`;
+            params.push(date);
+        } 
+        else {
+            // Otherwise, check for Month/Year
+            if (month && year) {
+                sql += ` AND MONTH(wo.completed_time) = ? AND YEAR(wo.completed_time) = ?`;
+                params.push(month, year);
+            } else if (year) {
+                sql += ` AND YEAR(wo.completed_time) = ?`;
+                params.push(year);
+            }
         }
-        return response.status(200).send(result);
-    });
-},
+
+        // 3. Always sort by newest first
+        sql += ` ORDER BY wo.completed_time DESC`;
+        
+        db4.query(sql, params, (err, result) => {
+            if (err) {
+                console.error('❌ Database READ Error (completed_jobs):', err.message);
+                return response.status(500).send({ error: "Read failed", details: err.message });
+            }
+            return response.status(200).send(result);
+        });
+    },
 
     getEBRData: async (request, response) => {
         // Get filter parameters from the URL query
