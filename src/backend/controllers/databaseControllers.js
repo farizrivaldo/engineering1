@@ -4090,7 +4090,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
     try {
       const result = await new Promise((resolve, reject) => {
-        db.query(queryGet, (err, result) => {
+        db3.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -4122,7 +4122,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       `;
       try {
         const result = await new Promise((resolve, reject) => {
-          db.query(queryGet, (err, result) => {
+          db3.query(queryGet, (err, result) => {
             if (err) {
               return reject(err);
             }
@@ -4154,7 +4154,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     `;
     try {
       const result = await new Promise((resolve, reject) => {
-        db.query(queryGet, (err, result) => {
+        db3.query(queryGet, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -4807,9 +4807,9 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         const queryMap = `
           SELECT data_format_index, comment FROM \`${area}_format\`
         `;
-        db.query(queryCols, [area, ...excludeCols], (err, colResults) => {
+        db3.query(queryCols, [area, ...excludeCols], (err, colResults) => {
           if (err) return reject(err);
-          db.query(queryMap, (err2, mapResults) => {
+          db3.query(queryMap, (err2, mapResults) => {
             if (err2) return reject(err2);
 
             const columns = colResults.map(({ COLUMN_NAME }) => {
@@ -4867,7 +4867,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
       `;
 
       //console.log(query);
-      db.query(query, [`%${data}%`], (err, result) => {
+      db3.query(query, [`%${data}%`], (err, result) => {
         if (err) {
           console.error(err);
           return response.status(500).send("Database query failed");
@@ -4893,7 +4893,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
         AND TABLE_NAME = ?
         AND COLUMN_NAME NOT IN ('data_format_0')
       `;
-        db.query(query, [area], (err, results) => {
+        db3.query(query, [area], (err, results) => {
           if (err) return reject(err);
           const columns = results.map((result) => result.COLUMN_NAME);
           resolve(columns);
