@@ -7085,9 +7085,21 @@ createPMPData: async (request, response) => {
      * READ: Get all default operations for a *specific machine*
      * Called by: GET /part/default-operations/:machine_id
      */
-    getDefaultOperations: async (request, response) => {
+getDefaultOperations: async (request, response) => {
         const { machine_id } = request.params;
-        const sql = "SELECT * FROM pmp_default_operations WHERE machine_id = ? ORDER BY default_op_id";
+        
+        // This query does 3 things:
+        // 1. Finds the name of the requested machine (e.g., ID 234 -> "Ink Jet Printer")
+        // 2. Finds ALL machines with that same name.
+        // 3. Returns the operations associated with ANY of them.
+        const sql = `
+            SELECT DISTINCT op.* FROM pmp_default_operations op
+            JOIN pmp_machines source_m ON op.machine_id = source_m.machine_id
+            WHERE source_m.machine_name = (
+                SELECT machine_name FROM pmp_machines WHERE machine_id = ?
+            )
+            ORDER BY op.default_op_id
+        `;
         
         db4.query(sql, [machine_id], (err, result) => {
             if (err) {
@@ -7437,28 +7449,28 @@ readPendingJobs: async (request, response) => {
      * Called by: POST /part/assign-jobs
      */
    assignJobs: async (request, response) => {
-        const { jobIds, scheduled_date } = request.body; 
+        // 1. Receive technician_id from the frontend
+        const { jobIds, scheduled_date, technician_id } = request.body; 
 
         if (!jobIds || !scheduled_date || jobIds.length === 0) {
             return response.status(400).send({ error: "Missing job IDs or scheduled date." });
         }
 
-        // Get the promise-wrapped version of your single db4 connection
+        // Determine status: 'Assigned' if an ID is present, otherwise 'Open'
+        const initialStatus = technician_id ? 'Assigned' : 'Open';
+
         const db4Promise = db4.promise();
         let assignedCount = 0;
         const errors = [];
 
         for (const pendingId of jobIds) {
-            // We no longer need 'let connection' here
             try {
-                // --- THIS IS THE FIX ---
-                // We start the transaction directly on the db4 connection
                 await db4Promise.beginTransaction(); 
 
-                // 1. Get the pending job info
+                // 2. Get pending job info (Added 'category' to SELECT so we don't lose it)
                 const [pendingRows] = await db4Promise.query(
-                    'SELECT machine_id, wo_number FROM pmp_pending_jobs WHERE pending_id = ? AND status = ?',
-                    [pendingId, 'Pending']
+                    'SELECT machine_id, wo_number, category FROM pmp_pending_jobs WHERE pending_id = ?',
+                    [pendingId]
                 );
 
                 if (pendingRows.length === 0) {
@@ -7467,20 +7479,35 @@ readPendingJobs: async (request, response) => {
                 const pendingJob = pendingRows[0];
                 const machineId = pendingJob.machine_id;
 
-                // 2. Create the new "live" work order
+                // 3. Create the new work order with technician_id
                 const [woResult] = await db4Promise.query(
-                    'INSERT INTO pmp_work_orders (machine_id, wo_number, scheduled_date, status) VALUES (?, ?, ?, ?)',
-                    [machineId, pendingJob.wo_number, scheduled_date, 'Open']
+                    `INSERT INTO pmp_work_orders 
+                    (machine_id, wo_number, scheduled_date, status, category, technician_id) 
+                    VALUES (?, ?, ?, ?, ?, ?)`,
+                    [
+                        machineId, 
+                        pendingJob.wo_number, 
+                        scheduled_date, 
+                        initialStatus,         // Uses the logic defined above
+                        pendingJob.category,   // Persists 'Utility' or 'Maintenance'
+                        technician_id || null  // Inserts the ID (e.g., 66) or NULL
+                    ]
                 );
+                
                 const newWorkOrderId = woResult.insertId;
 
-                // 3. Find all default operations
-                const [opsToCopy] = await db4Promise.query(
-                    'SELECT description FROM pmp_default_operations WHERE machine_id = ?',
+                // 4. Find default operations
+                  const [opsToCopy] = await db4Promise.query(
+                    `SELECT DISTINCT op.description 
+                     FROM pmp_default_operations op
+                     JOIN pmp_machines source_m ON op.machine_id = source_m.machine_id
+                     WHERE source_m.machine_name = (
+                        SELECT machine_name FROM pmp_machines WHERE machine_id = ?
+                     )`,
                     [machineId]
                 );
 
-                // 4. Copy those operations
+                // 5. Copy operations
                 if (opsToCopy.length > 0) {
                     const opsPlaceholders = opsToCopy.map(() => '(?, ?)').join(', ');
                     const opsValues = [];
@@ -7494,47 +7521,46 @@ readPendingJobs: async (request, response) => {
                     );
                 }
 
-                // 5. Update the pending job to "Assigned"
+                console.log(`🔍 Debugging WO #${newWorkOrderId}:`);
+                console.log(`   > Looking for defaults for Machine ID: ${machineId}`);
+                console.log(`   > Found ${opsToCopy.length} default operations.`);
+
+                // 6. Update pending job
                 await db4Promise.query(
                     "UPDATE pmp_pending_jobs SET status = 'Assigned' WHERE pending_id = ?",
                     [pendingId]
                 );
 
-                // 6. Commit changes for THIS job
                 await db4Promise.commit();
                 assignedCount++;
 
             } catch (err) {
-                // If any step failed, roll back the transaction
                 await db4Promise.rollback();
                 
                 if (err.code === 'ER_DUP_ENTRY') {
-                    errors.push(`Failed for WO ${pendingId}: This Work Order number already exists in the live table.`);
+                    errors.push(`Failed for WO ${pendingId}: This Work Order number already exists.`);
                 } else {
                     errors.push(`Failed for WO ${pendingId}: ${err.message}`);
                 }
             }
-            // We don't use 'finally' or 'release()' because 
-            // we are re-using the same single connection for the next loop.
-        } // End of for...loop
+        }
 
         // --- Response Logic ---
         if (errors.length > 0 && assignedCount === 0) {
             return response.status(409).send({ 
-                message: `All ${jobIds.length} jobs failed to assign. See errors.`,
-                assignedCount: 0,
+                message: `All ${jobIds.length} jobs failed to assign.`,
                 errors: errors,
             });
         }
         if (errors.length > 0) {
             return response.status(207).send({ 
-                message: `Assignment partially successful. ${assignedCount} jobs assigned.`,
+                message: `Partial success. ${assignedCount} assigned.`,
                 assignedCount: assignedCount,
                 errors: errors,
             });
         }
         return response.status(201).send({
-            message: `Assignment complete. ${assignedCount} jobs assigned.`,
+            message: `Success! Assigned ${assignedCount} jobs to Technician ID: ${technician_id || 'None'}.`,
             assignedCount: assignedCount,
             errors: [],
         });
@@ -7586,17 +7612,60 @@ readPendingJobs: async (request, response) => {
         });
     },
 
-    getOperationsForWorkOrder: async (request, response) => {
+getOperationsForWorkOrder: async (request, response) => {
         const { work_order_id } = request.params;
-        const sql = "SELECT * FROM pmp_work_order_operations WHERE work_order_id = ?";
-        
-        db4.query(sql, [work_order_id], (err, result) => {
-            if (err) {
-                console.error('❌ Database READ Error (wo_ops):', err.message);
-                return response.status(500).send({ error: "Read failed", details: err.message });
+        const db4Promise = db4.promise(); // Use promise for cleaner async/await logic
+
+        try {
+            // 1. First, try to get the REAL saved operations
+            const [savedOps] = await db4Promise.query(
+                "SELECT * FROM pmp_work_order_operations WHERE work_order_id = ?", 
+                [work_order_id]
+            );
+
+            // ✅ If we found saved data, return it immediately.
+            if (savedOps.length > 0) {
+                console.log(`✅ Found ${savedOps.length} saved operations for WO ${work_order_id}`);
+                return response.status(200).send(savedOps);
             }
-            return response.status(200).send(result);
-        });
+
+            // ⚠️ IF WE ARE HERE, THE LIST IS EMPTY (The "Bug" Scenario)
+            console.log(`⚠️ WO ${work_order_id} has no operations. Attempting fallback fetch...`);
+
+            // 2. Get the machine_id for this Work Order
+            const [woDetails] = await db4Promise.query(
+                "SELECT machine_id FROM pmp_work_orders WHERE work_order_id = ?", 
+                [work_order_id]
+            );
+
+            if (woDetails.length === 0) {
+                return response.status(404).send({ error: "Work Order not found" });
+            }
+
+            const machineId = woDetails[0].machine_id;
+
+            // 3. The "Smart Query": Fetch defaults using the Machine NAME (Shared Templates)
+            // This allows Machine ID 234 to find defaults from Machine ID 6
+            const [fallbackOps] = await db4Promise.query(
+                `SELECT DISTINCT op.description 
+                 FROM pmp_default_operations op
+                 JOIN pmp_machines source_m ON op.machine_id = source_m.machine_id
+                 WHERE source_m.machine_name = (
+                    SELECT machine_name FROM pmp_machines WHERE machine_id = ?
+                 )`,
+                [machineId]
+            );
+
+            console.log(`✅ Fallback: Found ${fallbackOps.length} default operations via Smart Match.`);
+            
+            // Optional: You might want to format this to look like the real table
+            // (e.g., adding null for 'technician_note' or 'status')
+            return response.status(200).send(fallbackOps);
+
+        } catch (err) {
+            console.error('❌ Database Error (getOperationsForWorkOrder):', err.message);
+            return response.status(500).send({ error: "Read failed", details: err.message });
+        }
     },
 
     /**
