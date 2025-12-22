@@ -1,6 +1,7 @@
 const express = require("express");
 const databaseControllers = require("../controllers/databaseControllers");
 
+
 const routers = express.Router();
 const { veryfyToken, checkRole } = require("../middleware/auth");
 
@@ -188,12 +189,14 @@ routers.get("/SearchFBDRecord1", databaseControllers.SearchFBDRecord1);
 routers.get("/SearchEPHRecord1", databaseControllers.SearchEPHRecord1);
 routers.get("/SearchTumblerRecord1", databaseControllers.SearchTumblerRecord1);
 routers.get("/SearchFetteRecord1", databaseControllers.SearchFetteRecord1);
+routers.get("/SearchWetMillRecord1", databaseControllers.SearchWetMillRecord1);
 
 routers.get("/SearchPMARecord3", databaseControllers.SearchPMARecord3);
 //routers.get("/SearchWetmillRecord3", databaseControllers.SearchWetmillRecord3);
 routers.get("/SearchFBDRecord3", databaseControllers.SearchFBDRecord3);
 routers.get("/SearchEPHRecord3", databaseControllers.SearchEPHRecord3);
 routers.get("/SearchHMRecord3", databaseControllers.SearchHMRecord3);
+routers.get("/SearchWetmillRecord3", databaseControllers.SearchWetmillRecord3);
 
 
 routers.post("/CreateParameter", databaseControllers.CreateParameter);
@@ -229,8 +232,8 @@ routers.get("/LogData", databaseControllers.LogData);
 routers.get("/alldowntime", databaseControllers.alldowntime);
 routers.post("/HM1InsertDowntime", databaseControllers.HM1InsertDowntime);
 routers.post("/HM1InsertDowntimeWithSubRows", databaseControllers.HM1InsertDowntimeWithSubRows);
-routers.post("/LoginData", databaseControllers.LoginData);
-routers.post("/LogoutData", databaseControllers.LogoutData);
+routers.post("/LoginData", veryfyToken, databaseControllers.loginData);
+routers.post("/LogoutData", veryfyToken, databaseControllers.logoutData);
 
 routers.get('/GetPlannedDowntime', databaseControllers.GetPlannedDowntime);
 
@@ -299,12 +302,26 @@ routers.put('/work-order/approve/:wo_number', databaseControllers.approveWorkOrd
 // Submit for approval route
 routers.put('/work-order/submit/:wo_number', databaseControllers.submitForApproval);
 
+routers.get('/users', databaseControllers.getUsers);
+
+
+
 routers.get('/work-orders/pending', databaseControllers.getPendingApprovals);
 routers.put(
     '/work-orders/bulk-approve', 
     veryfyToken,                 // <--- THIS DOES THE SECURITY CHECK
     databaseControllers.bulkApproveWorkOrders
 );
+
+routers.get("/live-work-orders", veryfyToken, databaseControllers.liveWorkOrders);
+
+routers.get(
+  "/live-work-orders-assigned",
+  veryfyToken,
+  databaseControllers.liveWorkOrdersAssigned
+);
+
+routers.get("/technicians", veryfyToken, databaseControllers.getTechnicians);
 
 module.exports = routers;
 
