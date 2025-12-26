@@ -323,5 +323,7 @@ routers.get(
 
 routers.get("/technicians", veryfyToken, databaseControllers.getTechnicians);
 
+routers.get("/vortexdata", databaseControllers.getVortexData);
+
 module.exports = routers;
 

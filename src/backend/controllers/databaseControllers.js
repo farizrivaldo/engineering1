@@ -8845,5 +8845,48 @@ getTechnicians: async (req, res) => {
     }
   },
 
+ getVortexData: async (req, res) => {
+    try {
+      console.log('\n========== GET VORTEX DATA ==========');
+      console.log('Fetching all records from vortex_flowmeter');
+
+      // We format the date here so the frontend receives a clean string
+      const sql = `
+        SELECT 
+          id, 
+          totalizer, 
+          flowmeter, 
+          suhu, 
+          tekanan, 
+          DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as formatted_date
+        FROM vortex_flowmeter 
+        ORDER BY created_at ASC
+      `;
+
+      const data = await new Promise((resolve, reject) => {
+        db3.query(sql, (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        });
+      });
+
+      console.log(`Found ${data.length} records`);
+      console.log('====================================\n');
+
+      return res.status(200).send({
+        message: "Vortex data fetched successfully",
+        data: data
+      });
+
+    } catch (error) {
+      console.error('❌ Error fetching vortex data:', error);
+      res.status(error.statusCode || 500).send({
+        message: 'Error fetching vortex data',
+        error: error.message
+      });
+    }
+  },
+
+  
 
 }
