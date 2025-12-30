@@ -8671,13 +8671,13 @@ getWorkOrderDetailsByNumber: async (request, response) => {
         const sql = "SELECT id_users, name FROM users WHERE level = 4 ORDER BY name ASC";
 
         // 1. Check if connection is dead/closed
-        if (db4.state === 'disconnected' || db4.state === 'protocol_error') {
+        if (db.state === 'disconnected' || db4.state === 'protocol_error') {
             console.log("⚠️ DB4 was closed. Reconnecting...");
             db4.connect(); // Force wake up
         }
 
         try {
-            db4.query(sql, (err, result) => {
+            db.query(sql, (err, result) => {
                 if (err) {
                     console.error("❌ SQL Error:", err.message);
                     // If it's still closed, we can't do anything but fail
