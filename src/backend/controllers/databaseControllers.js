@@ -21,6 +21,7 @@ const mysql = require("mysql2/promise");
 const cors = require("cors");
 const express = require("express");
 
+
 const app = express(); // Tambahkan ini jika belum ada
 
 const fs = require('fs');
@@ -43,6 +44,113 @@ const CSV_FILE_PATH = 'C:\\Users\\Acer\\Documents\\GitHub\\engineering1\\src\\ba
 const DB_TABLE_NAME = 'extracted_maintenance_data'; 
 const HEADER_ROW_INDEX = 5;
 const FINAL_COLUMNS = ['machine_name', 'asset_number', 'wo_no'];
+
+const processArchiveForShift = async (dateStr, shiftNum) => {
+    // A. Define Times (Same as before)
+    const getShiftRange = (dStr, sNum) => {
+        const nextDay = new Date(dStr); 
+        nextDay.setDate(nextDay.getDate() + 1);
+        const nextStr = nextDay.toISOString().split('T')[0];
+        if (sNum === 1) return { start: `${dStr} 06:30:00`, end: `${dStr} 15:00:00` };
+        if (sNum === 2) return { start: `${dStr} 15:00:00`, end: `${dStr} 22:45:00` };
+        if (sNum === 3) return { start: `${dStr} 22:45:00`, end: `${nextStr} 06:30:00` };
+    };
+
+    const currentShiftRange = getShiftRange(dateStr, shiftNum);
+    const allShifts = [getShiftRange(dateStr, 1), getShiftRange(dateStr, 2), getShiftRange(dateStr, 3)];
+
+    // B. Query Raw DB (fette_machine_dummy)
+    const queries = [currentShiftRange, ...allShifts].map(range => {
+        const sql = `SELECT MAX(runtime) as max_run, MIN(runtime) as min_run, MAX(stoptime) as max_stop, MIN(stoptime) as min_stop, MAX(total_product) as max_prod, MIN(total_product) as min_prod, MAX(planned_stoptime) as max_planned, MIN(planned_stoptime) as min_planned, MAX(unplanned_stoptime) as max_unplanned, MIN(unplanned_stoptime) as min_unplanned, MAX(reject) as max_reject, MIN(reject) as min_reject FROM fette_machine_dummy WHERE record_time BETWEEN ? AND ?`;
+        return new Promise((resolve, reject) => {
+            db4.query(sql, [range.start, range.end], (err, res) => err ? reject(err) : resolve({ ...res[0], duration: (new Date(range.end) - new Date(range.start)) / 60000 }));
+        });
+    });
+
+    const [shiftResult, s1Res, s2Res, s3Res] = await Promise.all(queries);
+
+    // C. Calculate Stats
+    const calculateStats = (resultsArray) => {
+        let tRun = 0, tStop = 0, tUnplan = 0, tPlan = 0, tTime = 0, tOut = 0, tRej = 0;
+        const list = Array.isArray(resultsArray) ? resultsArray : [resultsArray];
+
+        list.forEach(r => {
+            tRun += (r.max_run || 0) - (r.min_run || 0);
+            tStop += (r.max_stop || 0) - (r.min_stop || 0);
+            tUnplan += (r.max_unplanned || 0) > 0 ? (r.max_unplanned - r.min_unplanned) : 0;
+            tPlan += (r.max_planned || 0) - (r.min_planned || 0);
+            tOut += (r.max_prod || 0) - (r.min_prod || 0);
+            tRej += (r.max_reject || 0) - (r.min_reject || 0);
+            tTime += r.duration;
+        });
+
+        const calculatedStop = tStop > 0 ? tStop : (tUnplan + tPlan);
+        const avail = tTime - tPlan > 0 ? ((tRun - tUnplan) / (tTime - tPlan)) * 100 : 0;
+        const perf = (tRun * 5833) > 0 ? (tOut / (tRun * 5833)) * 100 : 0;
+        const qual = tOut > 0 ? ((tOut - tRej) / tOut) * 100 : 0;
+        const oee = (avail * perf * qual) / 10000;
+
+        // Return stats (we don't need raw values for the INSERT anymore)
+        return { avail, perf, qual, oee };
+    };
+
+    const shiftStats = calculateStats(shiftResult);
+    const dailyStats = calculateStats([s1Res, s2Res, s3Res]);
+
+    // D. Integers for HMI
+    const toInt = (val) => Math.round(val * 100);
+    const toRem = (val) => 10000 - Math.round(val * 100);
+
+    const hmi = {
+        avail: toInt(shiftStats.avail), avail2: toRem(shiftStats.avail),
+        perf: toInt(shiftStats.perf), perf2: toRem(shiftStats.perf),
+        qual: toInt(shiftStats.qual), qual2: toRem(shiftStats.qual),
+        oee: toInt(shiftStats.oee), oee2: toRem(shiftStats.oee),
+    };
+
+    // E. Insert (UPDATED TABLE NAME & COLUMNS)
+    // Note: We use 'oee_master_logs' and removed the raw shift_run_time columns
+    const sqlInsert = `
+        INSERT INTO oee_master_logs (
+            production_date, shift_name,
+            availability_value_shift, availability_value_daily,
+            performance_value_shift, performance_value_daily,
+            quality_value_shift, quality_value_daily,
+            oee_value_shift, oee_value_daily,
+            hmi_avail_value, hmi_avail_value2, hmi_perf_value, hmi_perf_value2,
+            hmi_qual_value, hmi_qual_value2, hmi_oee_shift_value, hmi_oee_shift_value2
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            availability_value_shift = VALUES(availability_value_shift),
+            availability_value_daily = VALUES(availability_value_daily),
+            performance_value_shift = VALUES(performance_value_shift),
+            performance_value_daily = VALUES(performance_value_daily),
+            quality_value_shift = VALUES(quality_value_shift),
+            quality_value_daily = VALUES(quality_value_daily),
+            oee_value_shift = VALUES(oee_value_shift),
+            oee_value_daily = VALUES(oee_value_daily),
+            hmi_avail_value = VALUES(hmi_avail_value),
+            hmi_perf_value = VALUES(hmi_perf_value),
+            hmi_qual_value = VALUES(hmi_qual_value),
+            hmi_oee_shift_value = VALUES(hmi_oee_shift_value)
+    `;
+
+    const values = [
+        currentShiftRange.start, `Shift ${shiftNum}`,
+        shiftStats.avail, dailyStats.avail,
+        shiftStats.perf, dailyStats.perf,
+        shiftStats.qual, dailyStats.qual,
+        shiftStats.oee, dailyStats.oee,
+        hmi.avail, hmi.avail2,
+        hmi.perf, hmi.perf2,
+        hmi.qual, hmi.qual2,
+        hmi.oee, hmi.oee2
+        // REMOVED RAW VALUES HERE
+    ];
+
+    await new Promise((resolve, reject) => db4.query(sqlInsert, values, (err) => err ? reject(err) : resolve()));
+    return { shiftStats, hmi };
+};
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -8708,7 +8816,7 @@ getWorkOrderDetailsByNumber: async (request, response) => {
         db4.connect();
       }
 
-      console.log(`🔍 Fetching ALL incomplete PWO (user context: ${currentUser.id})`);
+      // console.log(`🔍 Fetching ALL incomplete PWO (user context: ${currentUser.id})`);
 
       try {
         const sqlAll = `
@@ -8757,7 +8865,7 @@ getWorkOrderDetailsByNumber: async (request, response) => {
         db4.connect();
       }
 
-      console.log(`🔍 Fetching ASSIGNED incomplete PWO for user ${currentUser.id}`);
+      // console.log(`🔍 Fetching ASSIGNED incomplete PWO for user ${currentUser.id}`);
 
       try {
         const sqlMyPwo = `
@@ -8784,7 +8892,7 @@ getWorkOrderDetailsByNumber: async (request, response) => {
             return response.status(500).send({ error: err.message });
           }
 
-          console.log(`✅ Assigned PWO for user ${currentUser.id}: ${rows.length}`);
+          // console.log(`✅ Assigned PWO for user ${currentUser.id}: ${rows.length}`);
           return response.status(200).json(rows);
         });
 
@@ -8886,6 +8994,967 @@ getTechnicians: async (req, res) => {
       });
     }
   },
+
+getOEEAvailability1: async (req, res) => {
+    try {
+        console.log('\n========== GET OEE AVAILABILITY (TWO-COLUMN MODE) ==========');
+
+        // Simple query: Fetch everything for the shift in one row
+        const sql = `
+            SELECT 
+                MAX(runtime) as max_run,
+                MAX(planned_stoptime) as max_planned,
+                MIN(planned_stoptime) as min_planned,
+                MAX(unplanned_stoptime) as max_unplanned,
+                MIN(unplanned_stoptime) as min_unplanned
+            FROM fette_machine_dummy 
+            WHERE record_time BETWEEN '2025-12-22 06:30:00' AND '2025-12-22 15:00:00'
+        `;
+
+        const dbResults = await new Promise((resolve, reject) => {
+            db4.query(sql, (err, result) => {
+                if (err) return reject(err);
+                resolve(result[0]); // Returns the single row of aggregates
+            });
+        });
+
+        const SHIFT_TOTAL_MINUTES = 510;
+        const DATA_INTERVAL = 10; // Change to 1 when machine interval changes
+
+        // 1. Calculate Durations using the Delta logic
+        // We add the interval to unplanned to capture the single-row event correctly
+        const plannedDowntime = (dbResults.max_planned || 0) - (dbResults.min_planned || 0);
+        const unplannedDowntime = (dbResults.max_unplanned || 0) > 0 
+            ? (dbResults.max_unplanned - dbResults.min_unplanned) 
+            : 0;
+            
+        // 2. Runtime (Max cumulative value in shift)
+        const totalRuntime = dbResults.max_run || 0;
+
+        // 3. Availability Formula: (Runtime - Unplanned - Planned) / (510 - Planned)
+        const numerator = totalRuntime - unplannedDowntime;
+        const denominator = SHIFT_TOTAL_MINUTES - plannedDowntime;
+
+        let availabilityPercentage = 0;
+        if (denominator > 0) {
+            availabilityPercentage = (numerator / denominator) * 100;
+        }
+
+        return res.status(200).send({
+            message: "Availability calculated with new table structure",
+            data: {
+                runtime: totalRuntime,           // Results in 390
+                planned_downtime: plannedDowntime, // Results in 110
+                unplanned_downtime: unplannedDowntime, // Results in 10
+                availability: availabilityPercentage.toFixed(2) + "%"
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error:', error);
+        res.status(500).send({ message: 'Error', error: error.message });
+    }
+},
+
+getOEEPerformance1: async (req, res) => {
+    try {
+        console.log('\n========== GET & SAVE OEE PERFORMANCE DATA ==========');
+        console.log('Calculating Performance for Shift 1 (06:30 - 15:00)');
+
+        // SQL to fetch cumulative totals using your new table structure
+        const sqlFetch = `
+            SELECT 
+                MAX(total_product) as max_product,
+                MIN(total_product) as min_product,
+                MAX(runtime) as max_run
+            FROM fette_machine_dummy 
+            WHERE record_time BETWEEN '2025-12-22 06:30:00' AND '2025-12-22 15:00:00'
+        `;
+
+        const dbResults = await new Promise((resolve, reject) => {
+            db4.query(sqlFetch, (err, result) => {
+                if (err) return reject(err);
+                resolve(result[0]);
+            });
+        });
+
+        // --- OEE PERFORMANCE CALCULATION ---
+        const TARGET_PER_MINUTE = 5833; 
+        
+        // 1. Calculate Actual Total Output (Yield)
+        const totalOutput = (dbResults.max_product || 0) - (dbResults.min_product || 0);
+
+        // 2. Get Actual Runtime (Matches your frontend key 'actual_runtime')
+        const runtime = dbResults.max_run || 0;
+
+        // 3. Calculate Potential Output (Runtime * Target)
+        const potentialOutput = runtime * TARGET_PER_MINUTE;
+
+        // 4. Performance Formula
+        let performancePercentage = 0;
+        if (potentialOutput > 0) {
+            performancePercentage = (totalOutput / potentialOutput) * 100;
+        }
+
+        const performanceString = performancePercentage.toFixed(2) + "%";
+
+        // --- DATABASE INSERT LOGIC ---
+        // Ensuring historical tracking in your new performance log table
+        const sqlInsert = `
+            INSERT INTO oee_performance_logs_dummy 
+            (shift_name, actual_output, actual_runtime, potential_output, performance_value)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        
+        const insertValues = [
+            'Shift 1', 
+            totalOutput, 
+            runtime, 
+            potentialOutput, 
+            performancePercentage.toFixed(2)
+        ];
+
+        await new Promise((resolve, reject) => {
+            db4.query(sqlInsert, insertValues, (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            });
+        });
+
+        console.log(`✅ Performance logged: ${performanceString}`);
+        console.log('====================================================\n');
+
+        // Returning the data object with keys that match your frontend
+        return res.status(200).send({
+            message: "Performance calculated and logged successfully",
+            data: {
+                actual_output: totalOutput,
+                actual_runtime: runtime,
+                ideal_target_rate: TARGET_PER_MINUTE,
+                potential_output: potentialOutput,
+                performance: performanceString
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error processing Performance data:', error);
+        res.status(500).send({
+            message: 'Error processing Performance data',
+            error: error.message
+        });
+    }
+},
+
+getOEEQuality1: async (req, res) => {
+    try {
+        console.log('\n========== GET OEE QUALITY DATA ==========');
+        console.log('Calculating Quality for Shift 1 (06:30 - 15:00)');
+
+        // SQL to fetch the cumulative totals for Product and Rejects
+        const sql = `
+            SELECT 
+                MAX(total_product) as max_product,
+                MIN(total_product) as min_product,
+                MAX(reject) as max_reject,
+                MIN(reject) as min_reject
+            FROM fette_machine_dummy 
+            WHERE record_time BETWEEN '2025-12-22 06:30:00' AND '2025-12-22 15:00:00'
+        `;
+
+        const dbResults = await new Promise((resolve, reject) => {
+            db4.query(sql, (err, result) => {
+                if (err) return reject(err);
+                resolve(result[0]);
+            });
+        });
+
+        // --- OEE QUALITY CALCULATION ---
+        
+        // 1. Calculate Actual Yield (Total Product produced in shift)
+        const totalProduct = dbResults.max_product - dbResults.min_product;
+
+        // 2. Calculate Total Rejects in shift
+        const totalRejects = dbResults.max_reject - dbResults.min_reject;
+
+        // 3. Calculate Good Product (Total - Reject)
+        const goodProduct = totalProduct - totalRejects;
+
+        // 4. Quality Formula: (Total Product - Reject) / Total Product
+        let qualityPercentage = 0;
+        if (totalProduct > 0) {
+            qualityPercentage = (goodProduct / totalProduct) * 100;
+        }
+
+        console.log(`Calculation Complete: ${qualityPercentage.toFixed(2)}%`);
+        console.log('==========================================\n');
+
+        return res.status(200).send({
+            message: "OEE Quality calculated successfully",
+            data: {
+                total_product: totalProduct,
+                total_rejects: totalRejects,
+                good_product: goodProduct,
+                quality: qualityPercentage.toFixed(2) + "%"
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error calculating Quality data:', error);
+        res.status(500).send({
+            message: 'Error calculating Quality data',
+            error: error.message
+        });
+    }
+},
+
+generateDummyData24H: async (req, res) => {
+    try {
+        console.log('\n========== GENERATING 24H DATA (WITH SHIFT RESETS) ==========');
+        
+        // 1. Clear Table
+        await new Promise((resolve, reject) => {
+            db4.query("TRUNCATE TABLE fette_machine_dummy", (err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
+
+        // 2. Setup Time Range (Today 06:30 to Tomorrow 06:30)
+        const START_TIME = new Date('2025-12-22T06:30:00'); 
+        const END_TIME = new Date('2025-12-23T06:30:00');   
+
+        const TARGET_RPM = 1500;
+        const PRODUCT_PER_MIN = 5833;
+
+        // 3. Initialize Accumulators
+        let accRuntime = 0;
+        let accPlanned = 0;
+        let accUnplanned = 0;
+        let accProduct = 0;
+        let accReject = 0;
+
+        let currentTime = new Date(START_TIME);
+        let batchValues = [];
+        let rowCount = 0;
+
+        // 4. Minute-by-Minute Loop
+        while (currentTime <= END_TIME) {
+            const hour = currentTime.getHours();
+            const minute = currentTime.getMinutes();
+
+            // --- RESET LOGIC (CRITICAL CHANGE) ---
+            // If it is exactly the start of Shift 2 or Shift 3, RESET counters to 0
+            if (hour === 15 && minute === 0) {
+                console.log('🔄 Shift 2 Started: Resetting Counters to 0');
+                accRuntime = 0; accPlanned = 0; accUnplanned = 0; accProduct = 0; accReject = 0;
+            }
+            if (hour === 22 && minute === 45) {
+                console.log('🔄 Shift 3 Started: Resetting Counters to 0');
+                accRuntime = 0; accPlanned = 0; accUnplanned = 0; accProduct = 0; accReject = 0;
+            }
+            
+            // --- STATE MACHINE ---
+            let isRunning = false;
+            let isPlannedStop = false;
+            let isUnplannedStop = false;
+
+            // SHIFT 1 Logic (06:30 - 15:00)
+            if (hour < 15 || (hour === 15 && minute === 0)) {
+                if ((hour === 6 && minute >= 30) || (hour === 7 && minute === 0)) isPlannedStop = true; // Briefing
+                else if (hour === 10 && minute < 15) isPlannedStop = true; // Break
+                else if (hour === 12 && minute >= 15 && minute < 25) isUnplannedStop = true; // Fault
+                else isRunning = true;
+            }
+            // SHIFT 2 Logic (15:00 - 22:45)
+            else if (hour < 22 || (hour === 22 && minute <= 45)) {
+                if (hour === 15 && minute < 30) isPlannedStop = true; // Handover
+                else if (hour === 19 && minute < 30) isPlannedStop = true; // Dinner
+                else if (hour === 21 && minute < 5) isUnplannedStop = true; // Jam
+                else isRunning = true;
+            }
+            // SHIFT 3 Logic (22:45 - 06:30)
+            else {
+                // Logic for crossing midnight
+                if ((hour === 22 && minute >= 45) || (hour === 23 && minute < 15)) isPlannedStop = true; // Handover
+                else if (hour === 3 && minute < 15) isPlannedStop = true; // Snack
+                else if (hour === 5 && minute < 10) isUnplannedStop = true; // Feeder Issue
+                else isRunning = true;
+            }
+
+            // Override for exact shift boundaries (Handover starts)
+            if (hour === 15 && minute === 0) { isPlannedStop = true; isRunning = false; }
+            if (hour === 22 && minute === 45) { isPlannedStop = true; isRunning = false; }
+
+            // --- INCREMENT ACCUMULATORS ---
+            let rpm = 0;
+            if (isRunning) {
+                accRuntime += 1; 
+                
+                // Randomized Product (5400 - 5700)
+                const randomProduct = Math.floor(Math.random() * 301) + 5400;
+                accProduct += randomProduct;
+
+                // Randomized Rejects (30 - 80)
+                const randomReject = Math.floor(Math.random() * 51) + 30;
+                accReject += randomReject;
+                
+                rpm = TARGET_RPM;
+            } 
+            else if (isPlannedStop) {
+                accPlanned += 1;
+            } 
+            else if (isUnplannedStop) {
+                accUnplanned += 1;
+            }
+
+            // --- PREPARE SQL ROW ---
+            const year = currentTime.getFullYear();
+            const month = String(currentTime.getMonth() + 1).padStart(2, '0');
+            const day = String(currentTime.getDate()).padStart(2, '0');
+            const hourStr = String(hour).padStart(2, '0');
+            const minStr = String(minute).padStart(2, '0');
+            const sqlTime = `${year}-${month}-${day} ${hourStr}:${minStr}:00`;
+
+            batchValues.push([
+                sqlTime, accRuntime, accPlanned, accUnplanned, accProduct, accReject, rpm
+            ]);
+
+            // Advance Time
+            currentTime.setMinutes(currentTime.getMinutes() + 1);
+            rowCount++;
+        }
+
+        // 5. Bulk Insert
+        const chunkSize = 1000;
+        for (let i = 0; i < batchValues.length; i += chunkSize) {
+            const chunk = batchValues.slice(i, i + chunkSize);
+            const sql = `INSERT INTO fette_machine_dummy (record_time, runtime, planned_stoptime, unplanned_stoptime, total_product, reject, rpm) VALUES ?`;
+            
+            await new Promise((resolve, reject) => {
+                db4.query(sql, [chunk], (err) => {
+                    if (err) reject(err);
+                    resolve();
+                });
+            });
+        }
+
+        console.log(`✅ Success: Generated ${rowCount} rows with Shift Resets.`);
+        res.status(200).send({ message: "Data generated with shift resets", rows: rowCount });
+
+    } catch (error) {
+        console.error('❌ Generation Failed:', error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+getUniversalOEE: async (req, res) => {
+    try {
+        // 1. Get parameters from the request (default to Shift 1 and Today)
+        const { shift, date } = req.query; 
+        const selectedShift = parseInt(shift) || 1;
+        const selectedDate = date ? new Date(date) : new Date('2025-12-22'); // Default to your test date
+        
+        console.log(`\n========== CALCULATING OEE FOR SHIFT ${selectedShift} ==========`);
+
+        // 2. Define Time Ranges dynamically
+        let startTime, endTime;
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        // Helper to format date strings
+        const nextDay = new Date(selectedDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const nextDayStr = nextDay.toISOString().split('T')[0];
+
+        switch (selectedShift) {
+            case 1:
+                startTime = `${dateStr} 06:30:00`;
+                endTime = `${dateStr} 15:00:00`;
+                break;
+            case 2:
+                startTime = `${dateStr} 15:00:00`;
+                endTime = `${dateStr} 22:45:00`;
+                break;
+            case 3:
+                // Shift 3 crosses midnight (Day 1 22:45 to Day 2 06:30)
+                startTime = `${dateStr} 22:45:00`;
+                endTime = `${nextDayStr} 06:30:00`;
+                break;
+            default:
+                return res.status(400).send({ message: "Invalid Shift ID" });
+        }
+
+        console.log(`Time Range: ${startTime} to ${endTime}`);
+
+        // 3. Single Efficient SQL Query
+        // Fetches all necessary MIN/MAX values in one go
+        const sql = `
+            SELECT 
+                MAX(runtime) as max_run,
+                MIN(runtime) as min_run,
+                MAX(total_product) as max_prod,
+                MIN(total_product) as min_prod,
+                MAX(planned_stoptime) as max_planned,
+                MIN(planned_stoptime) as min_planned,
+                MAX(unplanned_stoptime) as max_unplanned,
+                MIN(unplanned_stoptime) as min_unplanned,
+                MAX(reject) as max_reject,
+                MIN(reject) as min_reject
+            FROM fette_machine_dummy 
+            WHERE record_time BETWEEN ? AND ?
+        `;
+
+        const dbResults = await new Promise((resolve, reject) => {
+            db4.query(sql, [startTime, endTime], (err, result) => {
+                if (err) return reject(err);
+                resolve(result[0]);
+            });
+        });
+
+        // 4. --- CALCULATION LOGIC ---
+
+        // Constants
+        const TARGET_PER_MINUTE = 5833;
+        const SHIFT_MINUTES = (new Date(endTime) - new Date(startTime)) / 1000 / 60; // Auto-calculate duration
+
+        // A. Process Database Values (Delta Calculation)
+        const runtime = (dbResults.max_run || 0) - (dbResults.min_run || 0);
+        const totalOutput = (dbResults.max_prod || 0) - (dbResults.min_prod || 0);
+        const totalRejects = (dbResults.max_reject || 0) - (dbResults.min_reject || 0);
+        const plannedDowntime = (dbResults.max_planned || 0) - (dbResults.min_planned || 0);
+        const unplannedDowntime = (dbResults.max_unplanned || 0) > 0 
+            ? (dbResults.max_unplanned - dbResults.min_unplanned) 
+            : 0;
+
+        // B. Calculate Availability (User Formula Correction)
+        // Corrected: (Runtime - Unplanned) / (Total Shift Time - Planned)
+        const availNumerator = runtime - unplannedDowntime;
+        const availDenominator = SHIFT_MINUTES - plannedDowntime;
+        
+        let availability = 0;
+        if (availDenominator > 0) availability = (availNumerator / availDenominator) * 100;
+
+        // C. Calculate Performance
+        const potentialOutput = runtime * TARGET_PER_MINUTE;
+        let performance = 0;
+        if (potentialOutput > 0) performance = (totalOutput / potentialOutput) * 100;
+
+        // D. Calculate Quality
+        const goodProduct = totalOutput - totalRejects;
+        let quality = 0;
+        if (totalOutput > 0) quality = (goodProduct / totalOutput) * 100;
+
+        const oeeScore = (availability * performance * quality) / 10000;
+
+        
+        // Return Data (Including variables for the frontend validator)
+        res.status(200).send({
+            message: `OEE Calculated for Shift ${selectedShift}`,
+            shift_info: {
+                shift_id: selectedShift,
+                duration_minutes: SHIFT_MINUTES
+            },
+            data: {
+              oee: oeeScore.toFixed(2) + "%",
+              
+                availability: {
+                    availability: availability.toFixed(2) + "%",
+                    numerator: availNumerator,
+                    denominator: availDenominator,
+                    // Raw inputs for display
+                    runtime: runtime,
+                    unplanned_downtime: unplannedDowntime,
+                    planned_downtime: plannedDowntime
+                },
+                performance: {
+                    performance: performance.toFixed(2) + "%",
+                    actual_output: totalOutput,
+                    target_rate: TARGET_PER_MINUTE,
+                    actual_runtime: runtime,
+                    potential_output: potentialOutput
+                },
+                quality: {
+                    quality: quality.toFixed(2) + "%",
+                    total_product: totalOutput,
+                    total_rejects: totalRejects,
+                    good_product: goodProduct
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Universal Controller Error:', error);
+        res.status(500).send({ message: 'Error calculating OEE', error: error.message });
+    }
+},
+
+generateDummyDataWeekly: async (req, res) => {
+    try {
+        console.log('\n========== GENERATING WEEKLY DATA (DEC 22 - DEC 26) ==========');
+        
+        // 1. Clear Table
+        await new Promise((resolve, reject) => {
+            db4.query("TRUNCATE TABLE fette_machine_dummy", (err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
+
+        // 2. Setup Time Range (Monday Morning to Saturday Morning)
+        // Ends on Saturday 06:30 so Friday's Shift 3 is complete
+        const START_TIME = new Date('2025-12-20T06:30:00'); 
+        const END_TIME = new Date('2025-12-27T06:30:00');   
+
+        const TARGET_RPM = 1500;
+        
+        // 3. Initialize Accumulators
+        let accRuntime = 0;
+        let accPlanned = 0;
+        let accUnplanned = 0;
+        let accProduct = 0;
+        let accReject = 0;
+
+        let currentTime = new Date(START_TIME);
+        let batchValues = [];
+        let rowCount = 0;
+
+        // 4. Minute-by-Minute Loop
+        while (currentTime <= END_TIME) {
+            const hour = currentTime.getHours();
+            const minute = currentTime.getMinutes();
+
+            // --- SHIFT RESET LOGIC ---
+            // We reset at the start of EVERY shift (S1, S2, S3)
+            // 06:30 (Start S1), 15:00 (Start S2), 22:45 (Start S3)
+            // Note: We skip the very first 06:30 on Monday to avoid resetting initialized 0s
+            const isStart = currentTime.getTime() === START_TIME.getTime();
+            
+            if (!isStart) {
+                if (
+                    (hour === 6 && minute === 30) ||  // Start of Day/Shift 1
+                    (hour === 15 && minute === 0) ||  // Start of Shift 2
+                    (hour === 22 && minute === 45)    // Start of Shift 3
+                ) {
+                    // console.log(`🔄 Resetting Counters at ${currentTime.toLocaleString()}`);
+                    accRuntime = 0; accPlanned = 0; accUnplanned = 0; accProduct = 0; accReject = 0;
+                }
+            }
+            
+            // --- STATE MACHINE ---
+            let isRunning = false;
+            let isPlannedStop = false;
+            let isUnplannedStop = false;
+
+            // SHIFT 1 Logic (06:30 - 15:00)
+            if (hour < 15 || (hour === 15 && minute === 0)) {
+                if ((hour === 6 && minute >= 30) || (hour === 7 && minute === 0)) isPlannedStop = true; // Briefing
+                else if (hour === 10 && minute < 15) isPlannedStop = true; // Break
+                else if (hour === 12 && minute >= 15 && minute < 25) isUnplannedStop = true; // Fault
+                else isRunning = true;
+            }
+            // SHIFT 2 Logic (15:00 - 22:45)
+            else if (hour < 22 || (hour === 22 && minute <= 45)) {
+                if (hour === 15 && minute < 30) isPlannedStop = true; // Handover
+                else if (hour === 19 && minute < 30) isPlannedStop = true; // Dinner
+                else if (hour === 21 && minute < 5) isUnplannedStop = true; // Jam
+                else isRunning = true;
+            }
+            // SHIFT 3 Logic (22:45 - 06:30)
+            else {
+                if ((hour === 22 && minute >= 45) || (hour === 23 && minute < 15)) isPlannedStop = true; // Handover
+                else if (hour === 3 && minute < 15) isPlannedStop = true; // Snack
+                else if (hour === 5 && minute < 10) isUnplannedStop = true; // Feeder Issue
+                else isRunning = true;
+            }
+
+            // Exact Boundary Overrides
+            if (hour === 6 && minute === 30) { isPlannedStop = true; isRunning = false; }
+            if (hour === 15 && minute === 0) { isPlannedStop = true; isRunning = false; }
+            if (hour === 22 && minute === 45) { isPlannedStop = true; isRunning = false; }
+
+            // --- INCREMENT ACCUMULATORS ---
+            let rpm = 0;
+            if (isRunning) {
+                accRuntime += 1; 
+                
+                // Randomized Product (5500 - 5800)
+                const randomProduct = Math.floor(Math.random() * 501) + 5200;
+                accProduct += randomProduct;
+
+                // Randomized Rejects (10 - 60)
+                const randomReject = Math.floor(Math.random() * 101) + 10;
+                accReject += randomReject;
+                
+                rpm = TARGET_RPM;
+            } 
+            else if (isPlannedStop) {
+                accPlanned += 1;
+            } 
+            else if (isUnplannedStop) {
+                accUnplanned += 1;
+            }
+
+            // --- SQL PREP ---
+            const year = currentTime.getFullYear();
+            const month = String(currentTime.getMonth() + 1).padStart(2, '0');
+            const day = String(currentTime.getDate()).padStart(2, '0');
+            const hourStr = String(hour).padStart(2, '0');
+            const minStr = String(minute).padStart(2, '0');
+            const sqlTime = `${year}-${month}-${day} ${hourStr}:${minStr}:00`;
+
+            batchValues.push([
+                sqlTime, accRuntime, accPlanned, accUnplanned, accProduct, accReject, rpm
+            ]);
+
+            // Advance Time
+            currentTime.setMinutes(currentTime.getMinutes() + 1);
+            rowCount++;
+        }
+
+        // 5. Bulk Insert (Chunks of 2000 to handle the larger load)
+        const chunkSize = 2000;
+        for (let i = 0; i < batchValues.length; i += chunkSize) {
+            const chunk = batchValues.slice(i, i + chunkSize);
+            const sql = `INSERT INTO fette_machine_dummy (record_time, runtime, planned_stoptime, unplanned_stoptime, total_product, reject, rpm) VALUES ?`;
+            
+            await new Promise((resolve, reject) => {
+                db4.query(sql, [chunk], (err) => {
+                    if (err) reject(err);
+                    resolve();
+                });
+            });
+            console.log(`✅ Inserted chunk ${i} - ${i + chunk.length}`);
+        }
+
+        console.log(`🎉 SUCCESS! Generated ${rowCount} rows (Mon-Fri).`);
+        res.status(200).send({ message: "Weekly data generated successfully", rows: rowCount });
+
+    } catch (error) {
+        console.error('❌ Generation Failed:', error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+getDailyOEE: async (req, res) => {
+    try {
+        console.log('\n========== CALCULATING DAILY AGGREGATED OEE ==========');
+        const { date } = req.query;
+        const selectedDate = date ? new Date(date) : new Date('2025-12-22');
+        
+        // Helper to format timestamps
+        const getDateStr = (d) => d.toISOString().split('T')[0];
+        const nextDate = new Date(selectedDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+
+        const dayStr = getDateStr(selectedDate);
+        const nextDayStr = getDateStr(nextDate);
+
+        // Define the 3 Shift Windows
+        const shifts = [
+            { id: 1, start: `${dayStr} 06:30:00`, end: `${dayStr} 15:00:00` },
+            { id: 2, start: `${dayStr} 15:00:00`, end: `${dayStr} 22:45:00` },
+            { id: 3, start: `${dayStr} 22:45:00`, end: `${nextDayStr} 06:30:00` }
+        ];
+
+        // 1. Fetch Data for ALL 3 Shifts
+        const shiftPromises = shifts.map(shift => {
+            const sql = `
+                SELECT 
+                    MAX(runtime) as max_run, MIN(runtime) as min_run,
+                    MAX(total_product) as max_prod, MIN(total_product) as min_prod,
+                    MAX(planned_stoptime) as max_planned, MIN(planned_stoptime) as min_planned,
+                    MAX(unplanned_stoptime) as max_unplanned, MIN(unplanned_stoptime) as min_unplanned,
+                    MAX(reject) as max_reject, MIN(reject) as min_reject
+                FROM fette_machine_dummy 
+                WHERE record_time BETWEEN ? AND ?
+            `;
+            return new Promise((resolve, reject) => {
+                db4.query(sql, [shift.start, shift.end], (err, result) => {
+                    if (err) return reject(err);
+                    resolve({ ...result[0], duration_min: (new Date(shift.end) - new Date(shift.start))/60000 });
+                });
+            });
+        });
+
+        const results = await Promise.all(shiftPromises);
+
+        // 2. Aggregate Totals
+        let totalRuntime = 0;
+        let totalUnplanned = 0;
+        let totalPlanned = 0;
+        let totalShiftTime = 0;
+        let totalOutput = 0;
+        let totalRejects = 0;
+
+        results.forEach(r => {
+            const sRuntime = (r.max_run || 0) - (r.min_run || 0);
+            const sUnplanned = (r.max_unplanned || 0) > 0 ? (r.max_unplanned - r.min_unplanned) : 0;
+            const sPlanned = (r.max_planned || 0) - (r.min_planned || 0);
+            const sOutput = (r.max_prod || 0) - (r.min_prod || 0);
+            const sReject = (r.max_reject || 0) - (r.min_reject || 0);
+
+            totalRuntime += sRuntime;
+            totalUnplanned += sUnplanned;
+            totalPlanned += sPlanned;
+            totalOutput += sOutput;
+            totalRejects += sReject;
+            totalShiftTime += r.duration_min;
+        });
+
+        // 3. Apply Formulas to Daily Totals
+
+        // Availability
+        const availNumerator = totalRuntime - totalUnplanned;
+        const availDenominator = totalShiftTime - totalPlanned;
+        let availability = 0;
+        if (availDenominator > 0) availability = (availNumerator / availDenominator) * 100;
+
+        // Performance
+        const TARGET_PER_MINUTE = 5833;
+        const potentialOutput = totalRuntime * TARGET_PER_MINUTE;
+        let performance = 0;
+        if (potentialOutput > 0) performance = (totalOutput / potentialOutput) * 100;
+
+        // Quality
+        const goodProduct = totalOutput - totalRejects;
+        let quality = 0;
+        if (totalOutput > 0) quality = (goodProduct / totalOutput) * 100;
+
+        // --- 4. CALCULATE DAILY OEE SCORE ---
+        // Formula: (Avail * Perf * Qual) / 10000
+        const oeeScore = (availability * performance * quality) / 10000;
+
+        console.log(`Daily OEE: ${oeeScore.toFixed(2)}%`);
+
+        res.status(200).send({
+            message: `Daily Aggregated OEE for ${dayStr}`,
+            date: dayStr,
+            data: {
+                // THIS WAS LIKELY MISSING IN YOUR PREVIOUS CODE:
+                oee: oeeScore.toFixed(2) + "%",
+
+                availability: {
+                    value: availability.toFixed(2) + "%",
+                    total_runtime: totalRuntime,
+                    total_unplanned: totalUnplanned,
+                    total_planned: totalPlanned,
+                    total_shift_time: totalShiftTime
+                },
+                performance: {
+                    value: performance.toFixed(2) + "%",
+                    total_output: totalOutput,
+                    potential_output: potentialOutput
+                },
+                quality: {
+                    value: quality.toFixed(2) + "%",
+                    total_output: totalOutput,
+                    total_rejects: totalRejects,
+                    good_product: goodProduct
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Daily OEE Error:', error);
+        res.status(500).send({ message: 'Error calculating Daily OEE', error: error.message });
+    }
+},
+
+// SINGLE ARCHIVE (Existing)
+    archiveCombinedOEE: async (req, res) => {
+        try {
+            const { date, shift } = req.query;
+            if (!date || !shift) return res.status(400).send({ message: "Missing params" });
+            const result = await processArchiveForShift(date, parseInt(shift));
+            res.status(200).send({ message: "Archived", data: result });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+    // BULK ARCHIVE (New)
+    // BULK ARCHIVE
+    archiveAll: async (req, res) => {
+        try {
+            console.log("🚀 STARTING BULK ARCHIVE...");
+            
+            // 1. Find all unique dates
+            const dates = await new Promise((resolve, reject) => {
+                db4.query("SELECT DISTINCT DATE(record_time) as d FROM fette_machine_dummy ORDER BY d ASC", (err, res) => {
+                    if (err) return reject(err);
+                    
+                    // --- THE FIX IS HERE ---
+                    // Instead of toISOString() which shifts to UTC (and previous day),
+                    // We construct the local YYYY-MM-DD string manually to preserve the date.
+                    const localDates = res.map(row => {
+                        const d = new Date(row.d);
+                        const offset = d.getTimezoneOffset() * 60000; // Offset in milliseconds
+                        const localDate = new Date(d.getTime() - offset);
+                        return localDate.toISOString().split('T')[0];
+                    });
+                    
+                    resolve(localDates);
+                });
+            });
+
+            console.log(`Found ${dates.length} days with data:`, dates);
+
+            // 2. Iterate and Archive
+            let count = 0;
+            for (const dateStr of dates) {
+                await processArchiveForShift(dateStr, 1);
+                await processArchiveForShift(dateStr, 2);
+                await processArchiveForShift(dateStr, 3);
+                process.stdout.write(`.`); 
+                count += 3;
+            }
+
+            console.log(`\n✅ Bulk Archive Complete! Processed ${count} shifts.`);
+            res.status(200).send({ message: `Successfully archived ${count} shifts across ${dates.length} days.` });
+
+        } catch (error) {
+            console.error("Bulk Archive Error:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+getWeeklyTrend: async (req, res) => {
+        try {
+            console.log('\n📈 Fetching Weekly Trend Data (Last 7 Days)...');
+
+            // THE FIX:
+            // 1. Inner Query (sub): Grabs the 7 NEWEST entries (ORDER BY DESC LIMIT 7)
+            // 2. Outer Query: Re-sorts them correctly for the chart (ORDER BY ASC)
+            
+            const sql = `
+                SELECT * FROM (
+                    SELECT 
+                        production_date,
+                        oee_value_daily AS oee_score,
+                        availability_value_daily AS availability,
+                        performance_value_daily AS performance,
+                        quality_value_daily AS quality
+                    FROM oee_master_logs
+                    WHERE id IN (
+                        SELECT MAX(id)
+                        FROM oee_master_logs
+                        GROUP BY DATE(production_date)
+                    )
+                    ORDER BY production_date DESC
+                    LIMIT 7
+                ) AS sub
+                ORDER BY production_date ASC
+            `;
+
+            db4.query(sql, (err, result) => {
+                if (err) {
+                    console.error("SQL Error:", err);
+                    return res.status(500).send({ error: err.message });
+                }
+                res.status(200).send({ data: result });
+            });
+
+        } catch (error) {
+            console.error('❌ Trend Error:', error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+    
+getHistoryLog: async (req, res) => {
+        try {
+            const { startDate, endDate } = req.query;
+            console.log(`\n📜 Generating History Log (${startDate} to ${endDate})...`);
+            
+            // 1. Get Dates from Log
+            let logSql = `
+                SELECT 
+                    DATE(production_date) as date_obj,
+                    DATE_FORMAT(production_date, '%Y-%m-%d') as date_str,
+                    MAX(oee_value_daily) as daily_oee,
+                    MAX(availability_value_daily) as daily_avail,
+                    MAX(performance_value_daily) as daily_perf,
+                    MAX(quality_value_daily) as daily_qual
+                FROM oee_master_logs
+            `;
+            
+            const params = [];
+            if (startDate && endDate) {
+                logSql += ` WHERE production_date BETWEEN ? AND ?`;
+                params.push(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+            }
+            logSql += ` GROUP BY DATE(production_date) ORDER BY production_date ASC`;
+
+            const logResults = await new Promise((resolve, reject) => {
+                db4.query(logSql, params, (err, res) => err ? reject(err) : resolve(res));
+            });
+
+            // 2. Calculate Raw Data from 'fette_machine_dummy'
+            const combinedData = await Promise.all(logResults.map(async (row) => {
+                const dayStr = row.date_str;
+                
+                // Define 24h window (06:30 today -> 06:30 tomorrow)
+                const nextDay = new Date(dayStr);
+                nextDay.setDate(nextDay.getDate() + 1);
+                const end = `${nextDay.toISOString().split('T')[0]} 06:30:00`;
+
+                const shifts = [
+                   { s: `${dayStr} 06:30:00`, e: `${dayStr} 15:00:00` },
+                   { s: `${dayStr} 15:00:00`, e: `${dayStr} 22:45:00` },
+                   { s: `${dayStr} 22:45:00`, e: `${end}` }
+                ];
+
+                let dailyRun = 0;
+                let dailyStop = 0;
+                let dailyOut = 0;
+                let dailyRej = 0;
+
+                for (const shift of shifts) {
+                    // --- THE FIX IS HERE ---
+                    // Instead of querying 'stoptime', we calculate it:
+                    // Stop Time = (Max Unplanned - Min Unplanned) + (Max Planned - Min Planned)
+                    const rawSql = `
+                        SELECT 
+                            MAX(runtime) - MIN(runtime) as s_run,
+                            (MAX(unplanned_stoptime) - MIN(unplanned_stoptime)) + 
+                            (MAX(planned_stoptime) - MIN(planned_stoptime)) as s_stop,
+                            
+                            MAX(total_product) - MIN(total_product) as s_prod,
+                            MAX(reject) - MIN(reject) as s_rej
+                        FROM fette_machine_dummy 
+                        WHERE record_time BETWEEN ? AND ?
+                    `;
+                    const rawRes = await new Promise((resolve) => {
+                        db4.query(rawSql, [shift.s, shift.e], (err, res) => resolve(res[0] || {}));
+                    });
+
+                    dailyRun += (rawRes.s_run || 0);
+                    dailyStop += (rawRes.s_stop || 0); // Now this will contain data!
+                    dailyOut += (rawRes.s_prod || 0);
+                    dailyRej += (rawRes.s_rej || 0);
+                }
+
+                return {
+                    ...row,
+                    total_run: dailyRun,
+                    total_stop: dailyStop,
+                    total_out: dailyOut,
+                    total_reject: dailyRej
+                };
+            }));
+
+            res.status(200).send({ data: combinedData });
+
+        } catch (error) {
+            console.error("History Error:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+
+
 
   
 

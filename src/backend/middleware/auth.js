@@ -54,7 +54,7 @@ const veryfyToken = (req, res, next) => {
     }
     
     token = token.split(" ")[1];
-    console.log('🔑 Extracted token:', token ? token.substring(0, 50) + '...' : 'null');
+    // console.log('🔑 Extracted token:', token ? token.substring(0, 50) + '...' : 'null');
     
     if (token == "null" || !token) {
       console.log('❌ Token is null or empty');

@@ -325,5 +325,32 @@ routers.get("/technicians", veryfyToken, databaseControllers.getTechnicians);
 
 routers.get("/vortexdata", databaseControllers.getVortexData);
 
+routers.get("/getOEEAvailability1", databaseControllers.getOEEAvailability1);
+
+routers.get("/getOEEPerformance1", databaseControllers.getOEEPerformance1);
+
+routers.get("/getOEEQuality1", databaseControllers.getOEEQuality1);
+
+routers.get("/getDummyData24", databaseControllers.generateDummyData24H);
+
+routers.get("/generateDummyDataWeekly", databaseControllers.generateDummyDataWeekly);
+
+routers.get("/getUniversalOEE", databaseControllers.getUniversalOEE);
+
+routers.get("/getDailyOEE", databaseControllers.getDailyOEE);
+
+routers.get("/archiveCombinedOEE", databaseControllers.archiveCombinedOEE);
+routers.get('/archiveAll', databaseControllers.archiveAll);
+
+routers.get("/getWeeklyTrend", databaseControllers.getWeeklyTrend);
+
+routers.get("/getHistoryLog", databaseControllers.getHistoryLog);
+
+
+
+
+
+
+
 module.exports = routers;
 
