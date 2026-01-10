@@ -7627,68 +7627,57 @@ downtimeAnalysis: async (request, response) => {
     }
 }, // <-- Ensure this is correctly part of module.exports
 bulkImportPMPData: async (request, response) => {
-    let currentRow = 0;
-    
     try {
-        console.log("✅ Starting bulk data import via Database Controller.");
-        
-        const records = [];
+      const { jobs, category } = request.body;
 
-        // This process MUST be wrapped in a Promise to use await
-        await new Promise((resolve, reject) => {
-            fs.createReadStream(CSV_FILE_PATH)
-                .pipe(csv())
-                .on('data', (row) => {
-                    if (currentRow >= HEADER_ROW_INDEX) {
-                        const cleanedRow = {};
-                        let isDataRow = false; 
+      // Validate input
+      if (!jobs || !Array.isArray(jobs) || jobs.length === 0) {
+        return response.status(400).send({ error: "Missing job data array." });
+      }
+      if (!category) {
+        return response.status(400).send({ error: "Missing category." });
+      }
 
-                        FINAL_COLUMNS.forEach(finalName => {
-                             // 'finalName' will be 'Nama Mesin', 'Asset Number', etc.
-                             const value = row[finalName]; 
-                             cleanedRow[finalName] = value || null;
+      console.log(`📥 Received ${jobs.length} jobs to import with category: ${category}`);
 
-                             // FIX: Check against the correct column 'Nama Mesin'
-                             if (finalName === 'Nama Mesin' && value) {
-                                isDataRow = true;
-                             }
-                        });
+      // Map jobs to database columns
+      const valuesToInsert = jobs.map(job => [
+        job.wo_number,
+        job.machine_name,
+        job.asset_number,
+        category, // category column
+        'Pending', // status column
+        new Date() // created_at
+      ]);
 
-                        if (isDataRow) {
-                            records.push(cleanedRow);
-                        }
-                    }
-                    currentRow++;
-                })
-                .on('end', () => {
-                    console.log(`✅ CSV parsing and cleanup complete. Found ${records.length} clean records.`);
-                    resolve();
-                })
-                .on('error', reject);
-        });
+      // Build INSERT query
+      const sql = `
+        INSERT INTO pmp_pending_jobs 
+        (wo_number, machine_name, asset_number, category, status, created_at) 
+        VALUES ?
+      `;
 
-        if (records.length === 0) {
-            console.log("No data found to import.");
-            return response.status(200).send({ message: "No data imported or 0 rows found." });
+      db4.query(sql, [valuesToInsert], (err, result) => {
+        if (err) {
+          console.error('❌ Database Insertion Error:', err.message);
+          return response.status(500).send({ 
+            error: "Database insertion failed", 
+            details: err.message 
+          });
         }
-
-        // --- 2. CONSTRUCT AND EXECUTE MYSQL BATCH INSERT (Callback Style) ---
-        const columns = `(\`${FINAL_COLUMNS.join('\`, \`')}\`)`;
-        const values = records.map(record => FINAL_COLUMNS.map(col => record[col]));
-        const sql = `INSERT INTO \`${DB_TABLE_NAME}\` ${columns} VALUES ?`;
-
-        connectionToUse.query(sql, [values], (err, result) => {
-            if (err) {
-                console.error('❌ Database Insertion Error:', err.message);
-                return response.status(500).send({ error: "Database insertion failed", details: err.message });
-            }
-            console.log(`✨ Data import successful. Inserted ${result.affectedRows} rows.`);
-            return response.status(200).send({ message: "Import successful", insertedRows: result.affectedRows });
+        console.log(`✨ Successfully imported ${result.affectedRows} pending jobs.`);
+        return response.status(201).send({ 
+          message: "Import successful", 
+          createdCount: result.affectedRows 
         });
+      });
 
     } catch (error) {
-        console.error('❌ File/Parsing Error:', error.message);
-        return response.status(500).send({ error: "File processing failed", details: error.message });
+      console.error('❌ Import Error:', error.message);
+      return response.status(500).send({ 
+        error: "Import processing failed", 
+        details: error.message 
+      });
     }
   },
 
@@ -7892,12 +7881,12 @@ createPMPData: async (request, response) => {
 
     let createdCount = 0;
     const errors = [];
-    const db2Promise = db2.promise();
+    const db4Promise = db4.promise();
 
     try {
       // 2. Get ALL machines and default ops into maps
-      const [machines] = await db2Promise.query('SELECT machine_id, asset_number FROM pmp_machines');
-      const [defaultOps] = await db2Promise.query('SELECT machine_id, description FROM pmp_default_operations');
+      const [machines] = await db4Promise.query('SELECT machine_id, asset_number FROM pmp_machines');
+      const [defaultOps] = await db4Promise.query('SELECT machine_id, description FROM pmp_default_operations');
 
       const machineMap = new Map(); // Map<asset_number, machine_id>
       machines.forEach(m => machineMap.set(m.asset_number, m.machine_id));
@@ -7947,7 +7936,7 @@ createPMPData: async (request, response) => {
               opsValues.push(newWorkOrderId, desc);
             });
             
-            await db2Promise.query(
+            await db4Promise.query(
               `INSERT INTO pmp_work_order_operations (work_order_id, description) VALUES ${opsPlaceholders}`,
               opsValues
             );
@@ -7984,73 +7973,195 @@ createPMPData: async (request, response) => {
     });
   },
 
- bulkImportPendingJobs: async (request, response) => {
-    console.log('Starting bulk JSON import to holding pen...');
-    
-    // 1. Get the array of jobs from the request body
-    const jobs = request.body; 
-    
-    if (!Array.isArray(jobs) || jobs.length === 0) {
-      return response.status(400).send({ error: "Missing job data array." });
-    }
-
-    let createdCount = 0;
-    const errors = [];
-    const db4Promise = db4.promise(); // Use promise-based connection
-
+  bulkImportPendingJobs: async (request, response) => {
     try {
-      // 2. Get ALL machines into a map for fast lookup
-      const [machines] = await db4Promise.query('SELECT machine_id, asset_number FROM pmp_machines');
-      const machineMap = new Map(); // Map<asset_number, machine_id>
-      machines.forEach(m => machineMap.set(m.asset_number, m.machine_id));
-      
-      console.log(`Loaded ${machineMap.size} machines.`);
-
-      // 3. Process each job from the JSON array
-      for (const job of jobs) {
-        const { asset_number, wo_number } = job;
-
-        if (!asset_number || !wo_number) {
-          errors.push(`Skipping row, incomplete data: ${JSON.stringify(job)}`);
-          continue; 
-        }
-
-        const machineId = machineMap.get(asset_number);
-        if (!machineId) {
-          errors.push(`Machine not found for asset: ${asset_number} (WO: ${wo_number})`);
-          continue;
-        }
-
-        // 4. Insert into the pending_jobs table
+      console.log('📦 bulkImportPendingJobs - incoming keys:', request.body && Object.keys(request.body));
+      if (request.rawBody) {
+        console.log('📦 bulkImportPendingJobs - raw body length:', request.rawBody.length);
         try {
-            await db4Promise.query(
-                'INSERT INTO pmp_pending_jobs (machine_id, wo_number, status) VALUES (?, ?, ?)',
-                [machineId, wo_number, 'Pending']
-            );
-            createdCount++;
-
-        } catch (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                errors.push(`Skipped: WO ${wo_number} already exists.`);
-            } else {
-                errors.push(`Failed to import WO ${wo_number}: ${err.message}`);
-            }
+          const rawParsed = JSON.parse(request.rawBody);
+          console.log('📦 bulkImportPendingJobs - raw JSON keys:', rawParsed && Object.keys(rawParsed));
+        } catch (e) {
+          console.log('📦 bulkImportPendingJobs - raw body not JSON, first 200 chars:', request.rawBody.slice(0, 200));
         }
-      } // End of for...loop
+      }
 
-    } catch (err) {
-      console.error('Fatal import error:', err);
-      return response.status(500).send({ error: `Fatal import error: ${err.message}` });
+      // Robust extraction for different payload shapes
+      const payload = request.body;
+      let jobsRaw = Array.isArray(payload) ? payload : (payload?.jobs ?? payload?.data ?? payload?.payload?.jobs ?? payload?.payload?.data);
+      let category = payload?.category ?? payload?.payload?.category ?? payload?.importCategory;
+
+      // If jobs is a JSON string, attempt to parse
+      if (typeof jobsRaw === 'string') {
+        try { jobsRaw = JSON.parse(jobsRaw); } catch (e) { /* ignore parse error */ }
+      }
+
+      // Validate input presence
+      if (!Array.isArray(jobsRaw) || jobsRaw.length === 0) {
+        return response.status(400).send({ error: "Missing job data array." });
+      }
+      if (!category || typeof category !== 'string') {
+        // Default category if not provided
+        category = 'Maintenance';
+      }
+
+      // Normalize keys and drop unusable rows
+      const normalizedJobs = jobsRaw
+        .map(job => ({
+          wo_number: job?.wo_number ?? job?.WO_NUMBER ?? job?.woNumber ?? job?.WO ?? job?.pwo ?? job?.PWO,
+          machine_name: job?.machine_name ?? job?.machine ?? job?.machineName ?? job?.MACHINE_NAME,
+          asset_number: job?.asset_number ?? job?.asset ?? job?.assetNumber ?? job?.ASSET_NUMBER,
+        }))
+        .filter(job => job.wo_number && (job.asset_number || job.machine_name));
+
+      if (normalizedJobs.length === 0) {
+        return response.status(400).send({ error: "No valid job rows after normalization." });
+      }
+
+      console.log(`📥 Received ${jobsRaw.length} jobs; ${normalizedJobs.length} valid after normalization; category: ${category}`);
+
+      // Resolve machine_id from asset_number or machine_name (with normalization)
+      const normalizeAsset = (val) => String(val || '').trim().replace(/[-\s]/g, '').toUpperCase();
+      const normalizeName = (val) => String(val || '').trim().toLowerCase();
+
+      const db4Promise = db4.promise();
+      const [machines] = await db4Promise.query('SELECT machine_id, asset_number, machine_name FROM pmp_machines');
+      const assetToId = new Map();
+      const nameToId = new Map();
+      machines.forEach(m => {
+        const aKey = normalizeAsset(m.asset_number);
+        const nKey = normalizeName(m.machine_name);
+        if (aKey) assetToId.set(aKey, m.machine_id);
+        if (nKey) nameToId.set(nKey, m.machine_id);
+      });
+
+      const errors = [];
+      const valuesToInsert = [];
+      const missingMachines = [];
+
+      // First pass: try to match existing machines
+      normalizedJobs.forEach((job, idx) => {
+        const assetKeyRaw = job.asset_number !== undefined && job.asset_number !== null ? job.asset_number : '';
+        const nameKeyRaw = job.machine_name ? job.machine_name : undefined;
+        const assetKey = normalizeAsset(assetKeyRaw);
+        const nameKey = nameKeyRaw ? normalizeName(nameKeyRaw) : undefined;
+        const machineId = (assetKey && assetToId.get(assetKey)) || (nameKey ? nameToId.get(nameKey) : undefined);
+
+        if (!machineId) {
+          missingMachines.push({ idx, assetKeyRaw, nameKeyRaw });
+          return;
+        }
+
+        valuesToInsert.push([
+          machineId,
+          job.wo_number,
+          'Pending',
+          category,
+          new Date()
+        ]);
+      });
+
+      // If we have missing machines, attempt to auto-register them in pmp_machines (asset_number + machine_name)
+      if (missingMachines.length) {
+        const uniqueNewMachines = new Map(); // key: normalized asset|name
+        missingMachines.forEach(({ assetKeyRaw, nameKeyRaw }) => {
+          const key = `${normalizeAsset(assetKeyRaw)}|${normalizeName(nameKeyRaw)}`;
+          if (!uniqueNewMachines.has(key)) {
+            uniqueNewMachines.set(key, {
+              asset_number: assetKeyRaw || null,
+              machine_name: nameKeyRaw || assetKeyRaw || 'Pending Machine',
+            });
+          }
+        });
+
+        const insertRows = Array.from(uniqueNewMachines.values())
+          .filter(r => r.asset_number || r.machine_name);
+
+        if (insertRows.length) {
+          console.log(`🆕 Attempting to register ${insertRows.length} machines to pmp_machines for unmatched assets/names...`);
+          try {
+            const sqlInsertMachines = 'INSERT IGNORE INTO pmp_machines (asset_number, machine_name) VALUES ?';
+            const rows = insertRows.map(r => [r.asset_number, r.machine_name]);
+            await db4Promise.query(sqlInsertMachines, [rows]);
+          } catch (e) {
+            console.log('⚠️ Auto-register machines failed:', e.message);
+          }
+
+          // Refresh maps after attempting inserts
+          const [machines2] = await db4Promise.query('SELECT machine_id, asset_number, machine_name FROM pmp_machines');
+          assetToId.clear();
+          nameToId.clear();
+          machines2.forEach(m => {
+            const aKey = normalizeAsset(m.asset_number);
+            const nKey = normalizeName(m.machine_name);
+            if (aKey) assetToId.set(aKey, m.machine_id);
+            if (nKey) nameToId.set(nKey, m.machine_id);
+          });
+
+          // Retry unmatched rows
+          missingMachines.forEach(({ idx, assetKeyRaw, nameKeyRaw }) => {
+            const assetKey = normalizeAsset(assetKeyRaw);
+            const nameKey = nameKeyRaw ? normalizeName(nameKeyRaw) : undefined;
+            const machineId = (assetKey && assetToId.get(assetKey)) || (nameKey ? nameToId.get(nameKey) : undefined);
+            const job = normalizedJobs[idx];
+            if (machineId && job) {
+              valuesToInsert.push([
+                machineId,
+                job.wo_number,
+                'Pending',
+                category,
+                new Date()
+              ]);
+            } else {
+              errors.push(`Row ${idx}: machine not found for asset ${assetKeyRaw}${nameKeyRaw ? ` / name ${nameKeyRaw}` : ''}`);
+            }
+          });
+        }
+      }
+
+      if (valuesToInsert.length === 0) {
+        return response.status(400).send({ error: "No valid job rows after machine lookup.", details: errors });
+      }
+
+      console.log(`📦 Machine map size: assets=${assetToId.size} names=${nameToId.size}; ready to insert ${valuesToInsert.length} rows (skipped ${errors.length})`);
+      if (errors.length) {
+        console.log('📄 Sample unmatched rows (first 10):', errors.slice(0, 10));
+      }
+
+      // Build INSERT query aligned to table columns
+      const sql = `
+        INSERT INTO pmp_pending_jobs 
+        (machine_id, wo_number, status, category, created_at) 
+        VALUES ?
+      `;
+
+      db4.query(sql, [valuesToInsert], (err, result) => {
+        if (err) {
+          console.error('❌ Database Insertion Error:', err.message);
+          return response.status(500).send({ 
+            error: "Database insertion failed", 
+            details: err.message 
+          });
+        }
+        console.log(`✨ Successfully imported ${result.affectedRows} pending jobs.`);
+        return response.status(201).send({ 
+          message: "Import successful", 
+          createdCount: result.affectedRows,
+          received: jobsRaw.length,
+          normalized: normalizedJobs.length,
+          inserted: valuesToInsert.length,
+          skippedCount: errors.length,
+          skippedSamples: errors.slice(0, 10)
+        });
+      });
+
+    } catch (error) {
+      console.error('❌ Import Error:', error.message);
+      return response.status(500).send({ 
+        error: "Import processing failed", 
+        details: error.message 
+      });
     }
-
-    // 5. Finished!
-    console.log(`Import finished. ${createdCount} pending jobs created.`);
-    
-    return response.status(201).send({ 
-        message: `Import successful. ${createdCount} jobs added to the pending list.`,
-        createdCount: createdCount,
-        errors: errors 
-    });
   },
 
 readPendingJobs: async (request, response) => {
@@ -8299,17 +8410,54 @@ readPendingJobs: async (request, response) => {
     },
 
     getOperationsForWorkOrder: async (request, response) => {
-        const { work_order_id } = request.params;
-        const sql = "SELECT * FROM pmp_work_order_operations WHERE work_order_id = ?";
-        
-        db4.query(sql, [work_order_id], (err, result) => {
-            if (err) {
-                console.error('❌ Database READ Error (wo_ops):', err.message);
-                return response.status(500).send({ error: "Read failed", details: err.message });
-            }
-            return response.status(200).send(result);
+    try {
+      const { work_order_id } = request.params;
+
+      // Helper function to run DB queries with Promises (avoids callback hell)
+      const queryDB = (sql, params) => {
+        return new Promise((resolve, reject) => {
+          db4.query(sql, params, (err, res) => {
+            if (err) reject(err);
+            else resolve(res);
+          });
         });
-    },
+      };
+
+      // 1. First, try to fetch operations specifically saved for this Work Order
+      let sql = "SELECT * FROM pmp_work_order_operations WHERE work_order_id = ?";
+      let operations = await queryDB(sql, [work_order_id]);
+
+      // 2. If records exist, return them immediately (Technician has already started working)
+      if (operations.length > 0) {
+        return response.status(200).send(operations);
+      }
+
+      // 3. If EMPTY, we need to fetch the DEFAULT operations for the machine.
+      // Step 3a: Get the machine_id associated with this work_order_id
+      const workOrderResult = await queryDB(
+        "SELECT machine_id FROM pmp_work_orders WHERE work_order_id = ?", 
+        [work_order_id]
+      );
+
+      if (workOrderResult.length === 0) {
+        return response.status(404).send({ error: "Work Order not found" });
+      }
+
+      const machineId = workOrderResult[0].machine_id;
+
+      // Step 3b: Fetch the default operations template for this machine
+      // (Assuming your template table is named 'pmp_default_operations')
+      sql = "SELECT * FROM pmp_default_operations WHERE machine_id = ? ORDER BY default_op_id";
+      const defaultOps = await queryDB(sql, [machineId]);
+
+      // 4. Return the defaults (The frontend will treat them as new unsaved lines)
+      return response.status(200).send(defaultOps);
+
+    } catch (error) {
+      console.error('❌ Error fetching operations:', error.message);
+      return response.status(500).send({ error: "Server error", details: error.message });
+    }
+  },
 
     /**
      * UPDATE: Update a *single* operation's status and note
@@ -9952,6 +10100,114 @@ getHistoryLog: async (req, res) => {
             res.status(500).send({ error: error.message });
         }
     },
+
+    // --- Get Assigned Jobs ---
+// --- Get Assigned Jobs ---
+// --- Get Assigned Jobs ---
+  // --- Get Assigned Jobs (Cross-Server Application Join) ---
+  getAssignedJobs: async (request, response) => {
+    try {
+      // Helper to wrap database queries in Promises (avoids callback hell)
+      const queryDB = (connection, sql, params = []) => {
+        return new Promise((resolve, reject) => {
+          connection.query(sql, params, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          });
+        });
+      };
+
+      // 1. Fetch Work Orders from DB4 (EMS Database)
+      const workOrderSql = `
+        SELECT 
+          wo.work_order_id AS id,
+          wo.wo_number,
+          wo.scheduled_date,
+          wo.technician_id,
+          wo.status,
+          pm.machine_name,
+          pm.asset_number
+        FROM pmp_work_orders wo
+        JOIN pmp_machines pm ON wo.machine_id = pm.machine_id
+        ORDER BY wo.scheduled_date DESC
+      `;
+      
+      const jobs = await queryDB(db4, workOrderSql);
+
+      // 2. Extract unique Technician IDs
+      const technicianIds = [...new Set(
+        jobs
+          .map(job => job.technician_id)
+          .filter(id => id !== null && id !== undefined) // Remove nulls
+      )];
+
+      // 3. If there are technicians assigned, fetch their names from DB (User Database)
+      let users = [];
+      if (technicianIds.length > 0) {
+        // Create placeholders (?,?,?) for the IN clause
+        const placeholders = technicianIds.map(() => '?').join(',');
+        
+        const userSql = `
+          SELECT id_users, name 
+          FROM users 
+          WHERE id_users IN (${placeholders})
+        `;
+        
+        users = await queryDB(db, userSql, technicianIds);
+      }
+
+      // 4. Merge the Data (Attach names to jobs)
+      const mergedJobs = jobs.map(job => {
+        const technician = users.find(user => user.id_users === job.technician_id);
+        return {
+          ...job,
+          technician_name: technician ? technician.name : "Unassigned" // Default if not found
+        };
+      });
+
+      return response.status(200).send(mergedJobs);
+
+    } catch (error) {
+      console.error('❌ getAssignedJobs Error:', error.message);
+      return response.status(500).send({ error: "Server error" });
+    }
+  },
+
+  // --- Update Assigned Job ---
+  updateAssignedJob: async (request, response) => {
+    try {
+      // 'pmp_id' from frontend maps to 'work_order_id' in DB
+      const { pmp_id, scheduled_date, technician_id } = request.body;
+
+      if (!pmp_id || !scheduled_date) {
+        return response.status(400).send({ error: "Missing required fields: pmp_id, scheduled_date" });
+      }
+
+      // UPDATED: Updating the new table using 'work_order_id'
+      const sql = `
+        UPDATE pmp_work_orders 
+        SET scheduled_date = ?, technician_id = ?
+        WHERE work_order_id = ?
+      `;
+
+      db4.query(sql, [scheduled_date, technician_id || null, pmp_id], (err, result) => {
+        if (err) {
+          console.error('❌ Error updating assigned job:', err.message);
+          return response.status(500).send({ error: "Failed to update job" });
+        }
+
+        if (result.affectedRows === 0) {
+          return response.status(404).send({ error: "Job not found" });
+        }
+
+        console.log(`✅ Updated WO ID ${pmp_id}: date=${scheduled_date}, tech=${technician_id}`);
+        return response.status(200).send({ message: "Job updated successfully" });
+      });
+    } catch (error) {
+      console.error('❌ updateAssignedJob Error:', error.message);
+      return response.status(500).send({ error: "Server error" });
+    }
+  },
 
 
 

@@ -17,9 +17,41 @@ const databaseControllers = require("./controllers/databaseControllers.js");
 const port = 8002;
 const app = express();
 
+
 app.use(cors());
-// Increase limit to 50MB to handle large CSV imports
-app.use(express.json({ limit: '50mb' })); 
+// Enhance JSON parsing to capture raw body for debugging and increase size limit
+app.use(
+  express.json({
+    limit: '2mb',
+    verify: (req, res, buf) => {
+      try {
+        req.rawBody = buf.toString();
+      } catch (e) {
+        req.rawBody = undefined;
+      }
+    },
+  })
+);
+
+// Debug middleware: log payload reaching the route
+app.use((req, res, next) => {
+  if (req.method === 'POST' && req.path === '/part/bulk-import-pending') {
+    console.log('🛰️ Incoming POST /part/bulk-import-pending');
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Raw body length:', req.rawBody ? req.rawBody.length : 0);
+    if (req.rawBody) {
+      try {
+        const parsedRaw = JSON.parse(req.rawBody);
+        console.log('Raw body JSON keys:', Object.keys(parsedRaw));
+      } catch (e) {
+        console.log('Raw body not JSON, first 200 chars:', req.rawBody.slice(0, 200));
+      }
+    }
+    console.log('Parsed body type:', typeof req.body, 'keys:', req.body && Object.keys(req.body));
+  }
+  next();
+});
+
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static("public"));
 
@@ -254,8 +286,7 @@ app.post(
 );
 
 app.post(
-  '/api/bulk-import-pending',
-  databaseControllers.bulkImportPendingJobs // <-- Now it handles JSON
+  '/api/bulk-import-pending',databaseControllers.bulkImportPendingJobs // <-- Now it handles JSON
 );
 
 server.listen(port, () => {

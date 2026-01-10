@@ -346,8 +346,9 @@ routers.get("/getWeeklyTrend", databaseControllers.getWeeklyTrend);
 
 routers.get("/getHistoryLog", databaseControllers.getHistoryLog);
 
+routers.get("/getAssignedJobs", databaseControllers.getAssignedJobs);
 
-
+routers.put("/updateAssignedJob", databaseControllers.updateAssignedJob);
 
 
 
