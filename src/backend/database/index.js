@@ -38,6 +38,15 @@ const db4 = mysql.createConnection({
   multipleStatements: true,
 });
 
+const dbTest = mysql.createConnection({
+  host: process.env.DB_HOST2,         // Same host
+  user: process.env.DB_USER2,         // Same user
+  password: process.env.DB_PASSWORD2, // Same password
+  database: process.env.DB_DATABASE_TEST, // Points to 'test'
+  port: process.env.DB_PORT2,
+  multipleStatements: true,
+});
+
 const post = new Pool({
   host: process.env.DB_HOST3,
   user: process.env.DB_USER3,
@@ -75,6 +84,11 @@ db4.connect((err) => {
   console.log("connect to mysql4");
 });
 
+dbTest.connect((err) => {
+  if (err) console.error('Error connecting to Test DB:', err);
+  else console.log('Connected to Test DB');
+});
+
 post.connect()
   .then(() => console.log("Connected to PostgreSQL database using Pool!"))
   .catch((err) => console.error("Connection error", err.stack));
@@ -91,6 +105,7 @@ module.exports = {
   db3,
   db2,
   db,
+  dbTest,
   query,
   query2,
   query3,

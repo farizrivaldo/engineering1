@@ -337,6 +337,9 @@ routers.get("/generateDummyDataWeekly", databaseControllers.generateDummyDataWee
 
 routers.get("/getUniversalOEE", databaseControllers.getUniversalOEE);
 
+routers.get("/getUnifiedOEE", databaseControllers.getUnifiedOEE);
+
+
 routers.get("/getDailyOEE", databaseControllers.getDailyOEE);
 
 routers.get("/archiveCombinedOEE", databaseControllers.archiveCombinedOEE);
@@ -350,8 +353,11 @@ routers.get("/getAssignedJobs", databaseControllers.getAssignedJobs);
 
 routers.put("/updateAssignedJob", databaseControllers.updateAssignedJob);
 
+routers.post("/importMaintenanceData", databaseControllers.importMaintenanceData);
 
+routers.get("/getAssignedJobs", databaseControllers.getAssignedJobs);
 
+routers.get("/getFetteLogs", databaseControllers.getFetteLogs);
 
 module.exports = routers;
 

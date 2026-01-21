@@ -10,6 +10,8 @@ const fs = require("fs");
 const axios = require("axios");
 const http = require("http");
 const WebSocket = require("ws");
+const cron = require("node-cron");
+
 
 // Add this line with your other imports
 const databaseControllers = require("./controllers/databaseControllers.js");
@@ -292,3 +294,64 @@ app.post(
 server.listen(port, () => {
   console.log("SERVER RUNNING IN PORT " + port);
 });
+
+
+// Only run on Instance 0 to prevent duplicate inserts
+// =============================================================
+// ⚡ AUTOMATIC CRON JOB (Safe for PM2 Cluster Mode)
+// =============================================================
+
+// =============================================================
+// 🧪 TEST MODE: AUTOMATIC CRON JOB
+// =============================================================
+
+// =============================================================
+// ⚡ AUTOMATIC CRON JOB (Safe for PM2 Cluster Mode)
+// =============================================================
+
+if (process.env.NODE_APP_INSTANCE === '0' || typeof process.env.NODE_APP_INSTANCE === 'undefined') {
+    
+    console.log("✅ Cron Job initialized on this instance (Instance 0)");
+
+    // 1. DEFINE HELPER
+    // Added 'shiftId' so the function can receive the number 1, 2, or 3
+const triggerArchive = async (dateStr, shiftLabel, shiftId) => {
+        try {
+            console.log(`⏰ [${shiftLabel}] Cron Triggered for Date: ${dateStr}`);
+            await axios.get('http://localhost:8002/part/getUnifiedOEE', {
+                params: { date: dateStr,
+                  archive: 'true',
+                  target_shift: shiftId
+                },
+            });
+            console.log(`✅ Auto-Archive Success for ${shiftLabel}`);
+        } catch (error) {
+            console.error(`❌ Cron Failed (${shiftLabel}):`, error.message);
+        }
+    };
+
+    // 2. SCHEDULE JOBS (Production Times)
+    
+    // Shift 1 End (15:00)
+    cron.schedule('0 15 * * *', () => { 
+        const today = new Date().toISOString().split('T')[0];
+        triggerArchive(today, "End of Shift 1", 1); 
+    }, { timezone: "Asia/Jakarta" });
+
+    // Shift 2 End -> Saves ONLY Shift 2
+    cron.schedule('45 22 * * *', () => { 
+        const today = new Date().toISOString().split('T')[0];
+        triggerArchive(today, "End of Shift 2", 2);
+    }, { timezone: "Asia/Jakarta" });
+
+    // Shift 3 End -> Saves ONLY Shift 3
+    cron.schedule('30 6 * * *', () => { 
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const dateStr = yesterday.toISOString().split('T')[0];
+        triggerArchive(dateStr, "End of Shift 3", 3);
+    }, { timezone: "Asia/Jakarta" });
+
+} else {
+    console.log(`Instance ${process.env.NODE_APP_INSTANCE}: Standing by.`);
+}
