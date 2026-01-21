@@ -318,7 +318,7 @@ if (process.env.NODE_APP_INSTANCE === '0' || typeof process.env.NODE_APP_INSTANC
 const triggerArchive = async (dateStr, shiftLabel, shiftId) => {
         try {
             console.log(`⏰ [${shiftLabel}] Cron Triggered for Date: ${dateStr}`);
-            await axios.get('http://localhost:8002/part/getUnifiedOEE', {
+            await axios.get('http://10.126.15.197:8002/part/getUnifiedOEE', {
                 params: { date: dateStr,
                   archive: 'true',
                   target_shift: shiftId
