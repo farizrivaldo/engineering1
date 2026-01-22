@@ -9799,7 +9799,7 @@ getUnifiedOEE: async (req, res) => {
             const allShiftsData = await Promise.all(shiftPromises);
 
             // --- MATH HELPER ---
-            const TARGET_RATE = 5833;
+            const TARGET_RATE = 5333;
             const calculateOEE = (run, out, rej, plan, unplan, time) => {
                 const r = parseFloat(run) || 0;
                 const o = parseFloat(out) || 0;
@@ -10321,17 +10321,15 @@ getWeeklyTrend: async (req, res) => {
     
 // --- 2. Get History Log (Simplified) ---
     getHistoryLog: (req, res) => {
-        // 1. Get Date Range
         const { startDate, endDate } = req.query;
         const end = endDate || new Date().toISOString().split('T')[0];
         const start = startDate || new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
 
-        // 2. Query RAW Data (No Grouping in SQL)
-        // We fetch ALL rows so we have the details for Shift 1, 2, and 3.
+        // 1. Fetch RAW Data
         const sql = `
             SELECT * FROM oee_master_logs
             WHERE DATE(production_date) BETWEEN ? AND ?
-            ORDER BY production_date DESC, shift_name ASC
+            ORDER BY production_date DESC, shift_name DESC
         `;
 
         db4.query(sql, [start, end], (err, rows) => {
@@ -10340,59 +10338,57 @@ getWeeklyTrend: async (req, res) => {
                 return res.status(500).send(err);
             }
 
-            // 3. Post-Process: Group by Date in JavaScript
             const groupedData = {};
 
             rows.forEach(row => {
-                // Create a clean date key (e.g., "2026-01-20")
-                // We use 'row.production_date' directly.
-                const dateKey = new Date(row.production_date).toISOString().split('T')[0];
+                // 🛑 BUG FIX: DATE SHIFT
+                // Old Code: new Date(row.production_date).toISOString().split('T')[0]  <-- Caused UTC rewind
+                // New Code: Manual Local Formatting
+                const d = new Date(row.production_date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateKey = `${year}-${month}-${day}`; // Keeps it '2026-01-21'
 
-                // Initialize the Day Object if it doesn't exist yet
                 if (!groupedData[dateKey]) {
                     groupedData[dateKey] = {
                         date: dateKey,
-                        
-                        // DAILY STATS (Aggregated)
                         daily: {
-                            // Percentages are the same across all rows for that day, so we just take the first one we find
-                            oee: row.oee_value_daily,
+                            // Fetch the Daily Snapshot from the DB row directly
+                            oee: row.oee_value_daily, 
                             availability: row.availability_value_daily,
                             performance: row.performance_value_daily,
                             quality: row.quality_value_daily,
                             
-                            // Counters: We start at 0 and will SUM them up below
-                            total_run: 0,
-                            total_stop: 0,
-                            total_output: 0,
+                            // Initialize counters
+                            total_run: 0, 
+                            total_stop: 0, 
+                            total_output: 0, 
                             total_reject: 0
                         },
-                        
-                        // SHIFT STATS (Individual)
-                        shifts: {
-                            1: null,
-                            2: null,
-                            3: null
-                        }
+                        shifts: { 1: null, 2: null, 3: null }
                     };
                 }
 
-                // A. Add this row to the specific Shift slot
-                // Assuming 'shift_name' is 1, 2, or 3. If it's a string like "Shift 1", this still works as a key.
-                groupedData[dateKey].shifts[row.shift_name] = row;
+                // A. Store Shift Data
+                groupedData[dateKey].shifts[row.shift_name] = {
+                    ...row,
+                    // Map the specific SHIFT columns
+                    oee: row.oee_value_shift, 
+                    avail: row.availability_value_shift,
+                    perf: row.performance_value_shift,
+                    qual: row.quality_value_shift
+                };
 
-                // B. Add to the Daily Totals
-                // We sum up the counters from this shift into the daily total
-                groupedData[dateKey].daily.total_run += (row.total_run || 0);
-                groupedData[dateKey].daily.total_stop += (row.total_stop || 0);
-                groupedData[dateKey].daily.total_output += (row.total_product || 0);
-                groupedData[dateKey].daily.total_reject += (row.reject || 0);
+                // B. Aggregate Daily Counters
+                const dObj = groupedData[dateKey].daily;
+                dObj.total_run += (row.total_run || 0);
+                dObj.total_stop += (row.total_stop || 0);
+                dObj.total_output += (row.total_product || 0);
+                dObj.total_reject += (row.reject || 0);
             });
 
-            // 4. Convert Object back to Array for the Frontend
-            const finalResult = Object.values(groupedData);
-            
-            res.status(200).send(finalResult);
+            res.status(200).send(Object.values(groupedData));
         });
     },
     
