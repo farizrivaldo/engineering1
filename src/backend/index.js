@@ -345,10 +345,14 @@ const triggerArchive = async (dateStr, shiftLabel, shiftId) => {
     }, { timezone: "Asia/Jakarta" });
 
     // Shift 3 End -> Saves ONLY Shift 3
+    // Shift 3 End
     cron.schedule('30 6 * * *', () => { 
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const dateStr = yesterday.toISOString().split('T')[0];
+        const d = new Date();
+        d.setHours(d.getHours() - 12); // Lands on 18:30 Yesterday
+        
+        // This effectively grabs "Yesterday's Date"
+        const dateStr = d.toISOString().split('T')[0]; 
+        
         triggerArchive(dateStr, "End of Shift 3", 3);
     }, { timezone: "Asia/Jakarta" });
 
