@@ -198,8 +198,7 @@ const processArchiveForShift = async (dateStr, shiftNum) => {
     return { shiftStats, dailyStats, hmi };
 };
 
-// --- HELPER: Saves OEE Data to Database (Upsert Logic) ---
-// --- HELPER: Saves OEE Data (Fills ALL Columns) ---
+
 // --- HELPER: Saves OEE Data (Fills ALL Columns + Correct Timestamps) ---
 const saveToLog = (dateStr, shiftNum, shiftData, dailyData) => {
     return new Promise((resolve, reject) => {
@@ -249,7 +248,7 @@ const saveToLog = (dateStr, shiftNum, shiftData, dailyData) => {
         `;
 
         const values = [
-            timestampStr, // ✅ NOW USING FULL DATETIME (e.g., "2026-01-14 06:30:00")
+            timestampStr, // ✅ Using only the DATETIME string
             shiftNum,
             shiftData.avail, shiftData.perf, shiftData.qual, shiftData.oee,
             dailyData.avail, dailyData.perf, dailyData.qual, dailyData.oee,
@@ -10391,7 +10390,7 @@ getWeeklyTrend: async (req, res) => {
             res.status(200).send(Object.values(groupedData));
         });
     },
-    
+
     // --- Get Assigned Jobs ---
 // --- Get Assigned Jobs ---
 // --- Get Assigned Jobs ---
@@ -10643,6 +10642,801 @@ getFetteLogs: async (request, response) => {
         }
     },
 
+getDowntimeEvents: async (req, res) => {
+    try {
+        console.log('\n📉 Fetching Full Downtime Data (Planned + Unplanned + Events)...');
+        const { start, end } = req.query;
+        
+        if (!start || !end) {
+            return res.status(400).send({ error: "Start and End timestamps are required" });
+        }
+
+        // --- QUERY 1: Unplanned Budget ---
+        const sqlUnplanned = `
+            SELECT (dur_cekrollerpunch + dur_perbaikandeduster + dur_zerobalance + 
+                    dur_tunggugranul + dur_settingulangipc + dur_tungguaproval) AS limit_val
+            FROM \`NodeRed_oee_fette_ud_desc\`
+            WHERE \`timestamp\` BETWEEN UNIX_TIMESTAMP(?) AND UNIX_TIMESTAMP(?)
+            ORDER BY \`timestamp\` DESC LIMIT 1`;
+
+        // --- QUERY 2: Planned Budget ---
+        const sqlPlanned = `
+            SELECT (dur_cusuminor + dur_cusumajor + dur_testrun + dur_bersihipc + 
+                    dur_briefing + dur_veriftimbangan + dur_verifmetal + dur_sanit_matcon + 
+                    dur_setupBN + dur_ipc_bobot_LC + dur_kumpulafkir + dur_gantimatcon + 
+                    dur_timbanghasil + dur_cleanup + dur_closePPI + dur_istirahat + 
+                    dur_istirahat_soljum) AS limit_val
+            FROM \`NodeRed_oee_fette_pd_desc\`
+            WHERE \`timestamp\` BETWEEN UNIX_TIMESTAMP(?) AND UNIX_TIMESTAMP(?)
+            ORDER BY \`timestamp\` DESC LIMIT 1`;
+
+        // --- QUERY 3: Timeline Events ---
+        // --- QUERY 3: Timeline Events (FIXED: Subtracting 7 Hours) ---
+const sqlEvents = `
+    SELECT 
+        -- 1. Format as String to lock the time
+        DATE_FORMAT(MIN(corrected_time), '%Y-%m-%d %H:%i:%s') AS start_time, 
+        DATE_FORMAT(MAX(corrected_time), '%Y-%m-%d %H:%i:%s') AS finish_time,
+        
+        ROUND(TIMESTAMPDIFF(SECOND, MIN(corrected_time), MAX(corrected_time)) / 60, 1) AS duration_minutes, 
+        'Undefined' AS category
+    FROM (
+        SELECT Step1.*, 
+        @group_id := IF(@prev_status = is_stopped, @group_id, @group_id + 1) AS group_id, 
+        @prev_status := is_stopped
+        FROM (
+            SELECT 
+                -- 2. CRITICAL FIX: SUBTRACT 7 Hours (25200 seconds)
+                -- Because Mentaj data is 7 hours in the future
+                FROM_UNIXTIME((\`time@timestamp\`) + (7 * 3600)) AS corrected_time,
+                
+                IF(\`data_format_1\` > @prev_val, 1, 0) AS is_stopped, 
+                @prev_val := \`data_format_1\` AS tmp_var
+            FROM \`CMT-VIBRATION_oee_fette_mentaj_data\`, (SELECT @prev_val := 0) AS vars_init_1
+            ORDER BY \`time@timestamp\` ASC LIMIT 18446744073709551615
+        ) Step1, (SELECT @group_id := 0, @prev_status := 0) AS vars_init_2
+    ) Step2
+    WHERE is_stopped = 1 AND corrected_time BETWEEN ? AND ?
+    GROUP BY group_id ORDER BY start_time DESC`;
+
+        // --- EXECUTION ---
+        dbTest.query(sqlUnplanned, [start, end], (err1, resUnplanned) => {
+            if (err1) return res.status(500).send({ error: err1.message });
+
+            dbTest.query(sqlPlanned, [start, end], (err2, resPlanned) => {
+                if (err2) return res.status(500).send({ error: err2.message });
+
+                db4.query(sqlEvents, [start, end], (err3, resEvents) => {
+                    if (err3) return res.status(500).send({ error: err3.message });
+
+                    const unplannedLimit = resUnplanned.length > 0 ? resUnplanned[0].limit_val : 10;
+                    const plannedLimit = resPlanned.length > 0 ? resPlanned[0].limit_val : 10;
+
+                    res.status(200).send({
+                        budget: { unplanned_limit: unplannedLimit, planned_limit: plannedLimit },
+                        events: resEvents
+                    });
+                });
+            });
+        });
+
+    } catch (error) {
+        console.error('❌ Downtime Controller Error:', error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+getDowntimeByUnix: async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+
+        if (!start_date || !end_date) {
+            return res.status(400).send({ error: "Start and End dates are required" });
+        }
+
+        // --- 1. Prepare Timestamps ---
+        const unixStart = Math.floor(new Date(start_date).getTime() / 1000);
+        const unixEnd = Math.floor(new Date(end_date).getTime() / 1000);
+        
+        // Mentaj Machine Offset (+7 Hours / 25200 seconds)
+        const MENTAJ_OFFSET = 25200; 
+        const searchStart = unixStart + MENTAJ_OFFSET;
+        const searchEnd = unixEnd + MENTAJ_OFFSET;
+
+        console.log(`\n🔍 Searching: ${start_date} to ${end_date}`);
+
+        // --- QUERY A: Fetch Stop Events (Time-Difference Logic) ---
+        const sqlEvents = `
+            SELECT 
+                FROM_UNIXTIME(start_unix - 25200) AS start_time,
+                FROM_UNIXTIME(end_unix - 25200) AS finish_time,
+                (end_unix - start_unix) AS raw_seconds,
+                ROUND((end_unix - start_unix) / 60, 1) AS duration_minutes,
+                'Undefined' AS category
+            FROM (
+                SELECT 
+                    MAX(Step1.is_stopped) AS is_stopped,
+                    MIN(raw_unix_time) AS start_unix,
+                    MAX(raw_unix_time) AS end_unix,
+                    @group_id := IF(@prev_status = is_stopped, @group_id, @group_id + 1) AS group_id,
+                    @prev_status := is_stopped
+                FROM (
+                    SELECT 
+                        \`time@timestamp\` as raw_unix_time,
+                        IF(\`data_format_0\` > @prev_run, 0, 1) AS is_stopped,
+                        @prev_run := \`data_format_0\`
+                    FROM 
+                        \`CMT-VIBRATION_oee_fette_mentaj_data\`, 
+                        (SELECT @prev_run := 0) AS vars_init_1 
+                    WHERE 
+                        \`time@timestamp\` BETWEEN ? AND ?
+                    ORDER BY 
+                        \`time@timestamp\` ASC
+                ) Step1,
+                (SELECT @group_id := 0, @prev_status := -1) AS vars_init_2 
+                GROUP BY group_id
+            ) Step2
+            WHERE is_stopped = 1
+            AND (end_unix - start_unix) > 0 
+            ORDER BY start_unix DESC;
+        `;
+
+        // --- QUERY B: Fetch Planned Budget (FIXED) ---
+        // 1. Changed source to 'CMT-VIBRATION_oee_fette_mentaj_data'
+        // 2. Using 'data_format_2' which corresponds to 'planned_dur' (140)
+        const sqlPlanned = `
+            SELECT MAX(data_format_2) as total_planned_val
+            FROM \`CMT-VIBRATION_oee_fette_mentaj_data\`
+            WHERE \`time@timestamp\` BETWEEN ? AND ?
+        `;
+
+        // --- QUERY C: PLC Total (Shift Total) ---
+        // Using 'data_format_1' which corresponds to 'stoptime' (234)
+        const sqlPLC = `
+            SELECT MAX(data_format_1) as plc_total_minutes
+            FROM \`CMT-VIBRATION_oee_fette_mentaj_data\`
+            WHERE \`time@timestamp\` BETWEEN ? AND ?
+        `;
+
+        // --- EXECUTION CHAIN ---
+        db4.query(sqlEvents, [searchStart, searchEnd], (err1, eventsResults) => {
+            if (err1) return res.status(500).send({ error: "Events Error: " + err1.message });
+
+            // IMPORTANT: Switch to db4 and use searchStart/searchEnd for sqlPlanned now
+            db4.query(sqlPlanned, [searchStart, searchEnd], (err2, plannedResults) => {
+                if (err2) return res.status(500).send({ error: "Budget Error: " + err2.message });
+
+                db4.query(sqlPLC, [searchStart, searchEnd], (err3, plcResults) => {
+                    if (err3) return res.status(500).send({ error: "PLC Error: " + err3.message });
+
+                    // Parse Results
+                    const plannedLimit = plannedResults.length > 0 ? parseFloat(plannedResults[0].total_planned_val || 0) : 0;
+                    
+                    let totalDowntime = 0;
+                    let source = "Calculated";
+
+                    if (plcResults.length > 0 && plcResults[0].plc_total_minutes != null) {
+                        totalDowntime = parseFloat(plcResults[0].plc_total_minutes);
+                        source = "PLC (data_format_1)";
+                    } else {
+                        totalDowntime = eventsResults.reduce((sum, e) => sum + (parseFloat(e.duration_minutes) || 0), 0);
+                    }
+
+                    // Calculation: Unplanned = Total - Planned
+                    const unplannedLimit = Math.max(0, totalDowntime - plannedLimit);
+
+                    console.log(`\n📊 Final Calculation (${source}):`);
+                    console.log(`   Total Time (F1):    ${totalDowntime.toFixed(1)}m`);
+                    console.log(`   Planned Limit (F2): ${plannedLimit.toFixed(1)}m`);
+                    console.log(`   Unplanned (Diff):   ${unplannedLimit.toFixed(1)}m`);
+
+                    res.status(200).send({
+                        budget: { 
+                            planned_limit: parseFloat(plannedLimit.toFixed(1)),
+                            unplanned_limit: parseFloat(unplannedLimit.toFixed(1)),
+                            total_downtime: parseFloat(totalDowntime.toFixed(1)),
+                            source: source
+                        },
+                        events: eventsResults
+                    });
+                });
+            });
+        });
+
+    } catch (error) {
+        console.error('❌ Controller Error:', error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+storeDowntimeEvents: async (req, res) => {
+    try {
+        // 1. Receive simple data from Frontend
+        const { date, shift, events, start_range, end_range } = req.body; 
+        // e.g., date: "2026-01-28", shift: "Shift 1"
+
+        if (!date || !shift) return res.status(400).send({ error: "Date/Shift required" });
+
+        // 2. Map "Shift 1" -> 1
+        const shiftMap = { "Shift 1": 1, "Shift 2": 2, "Shift 3": 3 };
+        const shiftNum = shiftMap[shift];
+
+        // 3. FIND THE REAL SHIFT ID (The "Golden Key" Lookup)
+        // We match the date AND the shift number to get the unique ID (e.g., 582)
+        const idQuery = `
+            SELECT id FROM oee_master_logs 
+            WHERE DATE(production_date) = ? AND shift_name = ? 
+            LIMIT 1
+        `;
+
+        db4.query(idQuery, [date, shiftNum], (err, idRes) => {
+            if (err) return res.status(500).send({ error: "Lookup Failed" });
+            
+            // Critical Safety Check: Does the Master Log exist?
+            if (idRes.length === 0) {
+                return res.status(404).send({ error: "Shift Log not found in Master Table. Cannot save." });
+            }
+
+            const realShiftId = idRes[0].id; // <--- WE FOUND IT! (e.g. 582)
+
+            // 4. NOW WE PROCEED WITH THE SAVE (Using realShiftId)
+            const updatedBy = "User"; 
+            const updatedAt = new Date();
+
+            // A. Delete old data using the REAL ID
+            const deleteSql = "DELETE FROM fette_shift_downtime_events WHERE shift_id = ?";
+            
+            db4.query(deleteSql, [realShiftId], (delErr) => {
+                if (delErr) return res.status(500).send({ error: "Delete Failed" });
+
+                if (!events || events.length === 0) {
+                    return res.status(200).send({ message: "Report cleared." });
+                }
+
+                // B. Insert new data using the REAL ID
+                const insertSql = `
+                    INSERT INTO fette_shift_downtime_events 
+                    (shift_id, production_date, start_time, end_time, duration_minutes, category, reason_name, reason_id, updated_by, updated_at)
+                    VALUES ?
+                `;
+
+                const values = events.map(e => [
+                    realShiftId,      // Using 582
+                    date,             // Saving the string date is fine for reference
+                    e.start_time,
+                    e.end_time,
+                    e.duration_minutes,
+                    e.category,
+                    e.reason_name,
+                    e.reason_id,
+                    updatedBy,
+                    updatedAt
+                ]);
+
+                db4.query(insertSql, [values], (insErr, insRes) => {
+                    if (insErr) return res.status(500).send({ error: "Insert Failed" });
+                    res.status(200).send({ success: true, message: "Saved with ID " + realShiftId });
+                });
+            });
+        });
+
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// --- 1. FETCH: Get Saved Events from the Permanent Table ---
+getStoredDowntime: async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+
+        // 1. Select all columns including the new 'reason_name' and metadata
+        const sql = `
+            SELECT 
+                id, 
+                shift_id, 
+                start_time, 
+                end_time, 
+                duration_minutes, 
+                category, 
+                reason_name, 
+                reason_id,
+                updated_at, 
+                updated_by 
+            FROM fette_shift_downtime_events 
+            WHERE start_time >= ? AND end_time <= ?
+            ORDER BY start_time ASC
+        `;
+
+        // 2. Execute Query
+        db4.query(sql, [start_date, end_date], (err, results) => {
+            if (err) {
+                console.error("Fetch Error:", err);
+                return res.status(500).send({ error: "Database error" });
+            }
+
+            // 3. Logic: If results > 0, the report is "Submitted"
+            const isSubmitted = results.length > 0;
+
+            res.status(200).send({
+                success: true,
+                is_submitted: isSubmitted,
+                // Send metadata from the first row (assuming batch update)
+                last_updated_at: isSubmitted ? results[0].updated_at : null,
+                last_updated_by: isSubmitted ? results[0].updated_by : null,
+                events: results
+            });
+        });
+
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// --- 2. UPDATE: Assign Category & Reason ---
+updateDowntime: async (req, res) => {
+    try {
+        const { id, category, reason_id } = req.body;
+        
+        if (!id || !category) return res.status(400).send({ error: "ID and Category are required" });
+
+        const sql = `
+            UPDATE fette_shift_downtime_events 
+            SET category = ?, reason_id = ? 
+            WHERE id = ?
+        `;
+
+        db4.query(sql, [category, reason_id || null, id], (err, result) => {
+            if (err) return res.status(500).send({ error: err.message });
+            res.status(200).send({ message: "Event Updated", affected: result.affectedRows });
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// --- 3. SPLIT: Slice an Event into Two ---
+splitDowntime: async (req, res) => {
+    try {
+        const { id, split_minutes } = req.body;
+
+        // Validation
+        if (!id || !split_minutes) return res.status(400).send({ error: "Event ID and Split Minutes are required" });
+
+        // 1. Get a dedicated connection from the pool
+        db4.getConnection((err, connection) => {
+            if (err) return res.status(500).send({ error: "DB Connection failed: " + err.message });
+
+            // A. Fetch the Original Event using the dedicated connection
+            const fetchSql = "SELECT * FROM fette_shift_downtime_events WHERE id = ?";
+            
+            connection.query(fetchSql, [id], (err, results) => {
+                if (err) {
+                    connection.release(); // Release on error
+                    return res.status(500).send({ error: err.message });
+                }
+                if (results.length === 0) {
+                    connection.release();
+                    return res.status(404).send({ error: "Event not found" });
+                }
+
+                const original = results[0];
+                const originalDur = parseFloat(original.duration_minutes);
+                const splitDur = parseFloat(split_minutes);
+
+                // B. Validate Math
+                if (splitDur >= originalDur || splitDur <= 0) {
+                    connection.release();
+                    return res.status(400).send({ error: `Split time (${splitDur}) must be smaller than total duration (${originalDur})` });
+                }
+
+                // C. Calculate New Times (TIMEZONE SAFE METHOD)
+                const startTime = new Date(original.start_time);
+                const splitPointDate = new Date(startTime.getTime() + splitDur * 60000); 
+
+                const toLocalSQLString = (dateObj) => {
+                    const pad = (n) => n < 10 ? '0' + n : n;
+                    return dateObj.getFullYear() + '-' +
+                        pad(dateObj.getMonth() + 1) + '-' +
+                        pad(dateObj.getDate()) + ' ' +
+                        pad(dateObj.getHours()) + ':' +
+                        pad(dateObj.getMinutes()) + ':' +
+                        pad(dateObj.getSeconds());
+                };
+
+                const splitPointStr = toLocalSQLString(splitPointDate);
+
+                // D. TRANSACTION: Update Original + Insert New
+                const updateOriginalSql = `
+                    UPDATE fette_shift_downtime_events 
+                    SET end_time = ?, duration_minutes = ? 
+                    WHERE id = ?
+                `;
+
+                const insertNewSql = `
+                    INSERT INTO fette_shift_downtime_events 
+                    (shift_id, start_time, end_time, duration_minutes, category, parent_event_id) 
+                    VALUES (?, ?, ?, ?, 'Undefined', ?)
+                `;
+
+                const remainderDur = originalDur - splitDur;
+
+                // 2. Start Transaction on the connection
+                connection.beginTransaction(err => {
+                    if (err) {
+                        connection.release();
+                        return res.status(500).send({ error: err.message });
+                    }
+
+                    // Step 1: Shrink Original Event
+                    connection.query(updateOriginalSql, [splitPointStr, splitDur, id], (err2) => {
+                        if (err2) {
+                            return connection.rollback(() => {
+                                connection.release();
+                                res.status(500).send({ error: "Update Failed: " + err2.message });
+                            });
+                        }
+
+                        // Step 2: Create Remainder Event
+                        let originalEndStr = original.end_time;
+                        if (original.end_time instanceof Date) {
+                            originalEndStr = toLocalSQLString(original.end_time);
+                        }
+
+                        connection.query(insertNewSql, [
+                            original.shift_id, 
+                            splitPointStr,  // New Start
+                            originalEndStr, // Old End
+                            remainderDur, 
+                            original.id 
+                        ], (err3) => {
+                            if (err3) {
+                                return connection.rollback(() => {
+                                    connection.release();
+                                    res.status(500).send({ error: "Insert Failed: " + err3.message });
+                                });
+                            }
+
+                            // 3. Commit
+                            connection.commit(err4 => {
+                                if (err4) {
+                                    return connection.rollback(() => {
+                                        connection.release();
+                                        res.status(500).send({ error: "Commit Failed: " + err4.message });
+                                    });
+                                }
+                                
+                                // 4. Success & Release
+                                connection.release();
+                                res.status(200).send({ message: "Split Successful", original_new_dur: splitDur, new_event_dur: remainderDur });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+    } catch (error) {
+        console.error("Split Error:", error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// --- 4. FETCH REASONS: Get list for the dropdown ---
+getDowntimeReasons: async (req, res) => {
+    try {
+        const sql = `
+            SELECT id, name, default_category 
+            FROM fette_master_downtime_reasons 
+            WHERE is_active = 1 
+            ORDER BY name ASC
+        `;
+
+        db4.query(sql, (err, results) => {
+            if (err) return res.status(500).send({ error: err.message });
+            res.status(200).send(results);
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// Add this to your Controller
+runEtlProcess: async (req, res) => {
+    // --- 1. CONFIGURATION (MAPPINGS) ---
+    
+    // MAP 1: Unplanned (UD Table) -> IDs from fette_master_downtime_reasons
+    // These match the IDs (24-29) we created earlier.
+    const UNPLANNED_MAP = {
+        'dur_cekrollerpunch': 19,    // Cek Roller Punch
+        'dur_perbaikandeduster': 21, // Perbaikan Deduster
+        'dur_zerobalance': 23,       // Zero Balance
+        'dur_tunggugranul': 20,      // Tunggu Granul
+        'dur_settingulangipc': 22,   // Setting Ulang IPC
+        'dur_tungguaproval': 24,     // Tunggu Approval
+        'dur_lain': 25            // Lain-lain
+    };
+
+    // MAP 2: Planned (PD Table) -> IDs from fette_master_downtime_reasons
+    // Sourced from your latest screenshot (image_d839ce.png)
+    const PLANNED_MAP = {
+        'dur_cusuminor': 1,          // Cusu Minor
+        'dur_cusumajor': 2,         // Cusu Major
+        'dur_testrun': 3,           // Test Run
+        'dur_bersihipc': 4,         // Pembersihan Alat Ipc
+        'dur_briefing': 5,          // Briefing
+        'dur_veriftimbangan': 6,    // Verifikasi Timbangan
+        'dur_verifmetal': 7,        // Verifikasi Metal Detector
+        'dur_sanit_matcon': 8,      // Sanitasi + Tara Matcon
+        'dur_setupBN': 9,           // Setup Ganti Bn
+        'dur_ipc_bobot_LC': 10,     // Ipc Awal + Set Bobot + Lc
+        'dur_kumpulafkir': 11,      // Kumpulkan Afkiran
+        'dur_gantimatcon': 12,      // Ganti Matcon
+        'dur_timbanghasil': 13,     // Timbang Hasil
+        'dur_cleanup': 14,          // Cleanup Rutin (Roller & Punch)
+        'dur_closePPI': 15,         // Close Ppi
+        'dur_istirahat': 16,        // Istirahat
+        'dur_istirahat_soljum': 17  // CORRECTED: Istirahat (Sholat Jumat) is ID 17
+    };
+
+    // --- 2. THE REUSABLE WORKER FUNCTION ---
+    const runSingleEtl = async (sourceTable, map, category) => {
+        // A. Get the Last ID processed SPECIFICALLY for this source table
+        // This ensures unplanned and planned streams don't mix up their progress
+        const [lastEvent] = await db4.promise().query(
+            `SELECT original_log_id FROM fette_shift_events 
+             WHERE source_table = ? 
+             ORDER BY original_log_id DESC LIMIT 1`,
+            [sourceTable]
+        );
+        const lastProcessedId = lastEvent.length > 0 ? lastEvent[0].original_log_id : 0;
+
+        // B. Fetch New Raw Data
+        // Fetch rows newer than our last checkpoint
+        const fetchLimit = 5000;
+        const [rawRows] = await dbTest.promise().query(
+            `SELECT * FROM ?? 
+             WHERE id >= ? 
+             ORDER BY id ASC 
+             LIMIT ?`, 
+            [sourceTable, lastProcessedId, fetchLimit]
+        );
+
+        // Need at least 2 rows to calculate a delta (Previous -> Current)
+        if (rawRows.length < 2) return { count: 0, rows: 0 };
+
+        let insertedCount = 0;
+
+        // C. Iterate through rows
+        for (let i = 1; i < rawRows.length; i++) {
+            const prevRow = rawRows[i-1];
+            const currRow = rawRows[i];
+
+            for (const [key, currVal] of Object.entries(currRow)) {
+                // Check if this column is in our Map (is it a duration column we care about?)
+                if (map[key]) {
+                    const prevVal = prevRow[key] || 0;
+                    let duration = 0;
+
+                    // D. Delta Logic (The Core Math)
+                    if (parseFloat(currVal) < parseFloat(prevVal)) {
+                        // CASE: RESET (e.g. 45 -> 0). PLC restarted.
+                        // We treat the new value as the full duration of the new event.
+                        duration = parseFloat(currVal); 
+                        console.log(`♻️ Reset Detected on ${sourceTable}.${key}: ${prevVal} -> ${currVal}`);
+                    } else {
+                        // CASE: NORMAL (e.g. 45 -> 50). Add the difference.
+                        duration = parseFloat(currVal) - parseFloat(prevVal);
+                    }
+
+                    // E. Insert Event
+                    // Filter out 0-minute "events" caused by rows where nothing changed
+                    if (duration > 0.1) {
+                        const reasonId = map[key];
+                        // Convert Unix Timestamp (Seconds) to JS Date (Milliseconds)
+                        const endTime = new Date(currRow.timestamp * 1000); 
+                        const startTime = new Date(endTime.getTime() - (duration * 60000));
+
+                        await db4.promise().query(
+                            `INSERT INTO fette_shift_events 
+                            (start_time, end_time, duration_minutes, category, reason_id, source_table, original_log_id) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                            [startTime, endTime, duration, category, reasonId, sourceTable, currRow.id]
+                        );
+                        insertedCount++;
+                    }
+                }
+            }
+        }
+        return { count: insertedCount, rows: rawRows.length };
+    };
+
+    // --- 3. EXECUTE BOTH STREAMS ---
+    try {
+        console.log("🚀 Starting ETL Process...");
+
+        // Run Unplanned ETL
+        const udResult = await runSingleEtl('NodeRed_oee_fette_ud_desc', UNPLANNED_MAP, 'Unplanned');
+        
+        // Run Planned ETL
+        const pdResult = await runSingleEtl('NodeRed_oee_fette_pd_desc', PLANNED_MAP, 'Planned');
+
+        console.log(`✅ ETL Complete. Created ${udResult.count + pdResult.count} events.`);
+
+        res.send({ 
+            status: "success", 
+            unplanned: { scanned: udResult.rows, created: udResult.count },
+            planned:   { scanned: pdResult.rows, created: pdResult.count },
+            total_created: udResult.count + pdResult.count
+        });
+
+    } catch (error) {
+        console.error("❌ ETL Error:", error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// ... existing runEtlProcess code ...
+
+// NEW: Fetch the converted events to show in the frontend table
+// ... inside downtimeController.js
+
+getShiftEvents: async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+        
+        let sql = `
+            SELECT 
+                e.*, 
+                m.name as reason_name 
+            FROM fette_shift_events e
+            LEFT JOIN fette_master_downtime_reasons m ON e.reason_id = m.id
+        `;
+        
+        const params = [];
+
+        // If dates are provided, filter by them. Otherwise, show last 100 rows.
+        if (start_date && end_date) {
+            sql += ` WHERE e.start_time >= ? AND e.start_time <= ? ORDER BY e.start_time DESC`;
+            params.push(start_date, end_date);
+        } else {
+            sql += ` ORDER BY e.start_time DESC LIMIT 100`;
+        }
+
+        db4.query(sql, params, (err, results) => {
+            if (err) return res.status(500).send(err);
+            res.status(200).send(results);
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// --- NEW: Fetch Stored/ETL Events for History or Edit Mode ---
+// GET /part/getStoredShiftEvents
+// GET /part/getStoredShiftEvents
+getStoredShiftEvents: async (req, res) => {
+    try {
+        const { date, shift, start_date, end_date } = req.query;
+
+        // --- OPTION A: Query by Smart View (For the Accounting Canvas) ---
+        if (date && shift) {
+            const shiftMap = { "Shift 1": 1, "Shift 2": 2, "Shift 3": 3 };
+            const shiftNum = shiftMap[shift];
+
+            const sql = `
+                SELECT * FROM fette_smart_stats_view 
+                WHERE DATE(production_date) = ? AND shift_name = ?
+                ORDER BY start_time ASC
+            `;
+
+            // Use standard callback (db4.query) without 'return' or 'await'
+            db4.query(sql, [date, shiftNum], (err, results) => {
+                if (err) return res.status(500).send({ error: err.message });
+                res.send({ status: "success", events: results });
+            });
+            return; // Exit to prevent falling through
+        }
+
+        // --- OPTION B: Query Raw Table (For Comparison Baseline) ---
+        if (start_date && end_date) {
+            const sql = `
+                SELECT e.*, r.name as reason_name 
+                FROM fette_shift_events e
+                LEFT JOIN fette_master_downtime_reasons r ON e.reason_id = r.id
+                WHERE e.start_time >= ? AND e.start_time <= ?
+                ORDER BY e.start_time ASC
+            `;
+
+            db4.query(sql, [start_date, end_date], (err, results) => {
+                if (err) return res.status(500).send({ error: err.message });
+                res.send({ status: "success", events: results });
+            });
+            return;
+        }
+
+        res.status(400).send({ error: "Missing required parameters (Date/Shift or Start/End)" });
+
+    } catch (error) {
+        console.error("Backend Error:", error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// GET /part/getShiftId
+// GET /part/getShiftId
+getShiftId: async (req, res) => {
+    try {
+        const { date, shift } = req.query; 
+        const shiftNameMap = { "Shift 1": 1, "Shift 2": 2, "Shift 3": 3 };
+        const shiftNum = shiftNameMap[shift];
+
+        console.log("--- DEBUG GET SHIFT ID ---");
+        console.log("1. Received Date:", date);       // Should be "2026-01-21"
+        console.log("2. Received Shift:", shift);     // Should be "Shift 1"
+        console.log("3. Mapped Shift Num:", shiftNum);// Should be 1
+
+        if (!date || !shift) return res.status(400).send({ error: "Missing params" });
+
+        // FIX: Use a string-based search (LIKE) to avoid Timezone math issues with DATE()
+        const sql = `
+            SELECT id, production_date, shift_name 
+            FROM oee_master_logs 
+            WHERE production_date LIKE CONCAT(?, '%') 
+            AND shift_name = ?
+        `;
+
+        db4.query(sql, [date, shiftNum], (err, results) => {
+            if (err) {
+                console.error("SQL Error:", err);
+                return res.status(500).send({ error: err.message });
+            }
+            
+            console.log("4. DB Results found:", results.length);
+            
+            if (results.length > 0) {
+                console.log("✅ Match Found! ID:", results[0].id);
+                res.json({ shift_id: results[0].id }); 
+            } else {
+                console.log("❌ No Match in DB.");
+                res.json({ shift_id: null }); 
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+// GET /part/getAllSmartEvents
+getAllSmartEvents: async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+
+        if (!start_date || !end_date) {
+            return res.status(400).send({ error: "Start and End dates are required" });
+        }
+
+        // Logic: Query the Smart View across a range. 
+        // The View already handles the Machine vs Supervisor priority internally.
+        const sql = `
+            SELECT * FROM fette_smart_stats_view 
+            WHERE production_date >= ? AND production_date <= ?
+            ORDER BY start_time ASC
+        `;
+
+        db4.query(sql, [start_date, end_date], (err, results) => {
+            if (err) return res.status(500).send({ error: err.message });
+            
+            // Send raw results to the frontend
+            res.send(results);
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+
+      
 
   
 

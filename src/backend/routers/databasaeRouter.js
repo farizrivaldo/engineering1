@@ -359,5 +359,27 @@ routers.get("/getAssignedJobs", databaseControllers.getAssignedJobs);
 
 routers.get("/getFetteLogs", databaseControllers.getFetteLogs);
 
+routers.get("/getDowntimeDetails", databaseControllers.getDowntimeEvents);
+routers.get("/getDowntimeByUnix", databaseControllers.getDowntimeByUnix);
+routers.post("/storeDowntimeEvents", databaseControllers.storeDowntimeEvents);
+
+routers.get("/getStoredDowntime", databaseControllers.getStoredDowntime);
+
+routers.post("/splitDowntime", databaseControllers.splitDowntime);
+
+routers.put("/updateDowntime", databaseControllers.updateDowntime);
+
+routers.get("/getDowntimeReasons", databaseControllers.getDowntimeReasons);
+
+routers.post("/runEtlProcess", databaseControllers.runEtlProcess);
+
+routers.get("/getShiftEvents", databaseControllers.getShiftEvents);
+
+routers.get("/getStoredShiftEvents", databaseControllers.getStoredShiftEvents);
+
+routers.get("/getShiftId", databaseControllers.getShiftId);
+
+routers.get("/getAllSmartEvents", databaseControllers.getAllSmartEvents);
+
 module.exports = routers;
 

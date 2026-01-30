@@ -197,12 +197,18 @@ let connectionStatus = {
 // Function to ping connections every 5 seconds
 function pingConnections() {
   setInterval(() => {
+    // Iterate through all mysql connections (Pools AND Single)
     [db, db2, db3, db4].forEach((conn, index) => {
-      conn.ping((err) => {
+      
+      // CHANGED: Use .query('SELECT 1') instead of .ping()
+      // This works universally for both your Pools and Single connections.
+      conn.query('SELECT 1', (err) => {
         const status = err ? `Error : ${err.message}` : "YOMAN";
         connectionStatus[`db${index + 1}`] = status;
       });
+      
     });
+    // Your PostgreSQL logic stays exactly the same
     post.query("SELECT 1", (err) => {
       const status = err ? `Error: ${err.message}` : "YOMAN";
       connectionStatus.postgresql = status;
@@ -332,28 +338,30 @@ const triggerArchive = async (dateStr, shiftLabel, shiftId) => {
 
     // 2. SCHEDULE JOBS (Production Times)
     
-    // Shift 1 End (15:00)
+    // Shift 1 End (Runs at 15:00:05)
     cron.schedule('0 15 * * *', () => { 
-        const today = new Date().toISOString().split('T')[0];
-        triggerArchive(today, "End of Shift 1", 1); 
+        setTimeout(() => {
+            const today = new Date().toISOString().split('T')[0];
+            triggerArchive(today, "End of Shift 1", 1); 
+        }, 5000); // 5000ms = 5 Seconds Delay
     }, { timezone: "Asia/Jakarta" });
 
-    // Shift 2 End -> Saves ONLY Shift 2
+    // Shift 2 End (Runs at 22:45:05)
     cron.schedule('45 22 * * *', () => { 
-        const today = new Date().toISOString().split('T')[0];
-        triggerArchive(today, "End of Shift 2", 2);
+        setTimeout(() => {
+            const today = new Date().toISOString().split('T')[0];
+            triggerArchive(today, "End of Shift 2", 2);
+        }, 5000);
     }, { timezone: "Asia/Jakarta" });
 
-    // Shift 3 End -> Saves ONLY Shift 3
-    // Shift 3 End
+    // Shift 3 End (Runs at 06:30:05)
     cron.schedule('30 6 * * *', () => { 
-        const d = new Date();
-        d.setHours(d.getHours() - 12); // Lands on 18:30 Yesterday
-        
-        // This effectively grabs "Yesterday's Date"
-        const dateStr = d.toISOString().split('T')[0]; 
-        
-        triggerArchive(dateStr, "End of Shift 3", 3);
+        setTimeout(() => {
+            const d = new Date();
+            d.setHours(d.getHours() - 12); 
+            const dateStr = d.toISOString().split('T')[0];
+            triggerArchive(dateStr, "End of Shift 3", 3);
+        }, 5000);
     }, { timezone: "Asia/Jakarta" });
 
 } else {
