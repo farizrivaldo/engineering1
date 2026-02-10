@@ -381,5 +381,30 @@ routers.get("/getShiftId", databaseControllers.getShiftId);
 
 routers.get("/getAllSmartEvents", databaseControllers.getAllSmartEvents);
 
+routers.put("/updateMasterLogs", databaseControllers.updateMasterLogs);
+
+routers.get("/getAllMasterLogs", databaseControllers.getAllMasterLogs);
+
+routers.get("/getOverrideData", databaseControllers.getOverrideData);
+
+routers.get("/getOverrideDataBySearch", databaseControllers.getOverrideDataBySearch);
+
+routers.post("/saveOverrideData", databaseControllers.saveOverrideData);
+
+routers.get("/getAuditLogs", databaseControllers.getAuditLogs);
+
+routers.get("/getShiftMetadata", databaseControllers.getShiftMetadata);
+
+routers.get("/getOverrideDayData", databaseControllers.getOverrideDayData);
+
+routers.get("/getOverrideAuditLogs", databaseControllers.getOverrideAuditLogs);
+
+routers.get("/syncFetteETL", databaseControllers.syncFetteETL);
+routers.get("/backfillFetteETL", databaseControllers.backfillFetteETL);
+routers.get("/getFetteOEE", databaseControllers.getFetteOEE);
+
+routers.get("/getUnifiedOEE2", databaseControllers.getUnifiedOEE2);
+
+
 module.exports = routers;
 

@@ -317,53 +317,166 @@ server.listen(port, () => {
 
 if (process.env.NODE_APP_INSTANCE === '0' || typeof process.env.NODE_APP_INSTANCE === 'undefined') {
     
-    console.log("✅ Cron Job initialized on this instance (Instance 0)");
+    console.log("✅ Cron Jobs initialized on Instance 0 (OEE + Downtime ETL)");
 
-    // 1. DEFINE HELPER
-    // Added 'shiftId' so the function can receive the number 1, 2, or 3
-const triggerArchive = async (dateStr, shiftLabel, shiftId) => {
+    // --- HELPER 1: OEE ARCHIVING ---
+    const triggerArchive = async (dateStr, shiftLabel, shiftId) => {
         try {
-            console.log(`⏰ [${shiftLabel}] Cron Triggered for Date: ${dateStr}`);
+            console.log(`⏰ [OEE] Archiving ${shiftLabel} for Date: ${dateStr}`);
             await axios.get('http://10.126.15.197:8002/part/getUnifiedOEE', {
-                params: { date: dateStr,
-                  archive: 'true',
-                  target_shift: shiftId
-                },
+                params: { date: dateStr, archive: 'true', target_shift: shiftId },
             });
-            console.log(`✅ Auto-Archive Success for ${shiftLabel}`);
+            console.log(`✅ OEE Archive Success for ${shiftLabel}`);
         } catch (error) {
-            console.error(`❌ Cron Failed (${shiftLabel}):`, error.message);
+            console.error(`❌ OEE Archive Failed (${shiftLabel}):`, error.message);
         }
     };
 
-    // 2. SCHEDULE JOBS (Production Times)
+    // --- HELPER 2: DOWNTIME ETL (Processes pd_desc and ud_desc) ---
+    const triggerDowntimeETL = async (shiftLabel) => {
+        try {
+            console.log(`🚀 [ETL] Running Downtime Stats Sync for: ${shiftLabel}`);
+            // This triggers the same logic as your manual "Execute ETL" button
+            await axios.post('http://10.126.15.197:8002/part/runEtlProcess');
+            console.log(`✅ Downtime ETL Success for ${shiftLabel}`);
+        } catch (error) {
+            console.error(`❌ Downtime ETL Failed (${shiftLabel}):`, error.message);
+        }
+    };
+
+    // --- SCHEDULED JOBS (Asia/Jakarta Timezone) ---
     
-    // Shift 1 End (Runs at 15:00:05)
+    // 1. Shift 1 End (15:00:05)
     cron.schedule('0 15 * * *', () => { 
         setTimeout(() => {
             const today = new Date().toISOString().split('T')[0];
-            triggerArchive(today, "End of Shift 1", 1); 
-        }, 5000); // 5000ms = 5 Seconds Delay
-    }, { timezone: "Asia/Jakarta" });
-
-    // Shift 2 End (Runs at 22:45:05)
-    cron.schedule('45 22 * * *', () => { 
-        setTimeout(() => {
-            const today = new Date().toISOString().split('T')[0];
-            triggerArchive(today, "End of Shift 2", 2);
+            triggerArchive(today, "Shift 1", 1); 
+            triggerDowntimeETL("Shift 1"); // Added integrated call
         }, 5000);
     }, { timezone: "Asia/Jakarta" });
 
-    // Shift 3 End (Runs at 06:30:05)
+    // 2. Shift 2 End (22:45:05)
+    cron.schedule('45 22 * * *', () => { 
+        setTimeout(() => {
+            const today = new Date().toISOString().split('T')[0];
+            triggerArchive(today, "Shift 2", 2);
+            triggerDowntimeETL("Shift 2"); // Added integrated call
+        }, 5000);
+    }, { timezone: "Asia/Jakarta" });
+
+    // 3. Shift 3 End (06:30:05)
     cron.schedule('30 6 * * *', () => { 
         setTimeout(() => {
             const d = new Date();
-            d.setHours(d.getHours() - 12); 
+            d.setHours(d.getHours() - 12); // Logic to capture previous production date
             const dateStr = d.toISOString().split('T')[0];
-            triggerArchive(dateStr, "End of Shift 3", 3);
+            triggerArchive(dateStr, "Shift 3", 3);
+            triggerDowntimeETL("Shift 3"); // Added integrated call
         }, 5000);
     }, { timezone: "Asia/Jakarta" });
 
 } else {
     console.log(`Instance ${process.env.NODE_APP_INSTANCE}: Standing by.`);
 }
+
+
+if (process.env.NODE_APP_INSTANCE === '0' || typeof process.env.NODE_APP_INSTANCE === 'undefined') {
+    
+    console.log("🧪 Fette ETL TEST Cron Initialized (Syncing to fette_shift_logs)");
+
+    // --- FETTE ETL HELPER ---
+    const triggerFetteETL = async (dateStr, shiftLabel) => {
+        try {
+            console.log(`📡 [TEST-SYNC] Requesting ETL for ${shiftLabel} on ${dateStr}...`);
+            
+            // Calling your new sync controller
+            const response = await axios.get('http://10.126.15.197:8002/part/syncFetteETL', {
+                params: { date: dateStr }
+            });
+            
+            console.log(`✅ [TEST-SUCCESS] ${shiftLabel} synced:`, response.data.message);
+        } catch (error) {
+            console.error(`❌ [TEST-FAILED] ${shiftLabel}:`, error.response?.data || error.message);
+        }
+    };
+
+    // --- SCHEDULED TEST JOBS (Asia/Jakarta) ---
+
+    // 1. Shift 1 Sync (Starts 5 seconds after 15:00)
+    cron.schedule('0 15 * * *', () => { 
+        const today = new Date().toISOString().split('T')[0];
+        setTimeout(() => triggerFetteETL(today, "Shift 1"), 5000);
+    }, { timezone: "Asia/Jakarta" });
+
+    // 2. Shift 2 Sync (Starts 5 seconds after 22:45)
+    cron.schedule('45 22 * * *', () => { 
+        const today = new Date().toISOString().split('T')[0];
+        setTimeout(() => triggerFetteETL(today, "Shift 2"), 5000);
+    }, { timezone: "Asia/Jakarta" });
+
+    // 3. Shift 3 Sync (Starts 5 seconds after 06:30)
+    cron.schedule('30 6 * * *', () => { 
+        // Logic to shift back 12 hours so 6:30 AM data belongs to the previous date
+        const d = new Date();
+        d.setHours(d.getHours() - 12); 
+        const dateStr = d.toISOString().split('T')[0];
+        
+        setTimeout(() => triggerFetteETL(dateStr, "Shift 3"), 5000);
+    }, { timezone: "Asia/Jakarta" });
+
+}
+
+/*
+
+// --- SCHEDULED JOBS (Asia/Jakarta Timezone) ---
+
+// --- SHIFT 1 END ---
+// Immediate Sync (15:00:05)
+cron.schedule('0 15 * * *', () => { 
+    setTimeout(() => {
+        const today = new Date().toISOString().split('T')[0];
+        triggerFetteETL(today, "Shift 1 (Immediate)");
+    }, 5000);
+}, { timezone: "Asia/Jakarta" });
+
+// Finalizer Sync (15:05:00)
+cron.schedule('5 15 * * *', () => { 
+    const today = new Date().toISOString().split('T')[0];
+    triggerFetteETL(today, "Shift 1 (Finalizer)");
+}, { timezone: "Asia/Jakarta" });
+
+
+// --- SHIFT 2 END ---
+// Immediate Sync (22:45:05)
+cron.schedule('45 22 * * *', () => { 
+    setTimeout(() => {
+        const today = new Date().toISOString().split('T')[0];
+        triggerFetteETL(today, "Shift 2 (Immediate)");
+    }, 5000);
+}, { timezone: "Asia/Jakarta" });
+
+// Finalizer Sync (22:50:00)
+cron.schedule('50 22 * * *', () => { 
+    const today = new Date().toISOString().split('T')[0];
+    triggerFetteETL(today, "Shift 2 (Finalizer)");
+}, { timezone: "Asia/Jakarta" });
+
+
+// --- SHIFT 3 END --- (Using -12h logic)
+// Immediate Sync (06:30:05)
+cron.schedule('30 6 * * *', () => { 
+    setTimeout(() => {
+        const d = new Date(); d.setHours(d.getHours() - 12);
+        const dateStr = d.toISOString().split('T')[0];
+        triggerFetteETL(dateStr, "Shift 3 (Immediate)");
+    }, 5000);
+}, { timezone: "Asia/Jakarta" });
+
+// Finalizer Sync (06:35:00)
+cron.schedule('35 6 * * *', () => { 
+    const d = new Date(); d.setHours(d.getHours() - 12);
+    const dateStr = d.toISOString().split('T')[0];
+    triggerFetteETL(dateStr, "Shift 3 (Finalizer)");
+}, { timezone: "Asia/Jakarta" });
+
+*/

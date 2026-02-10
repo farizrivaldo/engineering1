@@ -200,13 +200,12 @@ const processArchiveForShift = async (dateStr, shiftNum) => {
 
 
 // --- HELPER: Saves OEE Data (Fills ALL Columns + Correct Timestamps) ---
+// --- HELPER: Saves OEE Data (Fills ALL Columns + Correct Timestamps) ---
 const saveToLog = (dateStr, shiftNum, shiftData, dailyData) => {
     return new Promise((resolve, reject) => {
         const safeInt = (val) => Math.round(val || 0);
 
-        // 1. DETERMINE CORRECT TIMESTAMP BASED ON SHIFT
-        // We append the specific start time to the date string so the DB saves it correctly.
-        let timestampStr = dateStr; // Default fallback
+        let timestampStr = dateStr; 
         if (shiftNum === 1) timestampStr = `${dateStr} 06:30:00`;
         else if (shiftNum === 2) timestampStr = `${dateStr} 15:00:00`;
         else if (shiftNum === 3) timestampStr = `${dateStr} 22:45:00`;
@@ -223,10 +222,11 @@ const saveToLog = (dateStr, shiftNum, shiftData, dailyData) => {
                 availability_value_daily, performance_value_daily, quality_value_daily, oee_value_daily,
                 hmi_avail_value, hmi_perf_value, hmi_qual_value, hmi_oee_shift_value,
                 total_product, total_good, reject,
-                total_shift_time, total_run, total_stop
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                total_shift_time, total_run, total_stop,
+                planned_dur, unplanned_dur
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE 
-                production_date = VALUES(production_date), -- Ensure timestamp is updated if logic changes
+                production_date = VALUES(production_date),
                 availability_value_shift = VALUES(availability_value_shift),
                 performance_value_shift = VALUES(performance_value_shift),
                 quality_value_shift = VALUES(quality_value_shift),
@@ -244,22 +244,29 @@ const saveToLog = (dateStr, shiftNum, shiftData, dailyData) => {
                 reject = VALUES(reject),
                 total_shift_time = VALUES(total_shift_time),
                 total_run = VALUES(total_run),
-                total_stop = VALUES(total_stop)
+                total_stop = VALUES(total_stop),
+                planned_dur = VALUES(planned_dur),
+                unplanned_dur = VALUES(unplanned_dur)
         `;
 
         const values = [
-            timestampStr, // ✅ Using only the DATETIME string
+            timestampStr, 
             shiftNum,
             shiftData.avail, shiftData.perf, shiftData.qual, shiftData.oee,
             dailyData.avail, dailyData.perf, dailyData.qual, dailyData.oee,
             hmi_avail, hmi_perf, hmi_qual, hmi_oee,
             shiftData.tOut, shiftData.tGood, shiftData.tRej,
-            shiftData.tTime, shiftData.tRun, shiftData.tStop
+            shiftData.tTime, shiftData.tRun, shiftData.tStop,
+            shiftData.tPlan, shiftData.tUnplan // ✅ New columns mapped here
         ];
 
         db4.query(sqlInsert, values, (err) => {
-            if (err) console.error(`❌ DB Write Error (Shift ${shiftNum}):`, err.message);
-            resolve(); 
+            if (err) {
+                console.error(`❌ DB Write Error (Shift ${shiftNum}):`, err.message);
+                reject(err);
+            } else {
+                resolve();
+            }
         });
     });
 };
@@ -271,6 +278,59 @@ const saveToLog = (dateStr, shiftNum, shiftData, dailyData) => {
     quality: s.qual.toFixed(2) + "%",
     stats: s // Raw numbers
 });
+
+const performSyncForDate = async (dayStr) => {
+    const nextDate = new Date(dayStr);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const nextDayStr = nextDate.toISOString().split('T')[0];
+
+    const shiftsDef = [
+        { id: 1, start: `${dayStr} 06:30:00`, time: "06:30:00" },
+        { id: 2, start: `${dayStr} 15:00:00`, time: "15:00:00" },
+        { id: 3, start: `${dayStr} 22:45:00`, time: "22:45:00" }
+    ];
+
+    for (const s of shiftsDef) {
+        const OFFSET = 7 * 3600;
+        const startTs = (new Date(s.start).getTime() / 1000) + OFFSET;
+        // Shift 3 ends the next day at 06:30
+        const endTs = s.id === 3 
+            ? (new Date(`${nextDayStr} 06:30:00`).getTime() / 1000) + OFFSET
+            : (new Date(`${dayStr} ${s.id === 1 ? '15:00:00' : '22:45:00'}`).getTime() / 1000) + OFFSET;
+
+        const sqlExtract = `
+            SELECT data_format_0 as run_time, data_format_1 as stop_time, 
+                   data_format_2 as planned, data_format_3 as unplanned,
+                   data_format_4 as total_prod, data_format_5 as total_good,
+                   data_format_6 as rejects
+            FROM \`CMT-VIBRATION_oee_fette_mentaj_data\` 
+            WHERE \`time@timestamp\` BETWEEN ? AND ?
+            ORDER BY \`time@timestamp\` DESC LIMIT 1`;
+
+        await new Promise((resolve, reject) => {
+            db4.query(sqlExtract, [startTs, endTs], (err, results) => {
+                if (err) return reject(err);
+                const row = results[0] || { run_time: 0, stop_time: 0, planned: 0, unplanned: 0, total_prod: 0, total_good: 0, rejects: 0 };
+                
+                const fullLogDateTime = `${dayStr} ${s.time}`;
+                const sqlLoad = `
+                    INSERT INTO fette_shift_logs 
+                    (log_date, shift_id, run_time, stop_time, total_prod, total_good, reject_count, planned_stop, unplanned_stop)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                        run_time = VALUES(run_time), stop_time = VALUES(stop_time),
+                        total_prod = VALUES(total_prod), total_good = VALUES(total_good),
+                        reject_count = VALUES(reject_count), planned_stop = VALUES(planned_stop),
+                        unplanned_stop = VALUES(unplanned_stop), last_updated_by = 'BACKFILL'`;
+
+                db4.query(sqlLoad, [fullLogDateTime, s.id, row.run_time, row.stop_time, row.total_prod, row.total_good, row.rejects, row.planned, row.unplanned], (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            });
+        });
+    }
+  };
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -9914,6 +9974,220 @@ getUnifiedOEE: async (req, res) => {
         }
     },
 
+    getFetteOEE: async (req, res) => {
+    try {
+        const { date } = req.query;
+        // 1. Setup Date Formatting
+        const selectedDate = date ? new Date(date) : new Date();
+        const dayStr = selectedDate.toISOString().split('T')[0];
+
+        console.log(`\n📊 FETTE OEE READER: Fetching data for ${dayStr}`);
+
+        // 2. Query all shifts for the day using the specific shift start times
+        const sql = `
+            SELECT * FROM fette_shift_logs 
+            WHERE log_date IN (?, ?, ?) 
+            ORDER BY shift_id ASC
+        `;
+        
+        const shiftTimes = [
+            `${dayStr} 06:30:00`, 
+            `${dayStr} 15:00:00`, 
+            `${dayStr} 22:45:00`
+        ];
+
+        db4.query(sql, shiftTimes, (err, rows) => {
+            if (err) throw err;
+
+            // --- MATH HELPER ---
+            const TARGET_RATE = 5333;
+
+            const calculateStats = (row) => {
+                const r = parseFloat(row.run_time) || 0;
+                const s = parseFloat(row.stop_time) || 0;
+                const o = parseFloat(row.total_prod) || 0;
+                const g = parseFloat(row.total_good) || 0;
+                const p = parseFloat(row.planned_stop) || 0;
+                
+                const t = r + s; // Total duration from log
+
+                // OEE Components
+                const avail = (t - p) > 0 ? (r / (t - p)) * 100 : 0;
+                const perf = (r * TARGET_RATE) > 0 ? (o / (r * TARGET_RATE)) * 100 : 0;
+                const qual = o > 0 ? (g / o) * 100 : 0;
+                const score = (avail * perf * qual) / 10000;
+
+                return {
+                    oee: score.toFixed(2) + "%",
+                    availability: avail.toFixed(2) + "%",
+                    performance: perf.toFixed(2) + "%",
+                    quality: qual.toFixed(2) + "%",
+                    raw: {
+                        tRun: r, tStop: s, tOut: o, tGood: g, 
+                        tPlan: p, tTime: t, tRej: row.reject_count || 0
+                    }
+                };
+            };
+
+            // 3. Organize Results
+            const response = {
+                date: dayStr,
+                active_shifts: 0,
+                daily: {},
+                shifts: { 1: null, 2: null, 3: null }
+            };
+
+            let dRun = 0, dStop = 0, dOut = 0, dGood = 0, dPlan = 0;
+
+            rows.forEach(row => {
+                const stats = calculateStats(row);
+                response.shifts[row.shift_id] = stats;
+
+                // Aggregate if there was any activity
+                if (row.run_time > 0 || row.total_prod > 0) {
+                    dRun += row.run_time;
+                    dStop += row.stop_time;
+                    dOut += row.total_prod;
+                    dGood += row.total_good;
+                    dPlan += row.planned_stop;
+                    response.active_shifts++;
+                }
+            });
+
+            // 4. Calculate Daily Total
+            response.daily = calculateStats({
+                run_time: dRun, stop_time: dStop, total_prod: dOut, 
+                total_good: dGood, planned_stop: dPlan
+            });
+
+            res.status(200).send(response);
+        });
+
+    } catch (error) {
+        console.error('❌ Fette Reader Error:', error);
+        res.status(500).send({ message: 'Error reading Fette ETL data', error: error.message });
+    }
+},
+
+getUnifiedOEE2: async (req, res) => {
+    try {
+        const { date } = req.query; 
+        const selectedDate = date ? new Date(date) : new Date(); 
+        const dayStr = selectedDate.toISOString().split('T')[0];
+
+        // Define shift times matching your log_date column exactly
+        const shiftTimes = { 1: "06:30:00", 2: "15:00:00", 3: "22:45:00" };
+
+        const shiftPromises = [1, 2, 3].map(shiftId => {
+            const sql = `
+                SELECT 
+                    run_time, stop_time, total_prod, total_good,
+                    reject_count, planned_stop, unplanned_stop, shift_id
+                FROM fette_shift_logs 
+                WHERE log_date = ? AND shift_id = ?
+                LIMIT 1`;
+
+            const fullLogDateTime = `${dayStr} ${shiftTimes[shiftId]}:00`;
+
+            return new Promise(resolve => {
+                db4.query(sql, [fullLogDateTime, shiftId], (err, results) => {
+                    // Return object with defaults if no row found
+                    const row = (results && results[0]) ? results[0] : {
+                        run_time: 0, stop_time: 0, total_prod: 0, total_good: 0,
+                        reject_count: 0, planned_stop: 0, unplanned_stop: 0, shift_id: shiftId
+                    };
+                    resolve(row);
+                });
+            });
+        });
+
+        const results = await Promise.all(shiftPromises);
+
+        // --- MATH HELPERS ---
+        const TARGET_RATE = 5333;
+        const SHIFT_DURATIONS = { 1: 510, 2: 465, 3: 465 }; //
+
+        const calculateOEE = (row, shiftId) => {
+            const r = parseFloat(row.run_time) || 0;
+            const o = parseFloat(row.total_prod) || 0;
+            const g = parseFloat(row.total_good) || 0;
+            const j = parseFloat(row.reject_count) || 0;
+            const p = parseFloat(row.planned_stop) || 0;
+            const u = parseFloat(row.unplanned_stop) || 0;
+            
+            // FIX: If shiftId is null (Daily), use the row.total_time passed in.
+            // If shiftId exists, look up the fixed duration.
+            const t = shiftId ? SHIFT_DURATIONS[shiftId] : (row.total_time || 0);
+
+            // Availability: Runtime / (ShiftTime - PlannedStop)
+            const availDenom = t - p;
+            const avail = availDenom > 0 ? (r / availDenom) * 100 : 0;
+
+            // Performance
+            const pot = r * TARGET_RATE;
+            const perf = pot > 0 ? (o / pot) * 100 : 0;
+
+            // Quality
+            const qual = o > 0 ? (g / o) * 100 : 0;
+
+            // OEE Score
+            const score = (avail * perf * qual) / 10000;
+
+            return {
+                oee: score.toFixed(2) + "%",
+                availability: avail.toFixed(2) + "%",
+                performance: perf.toFixed(2) + "%",
+                quality: qual.toFixed(2) + "%",
+                // Pass raw values for the frontend logic table
+                raw: { 
+                    tRun: r, tStop: row.stop_time, tOut: o, tGood: g, 
+                    tRej: j, tPlan: p, tUnplan: u, tTime: t 
+                }
+            };
+        };
+
+        const shiftsResults = {}; 
+        let dRun = 0, dOut = 0, dGood = 0, dRej = 0, dPlan = 0, dUnplan = 0, dTime = 0;
+        let activeShifts = 0;
+
+        results.forEach(row => {
+            const stats = calculateOEE(row, row.shift_id);
+            shiftsResults[row.shift_id] = stats;
+
+            // Aggregate daily totals if the shift has data
+            if (row.run_time > 0 || row.total_prod > 0) {
+                dRun += row.run_time; 
+                dOut += row.total_prod; 
+                dGood += row.total_good;
+                dRej += row.reject_count; 
+                dPlan += row.planned_stop;
+                dUnplan += row.unplanned_stop; 
+                // Sum the fixed durations (e.g. 510 + 465) for accurate daily availability base
+                dTime += SHIFT_DURATIONS[row.shift_id]; 
+                activeShifts++;
+            }
+        });
+
+        // Calculate Daily Summary
+        // FIX: We now explicitly pass 'total_time: dTime' so the math works
+        const dailyStats = calculateOEE({
+            run_time: dRun, total_prod: dOut, total_good: dGood, 
+            reject_count: dRej, planned_stop: dPlan, unplanned_stop: dUnplan,
+            total_time: dTime 
+        }, null);
+
+        res.status(200).send({
+            date: dayStr,
+            active_shifts: activeShifts,
+            daily: dailyStats,
+            shifts: shiftsResults
+        });
+
+    } catch (error) {
+        console.error("Controller Error:", error);
+        res.status(500).send({ message: 'Error calculating Unified OEE', error: error.message });
+    }
+},
 
 
 generateDummyDataWeekly: async (req, res) => {
@@ -11148,13 +11422,14 @@ runEtlProcess: async (req, res) => {
     // MAP 1: Unplanned (UD Table) -> IDs from fette_master_downtime_reasons
     // These match the IDs (24-29) we created earlier.
     const UNPLANNED_MAP = {
+        'dur_lain': 18,              // Lain-Lain
         'dur_cekrollerpunch': 19,    // Cek Roller Punch
-        'dur_perbaikandeduster': 21, // Perbaikan Deduster
-        'dur_zerobalance': 23,       // Zero Balance
         'dur_tunggugranul': 20,      // Tunggu Granul
+        'dur_perbaikandeduster': 21, // Perbaikan Deduster
         'dur_settingulangipc': 22,   // Setting Ulang IPC
+        'dur_zerobalance': 23,       // Zero Balance
         'dur_tungguaproval': 24,     // Tunggu Approval
-        'dur_lain': 25            // Lain-lain
+  
     };
 
     // MAP 2: Planned (PD Table) -> IDs from fette_master_downtime_reasons
@@ -11179,77 +11454,102 @@ runEtlProcess: async (req, res) => {
         'dur_istirahat_soljum': 17  // CORRECTED: Istirahat (Sholat Jumat) is ID 17
     };
 
-    // --- 2. THE REUSABLE WORKER FUNCTION ---
-    const runSingleEtl = async (sourceTable, map, category) => {
-        // A. Get the Last ID processed SPECIFICALLY for this source table
-        // This ensures unplanned and planned streams don't mix up their progress
-        const [lastEvent] = await db4.promise().query(
-            `SELECT original_log_id FROM fette_shift_events 
-             WHERE source_table = ? 
-             ORDER BY original_log_id DESC LIMIT 1`,
-            [sourceTable]
-        );
-        const lastProcessedId = lastEvent.length > 0 ? lastEvent[0].original_log_id : 0;
+    // --- HELPER 1: Precise ID Lookup using Start Time ---
+    const findMasterLogId = async (eventStartTime) => {
+    try {
+        const eventTs = Math.floor(new Date(eventStartTime).getTime() / 1000);
+        // Look back 24 hours (86400 seconds) to catch long shifts
+        const sql = `
+            SELECT id, production_date, shift_name 
+            FROM oee_master_logs 
+            WHERE UNIX_TIMESTAMP(production_date) <= ? 
+              AND UNIX_TIMESTAMP(production_date) > (? - 86400) 
+            ORDER BY production_date DESC 
+            LIMIT 1
+        `;
+        const [rows] = await db4.promise().query(sql, [eventTs, eventTs]);
 
-        // B. Fetch New Raw Data
-        // Fetch rows newer than our last checkpoint
-        const fetchLimit = 5000;
-        const [rawRows] = await dbTest.promise().query(
-            `SELECT * FROM ?? 
-             WHERE id >= ? 
-             ORDER BY id ASC 
-             LIMIT ?`, 
-            [sourceTable, lastProcessedId, fetchLimit]
-        );
+        if (rows.length === 0) {
+            console.warn(`⚠️ Warning: No Master Log found for event at: ${eventStartTime}`);
+            return 0; 
+        }
+        return rows[0].id;
+    } catch (err) {
+        console.error("SQL Error in findMasterLogId:", err);
+        return 0;
+    }
+};
 
-        // Need at least 2 rows to calculate a delta (Previous -> Current)
-        if (rawRows.length < 2) return { count: 0, rows: 0 };
+    // --- HELPER 2: The Incremental ETL Worker ---
+const runSingleEtl = async (sourceTable, map, category) => {
+    // 1. DYNAMIC CHECKPOINT: Find the last ID we successfully imported
+    const [check] = await db4.promise().query(
+        `SELECT MAX(original_log_id) as lastId FROM fette_shift_events WHERE source_table = ?`, 
+        [sourceTable]
+    );
+    
+    // If table is empty, start at 0. Otherwise, start after the last known ID.
+    const lastProcessedId = check[0].lastId || 0; 
 
-        let insertedCount = 0;
+    console.log(`🚀 ${sourceTable}: Checking for new data after ID ${lastProcessedId}...`);
 
-        // C. Iterate through rows
-        for (let i = 1; i < rawRows.length; i++) {
-            const prevRow = rawRows[i-1];
-            const currRow = rawRows[i];
+    // 2. FETCH ONLY NEW DATA
+    // We can keep a high LIMIT (e.g., 5000) just in case, but it will usually find much less.
+    const [rawRows] = await dbTest.promise().query(
+        `SELECT * FROM ?? WHERE id > ? ORDER BY id ASC LIMIT 5000`, 
+        [sourceTable, lastProcessedId]
+    );
 
-            for (const [key, currVal] of Object.entries(currRow)) {
-                // Check if this column is in our Map (is it a duration column we care about?)
-                if (map[key]) {
-                    const prevVal = prevRow[key] || 0;
-                    let duration = 0;
+    if (rawRows.length === 0) {
+        console.log(`✅ ${sourceTable}: No new data found.`);
+        return { count: 0, rows: 0 };
+    }
 
-                    // D. Delta Logic (The Core Math)
-                    if (parseFloat(currVal) < parseFloat(prevVal)) {
-                        // CASE: RESET (e.g. 45 -> 0). PLC restarted.
-                        // We treat the new value as the full duration of the new event.
-                        duration = parseFloat(currVal); 
-                        console.log(`♻️ Reset Detected on ${sourceTable}.${key}: ${prevVal} -> ${currVal}`);
-                    } else {
-                        // CASE: NORMAL (e.g. 45 -> 50). Add the difference.
-                        duration = parseFloat(currVal) - parseFloat(prevVal);
-                    }
+    let insertedCount = 0;
+    let updatedCount = 0;
 
-                    // E. Insert Event
-                    // Filter out 0-minute "events" caused by rows where nothing changed
-                    if (duration > 0.1) {
-                        const reasonId = map[key];
-                        // Convert Unix Timestamp (Seconds) to JS Date (Milliseconds)
-                        const endTime = new Date(currRow.timestamp * 1000); 
-                        const startTime = new Date(endTime.getTime() - (duration * 60000));
+    for (let i = 1; i < rawRows.length; i++) {
+        const prevRow = rawRows[i-1];
+        const currRow = rawRows[i];
 
-                        await db4.promise().query(
-                            `INSERT INTO fette_shift_events 
-                            (start_time, end_time, duration_minutes, category, reason_id, source_table, original_log_id) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                            [startTime, endTime, duration, category, reasonId, sourceTable, currRow.id]
-                        );
-                        insertedCount++;
-                    }
+        for (const [key, currVal] of Object.entries(currRow)) {
+            if (map[key]) {
+                const prevVal = prevRow[key] || 0;
+                let duration = parseFloat(currVal) < parseFloat(prevVal) 
+                    ? parseFloat(currVal) 
+                    : parseFloat(currVal) - parseFloat(prevVal);
+
+                // Filter noise (stops shorter than 6 seconds)
+                if (duration > 0.1) {
+                    const reasonId = map[key];
+                    const endTime = new Date(currRow.timestamp * 1000); 
+                    const startTime = new Date(endTime.getTime() - (duration * 60000));
+
+                    // 3. Find Matching Shift
+                    let masterId = await findMasterLogId(startTime);
+                    if (!masterId) masterId = 0;
+
+                    // 4. INSERT / UPDATE
+                    // The 'unique_event_source_reason' key you added handles the magic here.
+                    const [result] = await db4.promise().query(
+                        `INSERT INTO fette_shift_events 
+                        (start_time, end_time, duration_minutes, category, reason_id, source_table, original_log_id, shift_id) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                            shift_id = VALUES(shift_id),
+                            reason_id = VALUES(reason_id)`, 
+                        [startTime, endTime, duration, category, reasonId, sourceTable, currRow.id, masterId]
+                    );
+
+                    if (result.affectedRows === 1) insertedCount++;
+                    else if (result.affectedRows === 2) updatedCount++;
                 }
             }
         }
-        return { count: insertedCount, rows: rawRows.length };
-    };
+    }
+    console.log(`✅ Finished ${sourceTable}: ${insertedCount} New, ${updatedCount} Updated.`);
+    return { count: insertedCount, rows: rawRows.length };
+};
 
     // --- 3. EXECUTE BOTH STREAMS ---
     try {
@@ -11275,11 +11575,6 @@ runEtlProcess: async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 },
-
-// ... existing runEtlProcess code ...
-
-// NEW: Fetch the converted events to show in the frontend table
-// ... inside downtimeController.js
 
 getShiftEvents: async (req, res) => {
     try {
@@ -11434,6 +11729,571 @@ getAllSmartEvents: async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 },
+
+
+getAllMasterLogs: async (req, res) => {
+        try {
+            console.log('\n🔍 Fetching All Master Log Columns for Emergency Override...');
+
+            // Comprehensive column list from schema
+            const sql = `
+                SELECT 
+                    id, 
+                    production_date, 
+                    shift_name, 
+                    availability_value_shift, 
+                    availability_value_daily, 
+                    performance_value_shift, 
+                    performance_value_daily, 
+                    quality_value_shift, 
+                    quality_value_daily, 
+                    oee_value_shift, 
+                    oee_value_daily, 
+                    hmi_avail_value, 
+                    hmi_perf_value, 
+                    hmi_qual_value, 
+                    hmi_oee_shift_value, 
+                    total_product, 
+                    total_good 
+                FROM oee_master_logs 
+                ORDER BY production_date DESC 
+                LIMIT 100
+            `;
+
+            db4.query(sql, (err, result) => {
+                if (err) {
+                    console.error("SQL Error:", err.message);
+                    return res.status(500).send({ error: err.message });
+                }
+                // Sending result array directly to facilitate frontend mapping
+                res.status(200).send(result);
+            });
+
+        } catch (error) {
+            console.error('❌ Fetch Error:', error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+    // --- 2. DYNAMIC BULK UPDATE ---
+    updateMasterLogs: async (req, res) => {
+        try {
+            const { changes } = req.body; 
+            console.log('\n🚨 Processing Emergency Multi-Column Override...');
+
+            const updatePromises = Object.entries(changes).map(([id, fields]) => {
+                return new Promise((resolve, reject) => {
+                    // Builds a SET clause for any combination of the 17 columns
+                    const setClause = Object.keys(fields).map(key => `${key} = ?`).join(', ');
+                    const values = Object.values(fields);
+                    
+                    const sql = `UPDATE oee_master_logs SET ${setClause} WHERE id = ?`;
+                    
+                    db4.query(sql, [...values, id], (err, result) => {
+                        if (err) return reject(err);
+                        resolve(result);
+                    });
+                });
+            });
+
+            await Promise.all(updatePromises);
+            console.log('✅ Emergency Update Successful');
+            res.status(200).send({ message: "All changes successfully applied." });
+
+        } catch (error) {
+            console.error('❌ Update Error:', error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+    processOverride: async (req, res) => {
+    const { id, raw_data, calculated_metrics } = req.body;
+    
+    // We use a manual transaction to ensure both tables update or neither do
+    db4.beginTransaction((err) => {
+      if (err) return res.status(500).send(err);
+
+      // 1. UPDATE MASTER LOGS
+      const masterSql = `
+        UPDATE oee_master_logs 
+        SET availability_value_shift = ?, performance_value_shift = ?, quality_value_shift = ?, 
+            oee_value_shift = ?, total_product = ?, total_good = ?, reject = ?
+        WHERE id = ?`;
+      
+      const masterParams = [
+        calculated_metrics.avail, calculated_metrics.perf, calculated_metrics.qual, 
+        calculated_metrics.oee, raw_data.product, raw_data.good, raw_data.reject, id
+      ];
+
+      db4.query(masterSql, masterParams, (err) => {
+        if (err) return db4.rollback(() => res.status(500).send(err));
+
+        // 2. UPDATE SHIFT EVENTS
+        const eventSql = `
+          UPDATE fette_shift_events 
+          SET unplanned_duration = ?, planned_duration = ?, downtime_description = ?
+          WHERE master_log_id = ?`;
+
+        const eventParams = [raw_data.unplanned, raw_data.planned, raw_data.desc, id];
+
+        db4.query(eventSql, eventParams, (err) => {
+          if (err) return db4.rollback(() => res.status(500).send(err));
+          
+          db4.commit((err) => {
+            if (err) return db4.rollback(() => res.status(500).send(err));
+            res.status(200).send({ message: "Production data successfully overridden." });
+          });
+        });
+      });
+    });
+  },
+
+  getOverrideData: async (req, res) => {
+    try {
+        const { shift_id } = req.query; // The primary key (e.g., 612)
+
+        if (!shift_id) {
+            return res.status(400).send({ message: "shift_id is required" });
+        }
+
+        // 1. Fetch the Master Log
+        const [master] = await db4.promise().query(
+            `SELECT * FROM oee_master_logs WHERE id = ?`, 
+            [shift_id]
+        );
+
+        if (master.length === 0) {
+            return res.status(404).send({ message: "Master log not found" });
+        }
+
+        // 2. Fetch all linked events
+        const [events] = await db4.promise().query(
+            `SELECT fse.*, fmr.name 
+             FROM fette_shift_events fse
+             LEFT JOIN fette_master_downtime_reasons fmr ON fse.reason_id = fmr.id
+             WHERE fse.shift_id = ?
+             ORDER BY fse.start_time ASC`,
+            [shift_id]
+        );
+
+        res.status(200).send({
+            master: master[0],
+            events: events
+        });
+
+    } catch (error) {
+        console.error("❌ Fetch Override Error:", error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+getOverrideDataBySearch: async (req, res) => {
+    try {
+        const { date, shift } = req.query; // e.g., date="2026-02-03", shift="1"
+
+        if (!date || !shift) {
+            return res.status(400).send({ 
+                message: "Missing search parameters. Date and Shift are required." 
+            });
+        }
+
+        // 1. Find the Master Log ID based on Date and Shift Name
+        const findMasterSql = `
+            SELECT * FROM oee_master_logs 
+            WHERE DATE(production_date) = ? 
+            AND shift_name = ?
+            LIMIT 1
+        `;
+
+        const [masterRows] = await db4.promise().query(findMasterSql, [date, shift]);
+
+        if (masterRows.length === 0) {
+            return res.status(404).send({ 
+                message: `No record found for Date: ${date} and Shift: ${shift}` 
+            });
+        }
+
+        const masterRecord = masterRows[0];
+        const masterId = masterRecord.id;
+
+        // 2. Fetch all linked events for this Master ID
+        // We join with the reasons table to get the description for the UI
+        const fetchEventsSql = `
+            SELECT 
+                fse.*, 
+                fmr.name as downtime_description 
+            FROM fette_shift_events fse
+            LEFT JOIN fette_master_downtime_reasons fmr ON fse.reason_id = fmr.id
+            WHERE fse.shift_id = ?
+            ORDER BY fse.start_time ASC
+        `;
+
+        const [eventRows] = await db4.promise().query(fetchEventsSql, [masterId]);
+
+        // 3. Return the combined object
+        res.status(200).send({
+            master: masterRecord,
+            events: eventRows
+        });
+
+    } catch (error) {
+        console.error("❌ Search Controller Error:", error);
+        res.status(500).send({ 
+            message: "Internal Server Error during search", 
+            error: error.message 
+        });
+    }
+},
+
+saveOverrideData: async (req, res) => {
+    const connection = await db4.promise().getConnection();
+    try {
+        await connection.beginTransaction();
+        const { 
+            master, events, changeReason, daily_recalc, 
+            all_shift_ids, originalFullDay, updatedFullDay 
+        } = req.body;
+
+        // 1. UPDATE THE TARGET SHIFT
+        await connection.query(
+            `UPDATE oee_master_logs SET total_run=?, total_product=?, reject=?, total_good=?, total_stop=?, planned_dur=?, availability_value_shift=?, performance_value_shift=?, quality_value_shift=?, oee_value_shift=? WHERE id=?`,
+            [master.total_run, master.total_product, master.reject, master.total_good, master.total_stop, master.planned_dur || 0, master.availability_value_shift, master.performance_value_shift, master.quality_value_shift, master.oee_value_shift, master.id]
+        );
+
+        // 2. SYNC DOWNTIME EVENTS
+        await connection.query(`DELETE FROM fette_shift_events WHERE shift_id = ?`, [master.id]);
+
+        if (events && events.length > 0) {
+            const cleanedEvents = events.map(ev => {
+                const d = new Date(master.production_date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                
+                const shiftStartMap = { '1': '06:30:00', '2': '14:30:00', '3': '22:30:00' };
+                const startHms = shiftStartMap[master.shift_name] || '06:30:00';
+                const startTimeStr = `${year}-${month}-${day} ${startHms}`;
+                
+                const duration = parseInt(ev.duration_minutes) || 0;
+                const startTimeObj = new Date(startTimeStr);
+                const endTimeObj = new Date(startTimeObj.getTime() + (duration * 60000));
+                
+                const endTimeStr = `${endTimeObj.getFullYear()}-${String(endTimeObj.getMonth() + 1).padStart(2, '0')}-${String(endTimeObj.getDate()).padStart(2, '0')} ${String(endTimeObj.getHours()).padStart(2, '0')}:${String(endTimeObj.getMinutes()).padStart(2, '0')}:${String(endTimeObj.getSeconds()).padStart(2, '0')}`;
+
+                // --- THE FIX: SOURCE TABLE MAPPING ---
+                const sourceTable = ev.category === 'Planned' 
+                    ? 'NodeRed_oee_fette_pd_desc' 
+                    : 'NodeRed_oee_fette_ud_desc';
+
+                return [
+                    startTimeStr,
+                    endTimeStr,
+                    ev.duration_minutes,
+                    ev.category,   // Stays "Planned" or "Unplanned"
+                    sourceTable,   // NEW: Technical Source Table string
+                    ev.reason_id,
+                    master.id
+                ];
+            });
+
+            // Added 'source_table' to the column list
+            const sql = `INSERT INTO fette_shift_events 
+                         (start_time, end_time, duration_minutes, category, source_table, reason_id, shift_id) 
+                         VALUES ?`;
+                         
+            await connection.query(sql, [cleanedEvents]);
+        }
+
+        // 3. BROADCAST DAILY OEE
+        if (all_shift_ids && all_shift_ids.length > 0) {
+            await connection.query(
+                `UPDATE oee_master_logs SET availability_value_daily = ?, performance_value_daily = ?, quality_value_daily = ?, oee_value_daily = ? WHERE id IN (?)`,
+                [daily_recalc.avail, daily_recalc.perf, daily_recalc.qual, daily_recalc.oee, all_shift_ids]
+            );
+        }
+
+        // 4. AUDIT LOG
+        await connection.query(
+            `INSERT INTO fette_override_audit_logs (master_log_id, change_reason, original_data_json, new_data_json) VALUES (?, ?, ?, ?)`,
+            [master.id, changeReason, JSON.stringify(originalFullDay), JSON.stringify(updatedFullDay)]
+        );
+
+        await connection.commit();
+        res.status(200).send({ message: "Success: Source table corrected based on category." });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        res.status(500).send({ error: error.message });
+    } finally {
+        connection.release();
+    }
+},
+
+getAuditLogs: async (req, res) => {
+    try {
+        const { master_id } = req.query;
+        let sql = `
+            SELECT 
+                al.*, 
+                oml.production_date, 
+                oml.shift_name 
+            FROM fette_override_audit_logs al
+            JOIN oee_master_logs oml ON al.master_log_id = oml.id
+        `;
+        
+        const params = [];
+        if (master_id) {
+            sql += ` WHERE al.master_log_id = ?`;
+            params.push(master_id);
+        }
+        
+        sql += ` ORDER BY al.created_at DESC LIMIT 100`;
+
+        const [rows] = await db4.promise().query(sql, params);
+        res.status(200).send(rows);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+/* --- MachineDataController.js --- */
+
+/* --- MachineDataController.js --- */
+
+/* --- databaseControllers.js --- */
+
+getShiftMetadata: async (req, res) => {
+    try {
+        const { date, startTime, endTime } = req.query; 
+
+        // 1. Calculate Local Unix (WIB)
+        const wibStart = new Date(`${date} ${startTime}`).getTime() / 1000;
+        const wibEnd = new Date(`${date} ${endTime}`).getTime() / 1000;
+
+        // 2. SHIFT TO UTC: Subtract 7 hours (25200 seconds)
+        const utcStart = wibStart - 25200; 
+        const utcEnd = wibEnd - 25200;
+
+        const sql = `
+            SELECT data_format_0, data_format_1, data_format_2, data_format_3
+            FROM \`CMT-VIBRATION_oee_fette_+_data\`
+            WHERE \`time@timestamp\` BETWEEN ? AND ?
+            ORDER BY \`time@timestamp\` ASC
+        `;
+
+        db4.query(sql, [utcStart, utcEnd], (err, results) => {
+            if (err) return res.status(500).send({ error: err.message });
+
+            const op1Map = ["ADMIN", "MAY", "MNS", "DYS", "BSA", "MTI"];
+            const op2Map = ["MAY", "MNS", "DYS", "BSA", "MTI"]; 
+            const prodMap = ["STMXGE", "STMXGF"];
+            
+            const operators = new Set();
+            const batchCodes = new Set();
+
+            results.forEach(row => {
+                // Mapping OP1 (0=ADMIN)
+                if (row.data_format_0 !== null && op1Map[row.data_format_0]) {
+                    operators.add(op1Map[row.data_format_0]);
+                }
+                // Mapping OP2 (0=MAY)
+                if (row.data_format_1 !== null && op2Map[row.data_format_1]) {
+                    operators.add(op2Map[row.data_format_1]);
+                }
+
+                // Cleaning Batch ID
+                const cleanBatch = String(row.data_format_3 || "").replace(/[^a-zA-Z0-9]/g, "").trim();
+                const prefix = prodMap[row.data_format_2] || "???";
+                batchCodes.add(`${prefix}${cleanBatch}`);
+            });
+
+            res.status(200).send({
+                operators: Array.from(operators).join(" & ") || "NONE FOUND",
+                batches: Array.from(batchCodes),
+                raw_entries: results.length
+            });
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+getOverrideDayData: async (req, res) => {
+    try {
+        const { date } = req.query;
+        
+        // 1. Get all Master Logs for that date
+        const [masters] = await db4.promise().query(
+            `SELECT * FROM oee_master_logs WHERE DATE(production_date) = ? AND shift_name IN ('1', '2', '3')`,
+            [date]
+        );
+
+        if (masters.length === 0) return res.status(404).send({ message: "No data" });
+
+        // 2. Get all Events for these shifts
+        const masterIds = masters.map(m => m.id);
+        const [events] = await db4.promise().query(
+            `SELECT * FROM fette_shift_events WHERE shift_id IN (?)`,
+            [masterIds]
+        );
+
+        // 3. Group them together: { "1": { master: {}, events: [] }, ... }
+        const result = {};
+        masters.forEach(m => {
+            result[m.shift_name] = {
+                master: m,
+                events: events.filter(e => e.shift_id === m.id)
+            };
+        });
+
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+getOverrideAuditLogs: async (req, res) => {
+    try {
+        const sql = `
+            SELECT 
+                a.*, 
+                m.production_date, 
+                m.shift_name as target_shift 
+            FROM fette_override_audit_logs a
+            JOIN oee_master_logs m ON a.master_log_id = m.id
+            ORDER BY a.created_at DESC
+        `;
+        const [logs] = await db4.promise().query(sql);
+        res.status(200).send(logs);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+syncFetteETL: async (req, res) => {
+    try {
+        const { date } = req.query;
+        const selectedDate = date ? new Date(date) : new Date();
+        const getDateStr = (d) => d.toISOString().split('T')[0];
+        
+        const dayStr = getDateStr(selectedDate);
+        const nextDate = new Date(selectedDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+        const nextDayStr = getDateStr(nextDate);
+
+        const shiftsDef = [
+            { id: 1, start: `${dayStr} 06:30:00`, end: `${dayStr} 15:00:00` },
+            { id: 2, start: `${dayStr} 15:00:00`, end: `${dayStr} 22:45:00` },
+            { id: 3, start: `${dayStr} 22:45:00`, end: `${nextDayStr} 06:30:00` }
+        ];
+
+        console.log(`\n⚙️ ETL PROCESS: Pure Extraction for ${dayStr}`);
+
+        const syncPromises = shiftsDef.map(s => {
+            const OFFSET = 7 * 3600; 
+            const startTs = (new Date(s.start).getTime() / 1000) + OFFSET;
+            const endTs = (new Date(s.end).getTime() / 1000) + OFFSET;
+
+            // --- EXTRACT (Mapping directly to your provided image index) ---
+            const sqlExtract = `
+                SELECT 
+                    data_format_0 as run_time, 
+                    data_format_1 as stop_time, 
+                    data_format_2 as planned, 
+                    data_format_3 as unplanned,
+                    data_format_4 as total_prod, 
+                    data_format_5 as total_good,
+                    data_format_6 as rejects
+                FROM \`CMT-VIBRATION_oee_fette_mentaj_data\` 
+                WHERE \`time@timestamp\` BETWEEN ? AND ?
+                ORDER BY \`time@timestamp\` DESC LIMIT 1
+            `;
+
+            return new Promise((resolve, reject) => {
+                db4.query(sqlExtract, [startTs, endTs], (err, results) => {
+                    if (err) return reject(err);
+                    
+                    const row = results[0] || { 
+                        run_time: 0, stop_time: 0, planned: 0, unplanned: 0, 
+                        total_prod: 0, total_good: 0, rejects: 0 
+                    };
+
+                    const shiftStartTimes = {
+                        1: "06:30:00",
+                        2: "15:00:00",
+                        3: "22:45:00"
+                    };
+
+                    // Create the full DATETIME string for the database
+                    const fullLogDateTime = `${dayStr} ${shiftStartTimes[s.id]}`;
+                    
+                    // --- TRANSFORM (No math, just direct mapping) ---
+                    const values = [
+                        fullLogDateTime,
+                        s.id,
+                        parseFloat(row.run_time) || 0,
+                        parseFloat(row.stop_time) || 0,
+                        parseInt(row.total_prod) || 0,
+                        parseInt(row.total_good) || 0,
+                        parseInt(row.rejects) || 0,
+                        parseFloat(row.planned) || 0,
+                        parseFloat(row.unplanned) || 0
+                    ];
+
+                    // --- LOAD ---
+                    const sqlLoad = `
+                        INSERT INTO fette_shift_logs 
+                        (log_date, shift_id, run_time, stop_time, total_prod, total_good, reject_count, planned_stop, unplanned_stop)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                            run_time = VALUES(run_time),
+                            stop_time = VALUES(stop_time),
+                            total_prod = VALUES(total_prod),
+                            total_good = VALUES(total_good),
+                            reject_count = VALUES(reject_count),
+                            planned_stop = VALUES(planned_stop),
+                            unplanned_stop = VALUES(unplanned_stop),
+                            last_updated_by = 'SYSTEM_SYNC'
+                    `;
+
+                    db4.query(sqlLoad, values, (err) => {
+                        if (err) return reject(err);
+                        resolve();
+                    });
+                });
+            });
+        });
+
+        await Promise.all(syncPromises);
+        res.status(200).send({ message: `Sync successful for ${dayStr}. Data moved to fette_shift_logs.` });
+
+    } catch (error) {
+        console.error('❌ ETL Error:', error);
+        res.status(500).send({ message: 'Sync failed', error: error.message });
+    }
+},
+
+backfillFetteETL: async (req, res) => {
+    try {
+        let currentDate = new Date('2026-02-08');
+        const endDate = new Date('2026-02-10');
+        
+        while (currentDate <= endDate) {
+            const dayStr = currentDate.toISOString().split('T')[0];
+            console.log(`⏳ Backfilling: ${dayStr}`);
+            await performSyncForDate(dayStr);
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        res.status(200).send({ message: "Historical backfill complete from Jan 1 to Feb 8." });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+
+  
+
+
 
 
       
