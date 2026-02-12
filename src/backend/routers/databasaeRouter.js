@@ -404,6 +404,10 @@ routers.get("/backfillFetteETL", databaseControllers.backfillFetteETL);
 routers.get("/getFetteOEE", databaseControllers.getFetteOEE);
 
 routers.get("/getUnifiedOEE2", databaseControllers.getUnifiedOEE2);
+routers.post("/overrideShiftData", databaseControllers.overrideShiftData);
+
+routers.get("/getAllLatestTimestamps", databaseControllers.getAllLatestTimestamps);
+
 
 
 module.exports = routers;

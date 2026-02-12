@@ -332,6 +332,37 @@ const performSyncForDate = async (dayStr) => {
     }
   };
 
+  // 1. Format Unix Seconds to Readable Date (WIB)
+const formatTimestampWIB = (unix_ts_seconds) => {
+    if (!unix_ts_seconds) return null;
+    const date = new Date(unix_ts_seconds * 1000); 
+    return date.toLocaleString('id-ID', { 
+        timeZone: 'Asia/Jakarta', 
+        year: 'numeric', month: '2-digit', day: '2-digit', 
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }).replace(/\//g, '-').replace(',', '');
+};
+
+// 2. Format Unix Seconds to Readable Date (Local System Time)
+const formatTimestampLocal = (unix_ts_seconds) => {
+    if (!unix_ts_seconds) return null;
+    const date = new Date(unix_ts_seconds * 1000); 
+    return date.toLocaleString('id-ID', { 
+        year: 'numeric', month: '2-digit', day: '2-digit', 
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }).replace(/\//g, '-').replace(',', '');
+};
+
+// 3. Convert String Date (YYYY-MM-DD HH:mm:ss) to Unix Seconds
+// This is needed so the Frontend can calculate the colors (Green/Red)
+const stringDateToUnix = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.getTime() / 1000; // Convert ms to seconds
+};
+
 module.exports = {
   fetchOee: async (request, response) => {
     let fetchQuerry =
@@ -11954,57 +11985,87 @@ saveOverrideData: async (req, res) => {
             all_shift_ids, originalFullDay, updatedFullDay 
         } = req.body;
 
-        // 1. UPDATE THE TARGET SHIFT
-        await connection.query(
-            `UPDATE oee_master_logs SET total_run=?, total_product=?, reject=?, total_good=?, total_stop=?, planned_dur=?, availability_value_shift=?, performance_value_shift=?, quality_value_shift=?, oee_value_shift=? WHERE id=?`,
-            [master.total_run, master.total_product, master.reject, master.total_good, master.total_stop, master.planned_dur || 0, master.availability_value_shift, master.performance_value_shift, master.quality_value_shift, master.oee_value_shift, master.id]
-        );
+        // --- FIX: FORCE LOCAL DATE PARSING (PREVENT -1 DAY BUG) ---
+        // Do NOT use toISOString() as it shifts to UTC.
+        const d = new Date(master.production_date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const prodDate = `${year}-${month}-${day}`; // Always keeps "2026-01-12"
 
-        // 2. SYNC DOWNTIME EVENTS
-        await connection.query(`DELETE FROM fette_shift_events WHERE shift_id = ?`, [master.id]);
+        const shiftIdInt = parseInt(master.shift_name); 
 
-        if (events && events.length > 0) {
-            const cleanedEvents = events.map(ev => {
-                const d = new Date(master.production_date);
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                
-                const shiftStartMap = { '1': '06:30:00', '2': '14:30:00', '3': '22:30:00' };
-                const startHms = shiftStartMap[master.shift_name] || '06:30:00';
-                const startTimeStr = `${year}-${month}-${day} ${startHms}`;
-                
-                const duration = parseInt(ev.duration_minutes) || 0;
-                const startTimeObj = new Date(startTimeStr);
-                const endTimeObj = new Date(startTimeObj.getTime() + (duration * 60000));
-                
-                const endTimeStr = `${endTimeObj.getFullYear()}-${String(endTimeObj.getMonth() + 1).padStart(2, '0')}-${String(endTimeObj.getDate()).padStart(2, '0')} ${String(endTimeObj.getHours()).padStart(2, '0')}:${String(endTimeObj.getMinutes()).padStart(2, '0')}:${String(endTimeObj.getSeconds()).padStart(2, '0')}`;
+        console.log(`📝 Overriding Shift ${shiftIdInt} | Date: ${prodDate} (Local)`);
 
-                // --- THE FIX: SOURCE TABLE MAPPING ---
-                const sourceTable = ev.category === 'Planned' 
-                    ? 'NodeRed_oee_fette_pd_desc' 
-                    : 'NodeRed_oee_fette_ud_desc';
+        // --- 1. UPDATE GROUND TRUTH (fette_shift_logs) ---
+        const updateGroundTruthSql = `
+            UPDATE fette_shift_logs 
+            SET 
+                run_time = ?, 
+                stop_time = ?, 
+                total_prod = ?, 
+                total_good = ?, 
+                reject_count = ?, 
+                planned_stop = ?, 
+                unplanned_stop = ?,
+                is_edited = 1,
+                last_updated_by = 'MANUAL_OVERRIDE',
+                updated_at = NOW()
+            WHERE DATE(log_date) = ? AND shift_id = ?
+        `;
 
-                return [
-                    startTimeStr,
-                    endTimeStr,
-                    ev.duration_minutes,
-                    ev.category,   // Stays "Planned" or "Unplanned"
-                    sourceTable,   // NEW: Technical Source Table string
-                    ev.reason_id,
-                    master.id
-                ];
-            });
+        const totalGood = (parseFloat(master.total_product) || 0) - (parseFloat(master.reject) || 0);
 
-            // Added 'source_table' to the column list
-            const sql = `INSERT INTO fette_shift_events 
-                         (start_time, end_time, duration_minutes, category, source_table, reason_id, shift_id) 
-                         VALUES ?`;
-                         
-            await connection.query(sql, [cleanedEvents]);
+        const [gtResult] = await connection.query(updateGroundTruthSql, [
+            master.total_run,           
+            master.total_stop,          
+            master.total_product,       
+            totalGood,                  
+            master.reject,              
+            master.planned_stop || 0,   
+            master.unplanned_stop || 0, 
+            prodDate,                   // Uses the corrected Local Date
+            shiftIdInt                  
+        ]);
+
+        if (gtResult.affectedRows === 0) {
+            console.warn(`⚠️ Warning: No row found in fette_shift_logs for ${prodDate} Shift ${shiftIdInt}`);
         }
 
-        // 3. BROADCAST DAILY OEE
+        // --- 2. UPDATE MASTER LOG (oee_master_logs) ---
+        const updateMasterSql = `
+            UPDATE oee_master_logs 
+            SET 
+                total_run = ?, total_stop = ?, total_product = ?, reject = ?, total_good = ?,
+                planned_dur = ?, unplanned_dur = ?, 
+                availability_value_shift = ?, performance_value_shift = ?, quality_value_shift = ?, oee_value_shift = ?,
+                hmi_avail_value = ?, hmi_perf_value = ?, hmi_qual_value = ?, hmi_oee_shift_value = ?
+            WHERE id = ?
+        `;
+
+        const hmiAvail = (parseFloat(master.availability_value_shift) || 0) * 100;
+        const hmiPerf  = (parseFloat(master.performance_value_shift) || 0) * 100;
+        const hmiQual  = (parseFloat(master.quality_value_shift) || 0) * 100;
+        const hmiOee   = (parseFloat(master.oee_value_shift) || 0) * 100;
+
+        await connection.query(updateMasterSql, [
+            master.total_run, 
+            master.total_stop, 
+            master.total_product, 
+            master.reject, 
+            totalGood,
+            master.planned_stop || 0,   
+            master.unplanned_stop || 0, 
+            master.availability_value_shift, 
+            master.performance_value_shift, 
+            master.quality_value_shift, 
+            master.oee_value_shift,
+            hmiAvail, hmiPerf, hmiQual, hmiOee,
+            master.id
+        ]);
+
+
+        // --- 4. BROADCAST DAILY OEE ---
         if (all_shift_ids && all_shift_ids.length > 0) {
             await connection.query(
                 `UPDATE oee_master_logs SET availability_value_daily = ?, performance_value_daily = ?, quality_value_daily = ?, oee_value_daily = ? WHERE id IN (?)`,
@@ -12012,17 +12073,18 @@ saveOverrideData: async (req, res) => {
             );
         }
 
-        // 4. AUDIT LOG
+        // --- 5. AUDIT LOG ---
         await connection.query(
-            `INSERT INTO fette_override_audit_logs (master_log_id, change_reason, original_data_json, new_data_json) VALUES (?, ?, ?, ?)`,
+            `INSERT INTO fette_override_audit_logs (master_log_id, change_reason, original_data_json, new_data_json, created_at) VALUES (?, ?, ?, ?, NOW())`,
             [master.id, changeReason, JSON.stringify(originalFullDay), JSON.stringify(updatedFullDay)]
         );
 
         await connection.commit();
-        res.status(200).send({ message: "Success: Source table corrected based on category." });
+        res.status(200).send({ message: "Success: Data updated with correct Local Time." });
 
     } catch (error) {
         if (connection) await connection.rollback();
+        console.error("❌ Save Override Error:", error);
         res.status(500).send({ error: error.message });
     } finally {
         connection.release();
@@ -12122,32 +12184,71 @@ getOverrideDayData: async (req, res) => {
     try {
         const { date } = req.query;
         
-        // 1. Get all Master Logs for that date
-        const [masters] = await db4.promise().query(
-            `SELECT * FROM oee_master_logs WHERE DATE(production_date) = ? AND shift_name IN ('1', '2', '3')`,
-            [date]
-        );
+        // 1. FETCH GROUND TRUTH (fette_shift_logs)
+        // We JOIN with oee_master_logs ONLY to get the 'id' for event lookup.
+        // We alias the columns to match what the frontend expects (total_run, total_product, etc.)
+        const sql = `
+            SELECT 
+                -- Ground Truth Metrics from fette_shift_logs
+                fsl.run_time AS total_run,
+                fsl.stop_time AS total_stop,
+                fsl.total_prod AS total_product,
+                fsl.reject_count AS reject,
+                fsl.planned_stop,
+                fsl.unplanned_stop,
+                fsl.shift_id AS shift_name,
+                fsl.log_date AS production_date,
+                
+                -- Link for Events
+                oml.id AS master_id 
+            FROM fette_shift_logs fsl
+            LEFT JOIN oee_master_logs oml 
+                ON DATE(fsl.log_date) = DATE(oml.production_date) 
+                AND fsl.shift_id = oml.shift_name
+            WHERE DATE(fsl.log_date) = ? 
+            AND fsl.shift_id IN (1, 2, 3)
+        `;
 
-        if (masters.length === 0) return res.status(404).send({ message: "No data" });
+        const [rows] = await db4.promise().query(sql, [date]);
 
-        // 2. Get all Events for these shifts
-        const masterIds = masters.map(m => m.id);
-        const [events] = await db4.promise().query(
-            `SELECT * FROM fette_shift_events WHERE shift_id IN (?)`,
-            [masterIds]
-        );
+        if (rows.length === 0) return res.status(200).send({}); // Return empty object if no data
 
-        // 3. Group them together: { "1": { master: {}, events: [] }, ... }
+        // 2. FETCH EVENTS (Using the ID from oee_master_logs)
+        // We only fetch events for shifts that actually have a Master Log ID
+        const validMasterIds = rows.map(r => r.master_id).filter(id => id);
+        
+        let events = [];
+        if (validMasterIds.length > 0) {
+            const [eventRows] = await db4.promise().query(
+                `SELECT * FROM fette_shift_events WHERE shift_id IN (?)`,
+                [validMasterIds]
+            );
+            events = eventRows;
+        }
+
+        // 3. GROUP BY SHIFT
         const result = {};
-        masters.forEach(m => {
-            result[m.shift_name] = {
-                master: m,
-                events: events.filter(e => e.shift_id === m.id)
+        
+        // Initialize 3 shifts to ensure frontend doesn't break
+        [1, 2, 3].forEach(id => {
+            result[id] = { master: null, events: [] };
+        });
+
+        rows.forEach(row => {
+            // Ensure ID is passed for the "Add Event" button to work
+            // If oee_master_logs is missing (sync issue), fallback to 0 or null
+            row.id = row.master_id; 
+            
+            result[row.shift_name] = {
+                master: row,
+                events: events.filter(e => e.shift_id === row.master_id)
             };
         });
 
         res.status(200).send(result);
+
     } catch (error) {
+        console.error("Get Override Data Error:", error);
         res.status(500).send({ error: error.message });
     }
 },
@@ -12287,6 +12388,277 @@ backfillFetteETL: async (req, res) => {
         res.status(200).send({ message: "Historical backfill complete from Jan 1 to Feb 8." });
     } catch (error) {
         res.status(500).send({ error: error.message });
+    }
+},
+
+overrideShiftData: async (req, res) => {
+    const { date, shift_id, run_time, stop_time, total_prod, total_good, reject_count, planned_stop, unplanned_stop } = req.body;
+
+    // Constants for Recalculation
+    const TARGET_RATE = 5333; // Speed (Tablets/Min)
+    const SHIFT_DURATIONS = { 1: 510, 2: 465, 3: 465 }; // Minutes
+
+    try {
+        console.log(`📝 Overriding data for ${date} Shift ${shift_id}...`);
+
+        // --- STEP 1: UPDATE RAW TABLE (fette_shift_logs) ---
+        // This fixes the Live Dashboard & Pie Charts
+        const updateRawSql = `
+            UPDATE fette_shift_logs 
+            SET run_time = ?, stop_time = ?, total_prod = ?, total_good = ?, 
+                reject_count = ?, planned_stop = ?, unplanned_stop = ?
+            WHERE log_date = ? AND shift_id = ?
+        `;
+        
+        await db4.promise().query(updateRawSql, [
+            run_time, stop_time, total_prod, total_good, reject_count, planned_stop, unplanned_stop,
+            date, shift_id
+        ]);
+
+        // --- STEP 2: RECALCULATE OEE PERCENTAGES ---
+        const t = SHIFT_DURATIONS[shift_id]; 
+        const r = parseFloat(run_time) || 0;
+        const o = parseFloat(total_prod) || 0;
+        const g = parseFloat(total_good) || 0;
+        const p = parseFloat(planned_stop) || 0;
+
+        // Availability
+        const availDenom = t - p;
+        const availVal = availDenom > 0 ? (r / availDenom) * 100 : 0;
+
+        // Performance
+        const pot = r * TARGET_RATE;
+        const perfVal = pot > 0 ? (o / pot) * 100 : 0;
+
+        // Quality
+        const qualVal = o > 0 ? (g / o) * 100 : 0;
+
+        // OEE
+        const oeeVal = (availVal * perfVal * qualVal) / 10000;
+
+        // --- STEP 3: UPDATE MASTER LOG (oee_master_logs) ---
+        // This fixes the Historical Log Table
+        // Note: We map 'date' to 'production_date' and 'shift_id' to 'shift_name'
+        const updateMasterSql = `
+            UPDATE oee_master_logs
+            SET 
+                -- Raw Values
+                total_run = ?, total_stop = ?, total_product = ?, reject = ?, 
+                
+                -- Calculated Percentages (Shift Level)
+                oee_value_shift = ?, availability_value_shift = ?, 
+                performance_value_shift = ?, quality_value_shift = ?
+            WHERE production_date = ? AND shift_name = ?
+        `;
+
+        await db4.promise().query(updateMasterSql, [
+            r, stop_time, o, reject_count, // Raw Updates
+            oeeVal, availVal, perfVal, qualVal, // Calculated Updates
+            date, shift_id // Where Clause
+        ]);
+
+        console.log("✅ Sync Complete: Updated Raw Table & Recalculated Master Log.");
+        res.status(200).send({ message: "Override successful and synced to Master Log." });
+
+    } catch (error) {
+        console.error("❌ Override Error:", error);
+        res.status(500).send({ message: "Failed to override data", error: error.message });
+    }
+},
+
+getAllLatestTimestamps: async (req, res) => {
+   try {
+        const dataSources = [
+            // ==========================================
+            // NEW TABLES (STAGING)
+            // ==========================================
+            { 
+                key: 'IPC_Scale_Staging', 
+                table: 'sakaplant_prod_ipc_scale_staging', 
+                db: db4, 
+                category: 'IPC', 
+                columnName: 'created_date', 
+                type: 'datetime' // Type: Full DateTime String in one column
+            },
+            { 
+                key: 'IPC_MA_Staging', 
+                table: 'sakaplant_prod_ipc_ma_staging', 
+                db: db4, 
+                category: 'IPC', 
+                columnName: 'created_date', 
+                secondaryColumn: 'created_time', // Needs 2nd column
+                type: 'split_datetime' // Type: Date and Time in separate columns
+            },
+
+            // ==========================================
+            // EXISTING TABLES (Line 1, Line 3, NodeRed)
+            // ==========================================
+            { key: 'EBR_FBD_L3',      table: 'cMT-GEA-L3_Data_FBD_L3_data',       db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'EBR_PMA_L3',      table: 'cMT-GEA-L3_EBR_PMA_L3_data',        db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'EBR_EPH_L3',      table: 'cMT-GEA-L3_EBR_EPH_L3_data',        db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'EBR_WETMILL',     table: 'cMT-GEA-L3_EBR_WETMILL_data',       db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'Current_PMA_L3',  table: 'cMT-GEA-L3_Current_PMA_L3_data',    db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'Data_FBD_L3',     table: 'cMT-GEA-L3_Data_FBD_L3_data',       db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'PMA_KWmeter',     table: 'cMT-GEA-L3_PMA_KWmeter_data',       db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'PMA_RECIPE_FULL', table: 'cMT-GEA-L3_PMA_RECIPE_RECOR_data', db: db3, category: 'Line 3', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'Mezanine_Coating', table: 'mezanine.tengah_Coating-FilteNEW_data', db: db3, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
+
+            { key: 'PMA (L1)',        table: 'cMT-FHDGEA1_EBR_PMA_new_data',      db: db4, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'FBD (L1)',        table: 'cMT-FHDGEA1_EBR_FBD_new_data',      db: db4, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'EPH (L1)',        table: 'cMT-FHDGEA1_EBR_EPH_new_data',      db: db4, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
+            { key: 'Wetmill (L1)',    table: 'cMT-FHDGEA1_EBR_Wetmill_new_data',  db: db4, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
+            
+
+            { key: 'NR_Coating',           table: 'NodeRed_Coating',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_CoatingFilter',     table: 'NodeRed_CoatingFilterNEW',       db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_EPH_L1',            table: 'NodeRed_EPH_L1',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_EPH_L3',            table: 'NodeRed_EPH_L3',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_EPH_L3_1',          table: 'NodeRed_EPH_L3_1',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_EPH_Vakum_L1',      table: 'NodeRed_EPH_Vakum_L1',           db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L1',            table: 'NodeRed_FBD_L1',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L1_1',          table: 'NodeRed_FBD_L1_1',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L1_Filter',     table: 'NodeRed_FBD_L1_FilterProduct',   db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L3',            table: 'NodeRed_FBD_L3',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L3_1',          table: 'NodeRed_FBD_L3_1',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L3_2',          table: 'NodeRed_FBD_L3_2',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FBD_L3_Filter',     table: 'NodeRed_FBD_L3_FilterProduct',   db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_FinalMix',          table: 'NodeRed_FinalMix',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_GEA_FilterNew',     table: 'NodeRed_GEA_FilterNew',          db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            /* Not needed for now
+            { key: 'NR_OEE_CM1',           table: 'NodeRed_OEE_CM1',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_OEE_CM2',           table: 'NodeRed_OEE_CM2',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_OEE_CM3',           table: 'NodeRed_OEE_CM3',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_OEE_HM1',           table: 'NodeRed_OEE_HM1',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+             */
+            { key: 'NR_PMA_KWmeter',       table: 'NodeRed_PMA_KWmeter',            db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_PMA_L1',            table: 'NodeRed_PMA_L1',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_PMA_L3',            table: 'NodeRed_PMA_L3',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_PMA_L3_1',          table: 'NodeRed_PMA_L3_1',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_PMA_L3_2',          table: 'NodeRed_PMA_L3_2',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_PMA_L3_3',          table: 'NodeRed_PMA_L3_3',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_PMA_L3_4',          table: 'NodeRed_PMA_L3_4',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_TotalPD',           table: 'NodeRed_TotalPD',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Vibration_Fette',   table: 'NodeRed_Vibration_Fette_L1',     db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_WETMILL_L3',        table: 'NodeRed_WETMILL_L3',             db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_WETMILL_L3_1',      table: 'NodeRed_WETMILL_L3_1',           db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_WH2_Monitoring',    table: 'NodeRed_WH2_Monitoring',         db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Wetmill_L1',        table: 'NodeRed_Wetmill_L1',             db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Wetmill_L1_1',      table: 'NodeRed_Wetmill_L1_1',           db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_EPH_L1',       table: 'NodeRed_timeproses_EPH_L1',      db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_FBD_L1',       table: 'NodeRed_timeproses_FBD_L1',      db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_Granulasi',    table: 'NodeRed_timeproses_GRANULASI_L1',db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_PMA_L1',       table: 'NodeRed_timeproses_PMA_L1',      db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_Vacum_L1',     table: 'NodeRed_timeproses_VACUM_L1',    db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_Vacum_Open',   table: 'NodeRed_timeproses_VACUM_OpenSystem', db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NR_Time_Wetmill_L1',   table: 'NodeRed_timeproses_WETMILL_L1',  db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+        ];
+
+        const queries = dataSources.map(async (source) => {
+            let query = '';
+            
+            // --- QUERY CONSTRUCTION ---
+            if (source.type === 'split_datetime') {
+                // For tables like sakaplant_prod_ipc_ma_staging where Date and Time are split
+                query = `
+                    SELECT \`${source.columnName}\`, \`${source.secondaryColumn}\`
+                    FROM \`${source.table}\` 
+                    ORDER BY \`${source.columnName}\` DESC, \`${source.secondaryColumn}\` DESC 
+                    LIMIT 1
+                `;
+            } else {
+                // Standard tables or single DATETIME column
+                query = `
+                    SELECT \`${source.columnName}\` 
+                    FROM \`${source.table}\` 
+                    ORDER BY \`${source.columnName}\` DESC 
+                    LIMIT 1
+                `;
+            }
+            
+            try {
+                const [rows] = await source.db.promise().query(query);
+                
+                let readableDate = 'No Data';
+                let unixTimestamp = null;
+
+                if (rows.length > 0) {
+                    const row = rows[0];
+
+                    // --- RESULT PARSING ---
+                    if (source.type === 'split_datetime') {
+                        // Concatenate Date and Time (e.g. "2026-02-11" + " " + "17:23:03")
+                        const datePart = row[source.columnName];
+                        const timePart = row[source.secondaryColumn];
+                        if (datePart && timePart) {
+                            // Ensure date is a string (some drivers return Date objects)
+                            const dateStr = (datePart instanceof Date) 
+                                ? datePart.toISOString().split('T')[0] 
+                                : datePart;
+                                
+                            readableDate = `${dateStr} ${timePart}`;
+                            unixTimestamp = stringDateToUnix(readableDate);
+                        }
+                    } 
+                    else if (source.type === 'datetime') {
+                        // Already a readable string: "2026-02-11 17:23:03"
+                        const rawVal = row[source.columnName];
+                        
+                        // If driver returns Date object, convert to string
+                        if (rawVal instanceof Date) {
+                             readableDate = rawVal.toLocaleString('id-ID', { hour12: false }).replace(/\//g, '-').replace(',', '');
+                             unixTimestamp = rawVal.getTime() / 1000;
+                        } else {
+                             // Assuming it's a string
+                             readableDate = rawVal;
+                             unixTimestamp = stringDateToUnix(rawVal);
+                        }
+                    } 
+                    else {
+                        // DEFAULT: Unix Timestamp (Integers/Floats)
+                        const val = row[source.columnName];
+                        if (val) {
+                            unixTimestamp = parseFloat(val);
+                            // Format depends on category
+                            if (source.category === 'NodeRed') {
+                                readableDate = formatTimestampWIB(unixTimestamp);
+                            } else {
+                                readableDate = formatTimestampLocal(unixTimestamp);
+                            }
+                        }
+                    }
+                }
+
+                return {
+                    name: source.key,
+                    table: source.table,
+                    category: source.category,
+                    timestamp: unixTimestamp, // Frontend needs this for colors
+                    last_update: readableDate, // Display text
+                    status: unixTimestamp ? 'Active' : 'Inactive'
+                };
+            } catch (err) {
+                console.error(`Error fetching ${source.key}:`, err.message);
+                return {
+                    name: source.key,
+                    table: source.table,
+                    category: source.category,
+                    error: "Error",
+                    last_update: null
+                };
+            }
+        });
+
+        const results = await Promise.all(queries);
+
+        res.status(200).json({
+            message: "Latest timestamps fetched successfully",
+            total_sources: results.length,
+            data: results
+        });
+
+    } catch (error) {
+        console.error("Controller Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 },
 
