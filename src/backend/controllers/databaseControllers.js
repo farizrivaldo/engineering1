@@ -355,6 +355,20 @@ const formatTimestampLocal = (unix_ts_seconds) => {
     }).replace(/\//g, '-').replace(',', '');
 };
 
+const convertUtcToWib = (dateStr, timeStr) => {
+    // Combine into a UTC ISO string: "2026-02-11T12:55:56.000Z"
+    const isoString = `${dateStr}T${timeStr}.000Z`;
+    const date = new Date(isoString);
+    
+    // Return formatted WIB string
+    return date.toLocaleString('id-ID', { 
+        timeZone: 'Asia/Jakarta', 
+        year: 'numeric', month: '2-digit', day: '2-digit', 
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }).replace(/\//g, '-').replace(',', '');
+};
+
 // 3. Convert String Date (YYYY-MM-DD HH:mm:ss) to Unix Seconds
 // This is needed so the Frontend can calculate the colors (Green/Red)
 const stringDateToUnix = (dateString) => {
@@ -11985,19 +11999,37 @@ saveOverrideData: async (req, res) => {
             all_shift_ids, originalFullDay, updatedFullDay 
         } = req.body;
 
-        // --- FIX: FORCE LOCAL DATE PARSING (PREVENT -1 DAY BUG) ---
-        // Do NOT use toISOString() as it shifts to UTC.
+        // --- 1. EXTRACT USER FROM TOKEN ---
+        let modifiedBy = 'SYSTEM'; // Default fallback
+        
+        try {
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1]; // Remove "Bearer "
+            
+            if (token) {
+                // Decode the token to get the payload (no secret needed just to read)
+                // Adjust 'username' or 'name' based on what your login token stores
+                const decoded = jwt.decode(token); 
+                modifiedBy = decoded?.username || decoded?.name || decoded?.sub || 'Unknown User';
+            }
+        } catch (e) {
+            console.warn("Token decode failed, using default user.");
+        }
+
+        // --- FIX: DEFINE prodDate AND shiftIdInt HERE ---
+        // Force local date parsing (prevent -1 day bug)
         const d = new Date(master.production_date);
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
-        const prodDate = `${year}-${month}-${day}`; // Always keeps "2026-01-12"
+        const prodDate = `${year}-${month}-${day}`; 
 
         const shiftIdInt = parseInt(master.shift_name); 
 
+        console.log(`📝 Shift ${shiftIdInt} Override by: ${modifiedBy}`);
         console.log(`📝 Overriding Shift ${shiftIdInt} | Date: ${prodDate} (Local)`);
 
-        // --- 1. UPDATE GROUND TRUTH (fette_shift_logs) ---
+        // --- 2. UPDATE GROUND TRUTH (fette_shift_logs) ---
         const updateGroundTruthSql = `
             UPDATE fette_shift_logs 
             SET 
@@ -12009,7 +12041,7 @@ saveOverrideData: async (req, res) => {
                 planned_stop = ?, 
                 unplanned_stop = ?,
                 is_edited = 1,
-                last_updated_by = 'MANUAL_OVERRIDE',
+                last_updated_by = ?,
                 updated_at = NOW()
             WHERE DATE(log_date) = ? AND shift_id = ?
         `;
@@ -12017,22 +12049,23 @@ saveOverrideData: async (req, res) => {
         const totalGood = (parseFloat(master.total_product) || 0) - (parseFloat(master.reject) || 0);
 
         const [gtResult] = await connection.query(updateGroundTruthSql, [
-            master.total_run,           
-            master.total_stop,          
-            master.total_product,       
-            totalGood,                  
-            master.reject,              
-            master.planned_stop || 0,   
-            master.unplanned_stop || 0, 
-            prodDate,                   // Uses the corrected Local Date
-            shiftIdInt                  
+            master.total_run,           // run_time
+            master.total_stop,          // stop_time
+            master.total_product,       // total_prod
+            totalGood,                  // total_good
+            master.reject,              // reject_count
+            master.planned_stop || 0,   // planned_stop
+            master.unplanned_stop || 0, // unplanned_stop
+            modifiedBy,                 // <--- Replaced hardcoded string with real user
+            prodDate,                   // Match DATE(log_date)
+            shiftIdInt                  // Match shift_id
         ]);
 
         if (gtResult.affectedRows === 0) {
             console.warn(`⚠️ Warning: No row found in fette_shift_logs for ${prodDate} Shift ${shiftIdInt}`);
         }
 
-        // --- 2. UPDATE MASTER LOG (oee_master_logs) ---
+        // --- 3. UPDATE MASTER LOG & HMI (oee_master_logs) ---
         const updateMasterSql = `
             UPDATE oee_master_logs 
             SET 
@@ -12054,8 +12087,8 @@ saveOverrideData: async (req, res) => {
             master.total_product, 
             master.reject, 
             totalGood,
-            master.planned_stop || 0,   
-            master.unplanned_stop || 0, 
+            master.planned_stop || 0,   // Maps to planned_dur
+            master.unplanned_stop || 0, // Maps to unplanned_dur
             master.availability_value_shift, 
             master.performance_value_shift, 
             master.quality_value_shift, 
@@ -12064,23 +12097,38 @@ saveOverrideData: async (req, res) => {
             master.id
         ]);
 
+        // --- 4. SYNC EVENTS (COMMENTED OUT AS PER YOUR CODE) ---
+        /*
+        // [Event syncing code commented out]
+        */
 
-        // --- 4. BROADCAST DAILY OEE ---
+        // --- 5. BROADCAST DAILY OEE ---
         if (all_shift_ids && all_shift_ids.length > 0) {
             await connection.query(
-                `UPDATE oee_master_logs SET availability_value_daily = ?, performance_value_daily = ?, quality_value_daily = ?, oee_value_daily = ? WHERE id IN (?)`,
+                `UPDATE oee_master_logs 
+                 SET availability_value_daily = ?, performance_value_daily = ?, quality_value_daily = ?, oee_value_daily = ? 
+                 WHERE id IN (?)`,
                 [daily_recalc.avail, daily_recalc.perf, daily_recalc.qual, daily_recalc.oee, all_shift_ids]
             );
         }
 
-        // --- 5. AUDIT LOG ---
+        // --- 6. AUDIT LOG ---
+        // FIX: Match placeholders (?) with values. Added one ? for modifiedBy.
         await connection.query(
-            `INSERT INTO fette_override_audit_logs (master_log_id, change_reason, original_data_json, new_data_json, created_at) VALUES (?, ?, ?, ?, NOW())`,
-            [master.id, changeReason, JSON.stringify(originalFullDay), JSON.stringify(updatedFullDay)]
+            `INSERT INTO fette_override_audit_logs 
+            (master_log_id, change_reason, user_name, original_data_json, new_data_json, created_at) 
+            VALUES (?, ?, ?, ?, ?, NOW())`, 
+            [
+                master.id, 
+                changeReason, 
+                modifiedBy, // Your new user_name field
+                JSON.stringify(originalFullDay), 
+                JSON.stringify(updatedFullDay)
+            ]
         );
 
         await connection.commit();
-        res.status(200).send({ message: "Success: Data updated with correct Local Time." });
+        res.status(200).send({ message: "Success: Data updated correctly." });
 
     } catch (error) {
         if (connection) await connection.rollback();
@@ -12467,7 +12515,7 @@ overrideShiftData: async (req, res) => {
 },
 
 getAllLatestTimestamps: async (req, res) => {
-   try {
+    try {
         const dataSources = [
             // ==========================================
             // NEW TABLES (STAGING)
@@ -12478,7 +12526,7 @@ getAllLatestTimestamps: async (req, res) => {
                 db: db4, 
                 category: 'IPC', 
                 columnName: 'created_date', 
-                type: 'datetime' // Type: Full DateTime String in one column
+                type: 'datetime', 
             },
             { 
                 key: 'IPC_MA_Staging', 
@@ -12486,8 +12534,8 @@ getAllLatestTimestamps: async (req, res) => {
                 db: db4, 
                 category: 'IPC', 
                 columnName: 'created_date', 
-                secondaryColumn: 'created_time', // Needs 2nd column
-                type: 'split_datetime' // Type: Date and Time in separate columns
+                secondaryColumn: 'created_time', 
+                type: 'split_datetime', 
             },
 
             // ==========================================
@@ -12508,7 +12556,6 @@ getAllLatestTimestamps: async (req, res) => {
             { key: 'EPH (L1)',        table: 'cMT-FHDGEA1_EBR_EPH_new_data',      db: db4, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
             { key: 'Wetmill (L1)',    table: 'cMT-FHDGEA1_EBR_Wetmill_new_data',  db: db4, category: 'Line 1', columnName: 'time@timestamp', type: 'unix' },
             
-
             { key: 'NR_Coating',           table: 'NodeRed_Coating',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_CoatingFilter',     table: 'NodeRed_CoatingFilterNEW',       db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_EPH_L1',            table: 'NodeRed_EPH_L1',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
@@ -12524,12 +12571,6 @@ getAllLatestTimestamps: async (req, res) => {
             { key: 'NR_FBD_L3_Filter',     table: 'NodeRed_FBD_L3_FilterProduct',   db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_FinalMix',          table: 'NodeRed_FinalMix',               db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_GEA_FilterNew',     table: 'NodeRed_GEA_FilterNew',          db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
-            /* Not needed for now
-            { key: 'NR_OEE_CM1',           table: 'NodeRed_OEE_CM1',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
-            { key: 'NR_OEE_CM2',           table: 'NodeRed_OEE_CM2',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
-            { key: 'NR_OEE_CM3',           table: 'NodeRed_OEE_CM3',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
-            { key: 'NR_OEE_HM1',           table: 'NodeRed_OEE_HM1',                db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
-             */
             { key: 'NR_PMA_KWmeter',       table: 'NodeRed_PMA_KWmeter',            db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_PMA_L1',            table: 'NodeRed_PMA_L1',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_PMA_L3',            table: 'NodeRed_PMA_L3',                 db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
@@ -12558,7 +12599,6 @@ getAllLatestTimestamps: async (req, res) => {
             
             // --- QUERY CONSTRUCTION ---
             if (source.type === 'split_datetime') {
-                // For tables like sakaplant_prod_ipc_ma_staging where Date and Time are split
                 query = `
                     SELECT \`${source.columnName}\`, \`${source.secondaryColumn}\`
                     FROM \`${source.table}\` 
@@ -12566,7 +12606,6 @@ getAllLatestTimestamps: async (req, res) => {
                     LIMIT 1
                 `;
             } else {
-                // Standard tables or single DATETIME column
                 query = `
                     SELECT \`${source.columnName}\` 
                     FROM \`${source.table}\` 
@@ -12584,33 +12623,39 @@ getAllLatestTimestamps: async (req, res) => {
                 if (rows.length > 0) {
                     const row = rows[0];
 
-                    // --- RESULT PARSING ---
+                    // --- RESULT PARSING (UPDATED TO LITERAL STRING HANDLING) ---
                     if (source.type === 'split_datetime') {
-                        // Concatenate Date and Time (e.g. "2026-02-11" + " " + "17:23:03")
-                        const datePart = row[source.columnName];
-                        const timePart = row[source.secondaryColumn];
-                        if (datePart && timePart) {
-                            // Ensure date is a string (some drivers return Date objects)
-                            const dateStr = (datePart instanceof Date) 
-                                ? datePart.toISOString().split('T')[0] 
-                                : datePart;
+                        const dateVal = row[source.columnName];
+                        const timeVal = row[source.secondaryColumn];
+
+                        if (dateVal && timeVal) {
+                            // Force YYYY-MM-DD from the Date object without timezone shift
+                            // 'sv-SE' locale ensures ISO format (YYYY-MM-DD)
+                            const dateStr = (dateVal instanceof Date) 
+                                ? dateVal.toLocaleDateString('sv-SE') 
+                                : dateVal;
                                 
-                            readableDate = `${dateStr} ${timePart}`;
-                            unixTimestamp = stringDateToUnix(readableDate);
+                            // Combine strings literally
+                            readableDate = `${dateStr} ${timeVal}`;
+                            
+                            // Create timestamp for status color using local interpretation
+                            unixTimestamp = new Date(readableDate).getTime() / 1000;
                         }
                     } 
                     else if (source.type === 'datetime') {
-                        // Already a readable string: "2026-02-11 17:23:03"
                         const rawVal = row[source.columnName];
                         
-                        // If driver returns Date object, convert to string
                         if (rawVal instanceof Date) {
-                             readableDate = rawVal.toLocaleString('id-ID', { hour12: false }).replace(/\//g, '-').replace(',', '');
+                             // Force YYYY-MM-DD and HH:mm:ss strings manually
+                             const dateStr = rawVal.toLocaleDateString('sv-SE');
+                             const timeStr = rawVal.toLocaleTimeString('id-ID', { hour12: false });
+                             readableDate = `${dateStr} ${timeStr}`;
+                             
                              unixTimestamp = rawVal.getTime() / 1000;
                         } else {
-                             // Assuming it's a string
+                             // Assuming it's already a correct string
                              readableDate = rawVal;
-                             unixTimestamp = stringDateToUnix(rawVal);
+                             unixTimestamp = new Date(rawVal).getTime() / 1000;
                         }
                     } 
                     else {
@@ -12618,7 +12663,6 @@ getAllLatestTimestamps: async (req, res) => {
                         const val = row[source.columnName];
                         if (val) {
                             unixTimestamp = parseFloat(val);
-                            // Format depends on category
                             if (source.category === 'NodeRed') {
                                 readableDate = formatTimestampWIB(unixTimestamp);
                             } else {
