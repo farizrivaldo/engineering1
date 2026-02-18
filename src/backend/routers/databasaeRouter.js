@@ -407,6 +407,8 @@ routers.get("/getUnifiedOEE2", databaseControllers.getUnifiedOEE2);
 routers.post("/overrideShiftData", databaseControllers.overrideShiftData);
 
 routers.get("/getAllLatestTimestamps", databaseControllers.getAllLatestTimestamps);
+routers.get("/getDataIntegritySummary", databaseControllers.getTableIntegrityLogs);
+routers.get("/getHourlyHeatmap", databaseControllers.getHourlyHeatmap);
 
 
 

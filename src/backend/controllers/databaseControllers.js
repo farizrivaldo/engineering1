@@ -12706,6 +12706,120 @@ getAllLatestTimestamps: async (req, res) => {
     }
 },
 
+getTableIntegrityLogs: async (req, res) => {
+// NEW: We now accept dbName directly from React
+    const { tableName, startDate, endDate, expectedRows = 1440, dbName, columnName } = req.query;
+    const targetRows = parseInt(expectedRows);
+
+    // ==========================================
+    // EXPLICIT DATABASE SELECTION
+    // ==========================================
+    // Map the string passed by React to your actual MySQL/MariaDB connections
+    const dbConnections = {
+        'db': db,
+        'db2': db2,
+        'db3': db3,
+        'db4': db4,
+        'dbTest': dbTest
+    };
+
+    // Select the requested database, fallback to db4 if something goes wrong
+    const targetDb = dbConnections[dbName] || db4;
+
+    const col = `\`${columnName}\``;
+
+    // ==========================================
+    // SQL QUERIES
+    // ==========================================
+    const boundaryDatesQuery = `
+        SELECT 
+            DATE(FROM_UNIXTIME(FLOOR(MIN(${col})))) AS first_date,
+            DATE(FROM_UNIXTIME(FLOOR(MAX(${col})))) AS last_date
+        FROM \`${tableName}\`
+    `;
+
+    const logsQuery = `
+        SELECT 
+            d.check_date,
+            IFNULL(t.actual_rows, 0) AS actual_rows,
+            ? AS expected_rows,
+            ROUND((IFNULL(t.actual_rows, 0) / ?) * 100, 2) AS integrity_percent,
+            CASE 
+                WHEN IFNULL(t.actual_rows, 0) = 0 THEN 'NO DATA'
+                WHEN IFNULL(t.actual_rows, 0) < ? THEN 'GAP FOUND'
+                ELSE 'OK'
+            END AS status
+        FROM (
+            SELECT DATE_ADD(?, INTERVAL seq.n DAY) AS check_date
+            FROM (
+                SELECT (p0.n + p1.n*10 + p2.n*100) AS n
+                FROM (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) p0,
+                     (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) p1,
+                     (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) p2
+            ) seq
+            WHERE DATE_ADD(?, INTERVAL seq.n DAY) <= ?
+        ) d
+        LEFT JOIN (
+            SELECT 
+                DATE(FROM_UNIXTIME(FLOOR(${col}))) AS log_date,
+                COUNT(*) AS actual_rows
+            FROM \`${tableName}\`
+            WHERE FROM_UNIXTIME(${col}) BETWEEN ? AND ?
+            GROUP BY log_date
+        ) t ON d.check_date = t.log_date
+        ORDER BY d.check_date ASC;
+    `;
+
+    try {
+        const [boundaryDatesResult, logsResult] = await Promise.all([
+            targetDb.promise().query(boundaryDatesQuery),
+            targetDb.promise().query(logsQuery, [targetRows, targetRows, targetRows, startDate, startDate, endDate, startDate, endDate])
+        ]);
+
+        res.json({
+            first_date: boundaryDatesResult[0][0]?.first_date || null,
+            last_date: boundaryDatesResult[0][0]?.last_date || null,
+            logs: logsResult[0]
+        });
+
+    } catch (err) {
+        console.error(`Error on ${dbName} -> ${tableName}:`, err.message);
+        res.status(500).json({ error: err.message });
+    }
+},
+
+getHourlyHeatmap: async (req, res) => {
+    const { tableName, date, dbName, columnName = 'time@timestamp' } = req.query;
+    const dbConnections = { 'db': db, 'db2': db2, 'db3': db3, 'db4': db4, 'dbTest': dbTest };
+    const targetDb = dbConnections[dbName] || db4;
+    const col = `\`${columnName}\``;
+
+    // This query groups rows by hour (0-23) for the selected date
+    const query = `
+        SELECT 
+            HOUR(FROM_UNIXTIME(${col})) AS hour,
+            COUNT(*) AS actual_rows,
+            60 AS expected_rows
+        FROM \`${tableName}\`
+        WHERE DATE(FROM_UNIXTIME(${col})) = ?
+        GROUP BY hour
+        ORDER BY hour ASC;
+    `;
+
+    try {
+        const [rows] = await targetDb.promise().query(query, [date]);
+        // Fill in missing hours with 0 to ensure a full 24-hour grid
+        const fullDay = Array.from({ length: 24 }, (_, i) => {
+            const found = rows.find(r => r.hour === i);
+            return found ? found : { hour: i, actual_rows: 0, expected_rows: 60 };
+        });
+        res.json(fullDay);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+},
+
+
 
   
 
