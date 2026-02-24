@@ -12623,22 +12623,17 @@ getAllLatestTimestamps: async (req, res) => {
                 if (rows.length > 0) {
                     const row = rows[0];
 
-                    // --- RESULT PARSING (UPDATED TO LITERAL STRING HANDLING) ---
+                    // --- RESULT PARSING ---
                     if (source.type === 'split_datetime') {
                         const dateVal = row[source.columnName];
                         const timeVal = row[source.secondaryColumn];
 
                         if (dateVal && timeVal) {
-                            // Force YYYY-MM-DD from the Date object without timezone shift
-                            // 'sv-SE' locale ensures ISO format (YYYY-MM-DD)
                             const dateStr = (dateVal instanceof Date) 
                                 ? dateVal.toLocaleDateString('sv-SE') 
                                 : dateVal;
                                 
-                            // Combine strings literally
                             readableDate = `${dateStr} ${timeVal}`;
-                            
-                            // Create timestamp for status color using local interpretation
                             unixTimestamp = new Date(readableDate).getTime() / 1000;
                         }
                     } 
@@ -12646,14 +12641,11 @@ getAllLatestTimestamps: async (req, res) => {
                         const rawVal = row[source.columnName];
                         
                         if (rawVal instanceof Date) {
-                             // Force YYYY-MM-DD and HH:mm:ss strings manually
                              const dateStr = rawVal.toLocaleDateString('sv-SE');
                              const timeStr = rawVal.toLocaleTimeString('id-ID', { hour12: false });
                              readableDate = `${dateStr} ${timeStr}`;
-                             
                              unixTimestamp = rawVal.getTime() / 1000;
                         } else {
-                             // Assuming it's already a correct string
                              readableDate = rawVal;
                              unixTimestamp = new Date(rawVal).getTime() / 1000;
                         }
@@ -12663,6 +12655,14 @@ getAllLatestTimestamps: async (req, res) => {
                         const val = row[source.columnName];
                         if (val) {
                             unixTimestamp = parseFloat(val);
+                            
+                            // ==========================================
+                            // 7-HOUR WIB SHIFT FOR LINE 1 & LINE 3
+                            // ==========================================
+                            if (source.category === 'Line 1' || source.category === 'Line 3') {
+                                unixTimestamp = unixTimestamp - 25200; // 7 hours in seconds
+                            }
+
                             if (source.category === 'NodeRed') {
                                 readableDate = formatTimestampWIB(unixTimestamp);
                             } else {
@@ -12676,8 +12676,8 @@ getAllLatestTimestamps: async (req, res) => {
                     name: source.key,
                     table: source.table,
                     category: source.category,
-                    timestamp: unixTimestamp, // Frontend needs this for colors
-                    last_update: readableDate, // Display text
+                    timestamp: unixTimestamp, 
+                    last_update: readableDate, 
                     status: unixTimestamp ? 'Active' : 'Inactive'
                 };
             } catch (err) {
