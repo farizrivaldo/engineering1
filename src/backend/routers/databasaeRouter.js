@@ -410,6 +410,7 @@ routers.get("/getAllLatestTimestamps", databaseControllers.getAllLatestTimestamp
 routers.get("/getDataIntegritySummary", databaseControllers.getTableIntegrityLogs);
 routers.get("/getHourlyHeatmap", databaseControllers.getHourlyHeatmap);
 
+routers.get("/getWH2DashboardData", databaseControllers.getWH2DashboardData);
 
 
 module.exports = routers;

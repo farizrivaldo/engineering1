@@ -12861,6 +12861,79 @@ getHourlyHeatmap: async (req, res) => {
 },
 
 
+getWH2DashboardData: async (req, res) => {
+    try {
+        // 1. Extract parameters from the frontend request
+        const { startDate, endDate, area } = req.query;
+
+        if (!startDate || !endDate || !area) {
+            return res.status(400).json({ error: 'Missing required parameters: startDate, endDate, or area' });
+        }
+
+        // 2. Map frontend 'area' selection to database columns securely
+        // This prevents SQL injection by strictly controlling which columns can be queried
+        const areaMapping = {
+            'Area 1': { temp: 'temp1', hum: 'hum1' },
+            'Area 2': { temp: 'temp2', hum: 'hum2' },
+            'Area 3': { temp: 'temp3', hum: 'hum3' }
+        };
+
+        const selectedColumns = areaMapping[area];
+        if (!selectedColumns) {
+            return res.status(400).json({ error: 'Invalid area selected' });
+        }
+
+        const { temp: tempCol, hum: humCol } = selectedColumns;
+
+        // 3. Query A: Get absolute Min, Max, and overall Average from RAW 1-minute data
+        // We use UNIX_TIMESTAMP() to convert standard date strings (YYYY-MM-DD HH:mm:ss) to seconds
+        const statsQuery = `
+            SELECT 
+                ROUND(MAX(${tempCol}), 2) AS maxTemp,
+                ROUND(MIN(${tempCol}), 2) AS minTemp,
+                ROUND(AVG(${tempCol}), 2) AS avgTemp,
+                ROUND(MAX(${humCol}), 2) AS maxHum,
+                ROUND(MIN(${humCol}), 2) AS minHum,
+                ROUND(AVG(${humCol}), 2) AS avgHum
+            FROM NodeRed_WH2_Monitoring
+            WHERE timestamp >= UNIX_TIMESTAMP(?) 
+              AND timestamp <= UNIX_TIMESTAMP(?)
+        `;
+
+        // 4. Query B: Get 1-hour aggregated data for the Chart and Table
+        // FROM_UNIXTIME converts your 10-digit epoch back to a datetime
+        // DATE_FORMAT truncates the minutes/seconds to '00:00' to group everything by the hour
+        const hourlyQuery = `
+            SELECT 
+                DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d %H:00:00') AS log_time,
+                ROUND(AVG(${tempCol}), 2) AS temperature,
+                ROUND(AVG(${humCol}), 2) AS humidity
+            FROM NodeRed_WH2_Monitoring
+            WHERE timestamp >= UNIX_TIMESTAMP(?) 
+              AND timestamp <= UNIX_TIMESTAMP(?)
+            GROUP BY log_time
+            ORDER BY log_time ASC
+        `;
+
+        const [[statsRows], [hourlyRows]] = await Promise.all([
+            dbTest.promise().query(statsQuery, [startDate, endDate]),
+            dbTest.promise().query(hourlyQuery, [startDate, endDate])
+        ]);
+
+        // 6. Send structured response to the frontend
+        res.status(200).json({
+            success: true,
+            statistics: statsRows[0] || {}, // statsRows[0] grabs the single row of Min/Max/Avg data
+            hourlyData: hourlyRows // Array of hourly averages for the Chart and Table
+        });
+
+    } catch (error) {
+        console.error('Error fetching WH2 Dashboard Data:', error);
+        res.status(500).json({ error: 'Internal server error while fetching data' });
+    }
+},
+
+
 
   
 
