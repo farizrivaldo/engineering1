@@ -9920,7 +9920,7 @@ getUnifiedOEE: async (req, res) => {
                 const avail = availDenom > 0 ? (availNum / availDenom) * 100 : 0;
 
                 // Performance
-                const pot = r * TARGET_RATE;
+                const pot = (t - p) * TARGET_RATE;
                 const perf = pot > 0 ? (o / pot) * 100 : 0;
 
                 // Quality
@@ -10116,13 +10116,15 @@ getUnifiedOEE: async (req, res) => {
 
 getUnifiedOEE2: async (req, res) => {
     try {
-        const { date } = req.query; 
+        // 1. Get query parameters (Added archive & target_shift)
+        const { date, archive, target_shift } = req.query; 
         const selectedDate = date ? new Date(date) : new Date(); 
         const dayStr = selectedDate.toISOString().split('T')[0];
 
         // Define shift times matching your log_date column exactly
         const shiftTimes = { 1: "06:30:00", 2: "15:00:00", 3: "22:45:00" };
 
+        // 2. Fetch Raw Data from NEW Table
         const shiftPromises = [1, 2, 3].map(shiftId => {
             const sql = `
                 SELECT 
@@ -10136,7 +10138,6 @@ getUnifiedOEE2: async (req, res) => {
 
             return new Promise(resolve => {
                 db4.query(sql, [fullLogDateTime, shiftId], (err, results) => {
-                    // Return object with defaults if no row found
                     const row = (results && results[0]) ? results[0] : {
                         run_time: 0, stop_time: 0, total_prod: 0, total_good: 0,
                         reject_count: 0, planned_stop: 0, unplanned_stop: 0, shift_id: shiftId
@@ -10150,7 +10151,7 @@ getUnifiedOEE2: async (req, res) => {
 
         // --- MATH HELPERS ---
         const TARGET_RATE = 5333;
-        const SHIFT_DURATIONS = { 1: 510, 2: 465, 3: 465 }; //
+        const SHIFT_DURATIONS = { 1: 510, 2: 465, 3: 465 }; 
 
         const calculateOEE = (row, shiftId) => {
             const r = parseFloat(row.run_time) || 0;
@@ -10160,22 +10161,16 @@ getUnifiedOEE2: async (req, res) => {
             const p = parseFloat(row.planned_stop) || 0;
             const u = parseFloat(row.unplanned_stop) || 0;
             
-            // FIX: If shiftId is null (Daily), use the row.total_time passed in.
-            // If shiftId exists, look up the fixed duration.
             const t = shiftId ? SHIFT_DURATIONS[shiftId] : (row.total_time || 0);
 
-            // Availability: Runtime / (ShiftTime - PlannedStop)
             const availDenom = t - p;
             const avail = availDenom > 0 ? (r / availDenom) * 100 : 0;
 
-            // Performance
-            const pot = r * TARGET_RATE;
+            const pot = (t - p) * TARGET_RATE;
             const perf = pot > 0 ? (o / pot) * 100 : 0;
 
-            // Quality
             const qual = o > 0 ? (g / o) * 100 : 0;
 
-            // OEE Score
             const score = (avail * perf * qual) / 10000;
 
             return {
@@ -10183,7 +10178,6 @@ getUnifiedOEE2: async (req, res) => {
                 availability: avail.toFixed(2) + "%",
                 performance: perf.toFixed(2) + "%",
                 quality: qual.toFixed(2) + "%",
-                // Pass raw values for the frontend logic table
                 raw: { 
                     tRun: r, tStop: row.stop_time, tOut: o, tGood: g, 
                     tRej: j, tPlan: p, tUnplan: u, tTime: t 
@@ -10191,6 +10185,7 @@ getUnifiedOEE2: async (req, res) => {
             };
         };
 
+        // 3. Calculate Results
         const shiftsResults = {}; 
         let dRun = 0, dOut = 0, dGood = 0, dRej = 0, dPlan = 0, dUnplan = 0, dTime = 0;
         let activeShifts = 0;
@@ -10199,7 +10194,6 @@ getUnifiedOEE2: async (req, res) => {
             const stats = calculateOEE(row, row.shift_id);
             shiftsResults[row.shift_id] = stats;
 
-            // Aggregate daily totals if the shift has data
             if (row.run_time > 0 || row.total_prod > 0) {
                 dRun += row.run_time; 
                 dOut += row.total_prod; 
@@ -10207,20 +10201,67 @@ getUnifiedOEE2: async (req, res) => {
                 dRej += row.reject_count; 
                 dPlan += row.planned_stop;
                 dUnplan += row.unplanned_stop; 
-                // Sum the fixed durations (e.g. 510 + 465) for accurate daily availability base
                 dTime += SHIFT_DURATIONS[row.shift_id]; 
                 activeShifts++;
             }
         });
 
-        // Calculate Daily Summary
-        // FIX: We now explicitly pass 'total_time: dTime' so the math works
         const dailyStats = calculateOEE({
             run_time: dRun, total_prod: dOut, total_good: dGood, 
             reject_count: dRej, planned_stop: dPlan, unplanned_stop: dUnplan,
             total_time: dTime 
         }, null);
 
+
+        // =========================================================
+        // 4. ⚡ CONDITIONAL ARCHIVING (NEWLY ADDED) ⚡
+        // =========================================================
+        if (archive === 'true') {
+            const archivePromises = [1, 2, 3].map(shiftId => {
+                
+                // If a specific shift is requested (Cron), skip the others
+                if (target_shift && shiftId != target_shift) {
+                    return Promise.resolve();
+                }
+
+                const sStats = shiftsResults[shiftId];
+                
+                // Format the shift data by stripping the "%" sign for the database
+                const shiftDataFormatted = {
+                    avail: parseFloat(sStats.availability),
+                    perf:  parseFloat(sStats.performance),
+                    qual:  parseFloat(sStats.quality),
+                    oee:   parseFloat(sStats.oee),
+                    tOut:  sStats.raw.tOut,
+                    tGood: sStats.raw.tGood,
+                    tRej:  sStats.raw.tRej,
+                    tTime: sStats.raw.tTime,
+                    tRun:  sStats.raw.tRun,
+                    tStop: sStats.raw.tStop || 0 
+                };
+
+                // Format the daily data
+                const dailyDataFormatted = {
+                    avail: parseFloat(dailyStats.availability),
+                    perf:  parseFloat(dailyStats.performance),
+                    qual:  parseFloat(dailyStats.quality),
+                    oee:   parseFloat(dailyStats.oee),
+                };
+
+                // Fire into your existing Save function
+                return saveToLog(dayStr, shiftId, shiftDataFormatted, dailyDataFormatted);
+            });
+            
+            await Promise.all(archivePromises);
+            
+            if (target_shift) {
+                console.log(`💾 [Archive] Saved ONLY Shift ${target_shift} for ${dayStr} (from fette_shift_logs)`);
+            } else {
+                console.log(`💾 [Archive] Saved ALL shifts for ${dayStr} (from fette_shift_logs)`);
+            }
+        }
+
+        // 5. Send Response
         res.status(200).send({
             date: dayStr,
             active_shifts: activeShifts,
