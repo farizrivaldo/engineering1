@@ -21,6 +21,9 @@ const { timestamp } = require("node-opcua");
 const mysql = require("mysql2/promise");
 const cors = require("cors");
 const express = require("express");
+const PizZip = require("pizzip");
+const Docxtemplater = require("docxtemplater");
+const libre = require("libreoffice-convert");
 
 const path = require('path'); // <--- ADD THIS LINE
 const readline = require('readline');
@@ -375,6 +378,517 @@ const stringDateToUnix = (dateString) => {
     if (!dateString) return null;
     const date = new Date(dateString);
     return date.getTime() / 1000; // Convert ms to seconds
+};
+
+/*
+const getLoadingData = async (fbdTable, fbdBatchSearch, batchStart, batchEnd) => {
+    const fbdSql = `
+        SELECT 
+            MIN(data_format_1) AS loading_temp_min1,
+            MAX(data_format_1) AS loading_temp_max1,
+            AVG(data_format_1) AS loading_temp_avg1,
+            MIN(data_format_2) AS loading_flow_min1,
+            MAX(data_format_2) AS loading_flow_max1,
+            AVG(data_format_2) AS loading_flow_avg1,
+            MIN(data_format_3) AS loading_time_min1,
+            MAX(data_format_3) AS loading_time_max1,
+            AVG(data_format_3) AS loading_time_avg1,
+            MIN(data_format_4) AS loading_valve_min1,
+            MAX(data_format_4) AS loading_valve_max1,
+            AVG(data_format_4) AS loading_valve_avg1,
+            MIN(data_format_5) AS loading_filter_min1,
+            MAX(data_format_5) AS loading_filter_max1,
+            AVG(data_format_5) AS loading_filter_avg1,
+            MIN(data_format_6) AS loading_filtershake_min1,
+            MAX(data_format_6) AS loading_filtershake_max1,
+            AVG(data_format_6) AS loading_filtershake_avg1
+        FROM \`ems_saka\`.\`${fbdTable}\`
+        WHERE CONVERT(data_format_0 USING utf8) LIKE ?
+        AND \`time@timestamp\` BETWEEN ? AND ?
+    `;
+
+    const [rows] = await db4.promise().query(fbdSql, [`%${fbdBatchSearch}%`, batchStart, batchEnd]);
+    return rows[0] || {};
+}; */
+
+// --- HELPER: PMA GRANULATION LOGIC (SUPPORTS LINE 1 & 3) ---
+const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
+    let pmaSql = '';
+    let dbConn;
+
+    if (line === 'Line 1') {
+        dbConn = db4;
+        pmaSql = `
+            SELECT 
+                LOWER(TRIM(CONVERT(data_format_1 USING utf8))) AS phase,
+                MIN(data_format_2) AS impeller_min, MAX(data_format_2) AS impeller_max, AVG(data_format_2) AS impeller_avg,
+                MIN(data_format_3) AS filter_min, MAX(data_format_3) AS filter_max, AVG(data_format_3) AS filter_avg,
+                MIN(data_format_4) AS waktu_min, MAX(data_format_4) AS waktu_max, AVG(data_format_4) AS waktu_avg,
+                MIN(data_format_5) AS chopper_min, MAX(data_format_5) AS chopper_max, AVG(data_format_5) AS chopper_avg,
+                MIN(data_format_6) AS pump_min, MAX(data_format_6) AS pump_max, AVG(data_format_6) AS pump_avg,
+                MIN(data_format_7) AS ampere_min, MAX(data_format_7) AS ampere_max, AVG(data_format_7) AS ampere_avg
+            FROM \`ems_saka\`.\`cMT-FHDGEA1_EBR_PMA_new_data\`
+            WHERE CONVERT(data_format_0 USING utf8) LIKE ?
+            AND \`time@timestamp\` BETWEEN ? AND ?
+            GROUP BY LOWER(TRIM(CONVERT(data_format_1 USING utf8)))
+        `;
+    } else if (line === 'Line 3') {
+        dbConn = dbTest;
+        pmaSql = `
+            SELECT 
+                LOWER(TRIM(processid)) AS phase,
+                MIN(impeller_rpm) AS impeller_min, MAX(impeller_rpm) AS impeller_max, AVG(impeller_rpm) AS impeller_avg,
+                MIN(filterclear_interval_sec) AS filter_min, MAX(filterclear_interval_sec) AS filter_max, AVG(filterclear_interval_sec) AS filter_avg,
+                MIN(processtime_min) AS waktu_min, MAX(processtime_min) AS waktu_max, AVG(processtime_min) AS waktu_avg,
+                MIN(Chopper_rpm) AS chopper_min, MAX(Chopper_rpm) AS chopper_max, AVG(Chopper_rpm) AS chopper_avg,
+                MIN(pump_speed) AS pump_min, MAX(pump_speed) AS pump_max, AVG(pump_speed) AS pump_avg,
+                MIN(impeller_ampere) AS ampere_min, MAX(impeller_ampere) AS ampere_max, AVG(impeller_ampere) AS ampere_avg
+            FROM \`test\`.\`NodeRed_PMA_L3\`
+            WHERE batchid LIKE ?
+            AND \`timestamp\` BETWEEN ? AND ?
+            GROUP BY LOWER(TRIM(processid))
+        `;
+    }
+
+    const [rows] = await dbConn.promise().query(pmaSql, [`%${batchSearch}%`, batchStart, batchEnd]);
+    
+    // ==========================================
+    // 🛑 DEBUG LOGGER
+    // ==========================================
+    console.log(`\n--- PMA DATA FOR BATCH: ${batchSearch} (${line}) ---`);
+    console.log(`Total Phase Groups Found: ${rows.length}`);
+    rows.forEach((row, index) => {
+        console.log(`Row ${index + 1}: ->${row.phase}<- (Length: ${row.phase?.length})`);
+    });
+    console.log(`------------------------------------------\n`);
+
+    const pmaResult = {};
+    const assignMetrics = (prefix, row) => {
+        // Core metrics
+        pmaResult[`${prefix}_impeller_min`] = row.impeller_min;
+        pmaResult[`${prefix}_impeller_max`] = row.impeller_max;
+        pmaResult[`${prefix}_impeller_avg`] = row.impeller_avg;
+        
+        pmaResult[`${prefix}_waktu_min`] = row.waktu_min;
+        pmaResult[`${prefix}_waktu_max`] = row.waktu_max;
+        pmaResult[`${prefix}_waktu_avg`] = row.waktu_avg;
+
+        // Chopper (Used in Mixing & Discharge)
+        pmaResult[`${prefix}_chopper_min`] = row.chopper_min;
+        pmaResult[`${prefix}_chopper_max`] = row.chopper_max;
+        pmaResult[`${prefix}_chopper_avg`] = row.chopper_avg;
+
+        // Filter Clear (Used strictly in Input Material)
+        pmaResult[`${prefix}_filter_clear_min`] = row.filter_min;
+        pmaResult[`${prefix}_filter_clear_max`] = row.filter_max;
+        pmaResult[`${prefix}_filter_clear_avg`] = row.filter_avg;
+
+        // Pump Speed & Ampere (Used strictly in Mixing III & IV)
+        pmaResult[`${prefix}_pump_min`] = row.pump_min;
+        pmaResult[`${prefix}_pump_max`] = row.pump_max;
+        pmaResult[`${prefix}_pump_avg`] = row.pump_avg;
+        
+        pmaResult[`${prefix}_ampere_min`] = row.ampere_min;
+        pmaResult[`${prefix}_ampere_max`] = row.ampere_max;
+        pmaResult[`${prefix}_ampere_avg`] = row.ampere_avg;
+    };
+
+    rows.forEach(row => {
+        // Scrub the hidden bytes and force lowercase
+        const phase = row.phase.replace(/\0/g, '').trim(); 
+        
+        // ==========================================
+        // 1. INPUT MATERIAL (Reverse Cascade: 2 then 1)
+        // ==========================================
+        if (phase.includes('input material 2') || phase.includes('input material ii') || phase.includes('vacuum loading 2') || phase.includes('vacuum loading ii')) {
+            assignMetrics('input2', row);
+        }
+        else if (phase === 'input material' || phase.includes('input material 1') || phase.includes('input material i') || phase.includes('vacuum loading 1') || phase.includes('vacuum loading i')) {
+            // Because 'ii' is checked first, this 'i' will never accidentally trigger on Lot 2
+            assignMetrics('input1', row);
+        }
+        
+        // ==========================================
+        // 2. MIXING (Reverse Cascade: 4 -> 3 -> 2 -> 1)
+        // ==========================================
+        else if (phase.includes('mixing 4') || phase.includes('mixing iv')) {
+            assignMetrics('mix4', row);
+        }
+        else if (phase.includes('mixing 3') || phase.includes('mixing iii')) {
+            assignMetrics('mix3', row);
+        }
+        else if (phase.includes('mixing 2') || phase.includes('mixing ii')) {
+            assignMetrics('mix2', row);
+        }
+        else if (phase === 'mixing' || phase.includes('mixing 1') || phase.includes('mixing i')) {
+            assignMetrics('mix1', row);
+        }
+
+        // ==========================================
+        // 3. DISCHARGE
+        // ==========================================
+        else if (phase.startsWith('discharge ')) {
+            const num = phase.replace('discharge ', '');
+            assignMetrics(`discharge${num}`, row);
+        }
+    });
+    return pmaResult;
+};
+
+const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
+    const baseBatch = batch.split('-')[0].trim(); 
+    const results = {};
+
+    // For now, we only process Line 1. Line 3 can be added here later.
+    if (line !== 'Line 1') return results; 
+
+    const stateTableName = 'mezanine.tengah_CtrlIntrfceFBDL1_data';
+    const sensorTableName = 'cMT-FHDGEA1_EBR_FBD_new_data';
+
+    // --- 1. GET TIME SEGMENTS ---
+   const sqlState = `
+    SELECT \`time@timestamp\` AS ts, data_format_6 AS description, data_format_3 AS hours, data_format_4 AS minutes
+    FROM \`parammachine_saka\`.\`${stateTableName}\`
+    WHERE data_format_7 LIKE ? 
+    AND \`time@timestamp\` BETWEEN ? AND ?
+    ORDER BY \`time@timestamp\` ASC
+`;
+    
+    const [stateRows] = await db4.promise().query(sqlState, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    console.log(`--- FBD STATE LOG FOR BATCH: ${batch} ---`);
+    console.log(`Total state rows found: ${stateRows.length}`);
+
+    let segments = { loading: [], drying: [] };
+    let currentPhase = null;
+    let currentSegment = null;
+
+    stateRows.forEach(row => {
+        let phase = null;
+        if (row.description && row.description.includes('Transfer Granul - load')) phase = 'loading';
+        else if (row.description && row.description.includes('endpoint 30,7 Temp. ex')) phase = 'drying';
+
+        if (phase) {
+            const totalMins = (parseInt(row.hours) * 60) + parseInt(row.minutes);
+            
+            if (currentPhase !== phase) {
+                if (currentSegment) segments[currentPhase].push(currentSegment);
+                currentPhase = phase;
+                currentSegment = { startTs: row.ts, endTs: row.ts, startMins: totalMins, endMins: totalMins };
+            } else {
+                currentSegment.endTs = row.ts;
+                currentSegment.endMins = totalMins;
+            }
+        } else {
+            if (currentSegment) {
+                segments[currentPhase].push(currentSegment);
+                currentPhase = null;
+                currentSegment = null;
+            }
+        }
+    });
+    if (currentSegment) segments[currentPhase].push(currentSegment);
+
+    let totalLoadingTime = 0;
+    let totalDryingTime = 0;
+    segments.loading.forEach(seg => totalLoadingTime += (seg.endMins - seg.startMins));
+    segments.drying.forEach(seg => totalDryingTime += (seg.endMins - seg.startMins));
+
+    console.log(`Segments Found:`, {
+        loading_count: segments.loading.length,
+        drying_count: segments.drying.length
+    });
+
+    // --- 2. GET SENSOR DATA ---
+    const sqlSensor = `
+    SELECT \`time@timestamp\` AS ts, data_format_1 AS temp, data_format_2 AS airflow, data_format_4 AS valve, data_format_5 AS filter_clear, data_format_6 AS filter_shake
+    FROM \`ems_saka\`.\`${sensorTableName}\`
+    WHERE data_format_0 LIKE ? 
+    AND \`time@timestamp\` BETWEEN ? AND ?
+`;
+    
+    const [sensorRows] = await db4.promise().query(sqlSensor, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    const isInSegment = (ts, phaseSegments) => phaseSegments.some(seg => ts >= seg.startTs && ts <= seg.endTs);
+    const loadingSensorData = sensorRows.filter(r => isInSegment(r.ts, segments.loading));
+    const dryingSensorData = sensorRows.filter(r => isInSegment(r.ts, segments.drying));
+
+    console.log(`Filtered Sensor Rows: Loading (${loadingSensorData.length}), Drying (${dryingSensorData.length})`);
+    console.log(`------------------------------------------`);
+
+    // --- 3. CALCULATE METRICS ---
+    const calculateMetrics = (prefix, groupRows, mappingArray) => {
+        mappingArray.forEach(m => {
+            const values = groupRows.map(r => parseFloat(r[m.dbKey])).filter(v => !isNaN(v));
+            if (values.length > 0) {
+                results[`${prefix}_${m.tagKey}_min`] = Math.min(...values);
+                results[`${prefix}_${m.tagKey}_max`] = Math.max(...values);
+                results[`${prefix}_${m.tagKey}_avg`] = values.reduce((a, b) => a + b, 0) / values.length;
+            }
+        });
+    };
+
+    if (loadingSensorData.length > 0) {
+        calculateMetrics('loading', loadingSensorData, [
+            { dbKey: 'temp', tagKey: 'temp' },
+            { dbKey: 'airflow', tagKey: 'flow' },
+            { dbKey: 'filter_clear', tagKey: 'filter' },
+            { dbKey: 'filter_shake', tagKey: 'filtershake' },
+            { dbKey: 'valve', tagKey: 'valve' }
+        ]);
+        results['loading_time_avg'] = totalLoadingTime; 
+    }
+
+    if (dryingSensorData.length > 0) {
+    calculateMetrics('drying', dryingSensorData, [
+        { dbKey: 'temp', tagKey: 'temp' },
+        { dbKey: 'airflow', tagKey: 'airflow' },
+        { dbKey: 'filter_clear', tagKey: 'filter' },
+        { dbKey: 'filter_shake', tagKey: 'filtershake' },
+        // This creates 'drying_exhaust_avg', 'drying_exhaust_min', etc.
+        { dbKey: 'data_format_3', tagKey: 'exhaust' } 
+    ]);
+    
+    // This ensures the duration is always sent
+    results['drying_pengeringan_avg'] = totalDryingTime;
+} else if (totalDryingTime > 0) {
+    // If we have a time window but NO sensor data, at least send the duration
+    results['drying_pengeringan_avg'] = totalDryingTime;
+}
+
+    return results;
+};
+
+const getMixerData = async (batchStart, batchEnd) => {
+    // We query data_format_0 which represents the mixing time/parameter
+    const sql = `
+        SELECT data_format_0 AS mixing_val
+        FROM parammachine_saka.\`cMT-FHDGEA1_EBR_Finalmix_new_data\`
+        WHERE \`time@timestamp\` BETWEEN ? AND ?
+    `;
+
+    const [rows] = await db3.promise().query(sql, [batchStart, batchEnd]);
+
+    const results = {
+        mixing_time_min: 0,
+        mixing_time_max: 0,
+        mixing_time_avg: 0
+    };
+
+    if (rows.length > 0) {
+        const values = rows.map(r => parseFloat(r.mixing_val)).filter(v => !isNaN(v));
+        if (values.length > 0) {
+            results.mixing_time_min = Math.min(...values);
+            results.mixing_time_max = Math.max(...values);
+            results.mixing_time_avg = values.reduce((a, b) => a + b, 0) / values.length;
+        }
+    }
+
+    return results;
+};
+
+const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
+    const baseBatch = batch.replace(/-[12]$/, '').trim();
+    const results = {};
+    if (line !== 'Line 1') return results;
+
+    const stateTableName = 'mezanine.tengah_CtrlIntrfceEPHL1_data';
+        const sensorTableName = 'cMT-FHDGEA1_EBR_EPH_new_data';
+
+    
+    // --- 1. THE DIAGNOSTIC QUERY ---
+    // First, let's see if the table is even alive
+    const [allRowsToday] = await db4.promise().query(
+        `SELECT data_format_7 FROM \`parammachine_saka\`.\`${stateTableName}\` WHERE \`time@timestamp\` BETWEEN ? AND ? LIMIT 1`, 
+        [dayStart, dayEnd]
+    );
+    
+    if (allRowsToday.length === 0) {
+        console.log(`!!! ALERT: EPH Table is TOTALLY EMPTY for this time range (${dayStart} to ${dayEnd})`);
+    }
+
+    // --- 2. THE MAIN QUERY (Matching FBD style) ---
+    const sqlState = `
+        SELECT \`time@timestamp\` AS ts, data_format_6 AS description, data_format_3 AS hours, data_format_4 AS minutes
+        FROM \`parammachine_saka\`.\`${stateTableName}\`
+        WHERE data_format_7 LIKE ? 
+        AND \`time@timestamp\` BETWEEN ? AND ?
+        ORDER BY \`time@timestamp\` ASC
+    `;
+    
+    const [stateRows] = await db4.promise().query(sqlState, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    console.log(`--- EPH DEBUG ---`);
+    console.log(`Batch: ${baseBatch} | Range: ${dayStart}-${dayEnd}`);
+    console.log(`Total state rows found: ${stateRows.length}`);
+
+    // LOG: See the first few descriptions to check for Pengayakan strings
+    if (stateRows.length > 0) {
+        console.log(`Sample Mezzanine Description: "${stateRows[0].description}"`);
+    }
+
+    let segments = { discharge1: [], discharge2: [], discharge3: [] };
+    let currentPhase = null;
+    let currentSegment = null;
+
+    stateRows.forEach(row => {
+    let phase = null;
+    
+    // Convert Buffer/BLOB to String before calling toLowerCase()
+    const desc = row.description 
+        ? row.description.toString().toLowerCase() 
+        : '';
+
+    if (desc.includes('discharge 1')) phase = 'discharge1';
+    else if (desc.includes('discharge 2')) phase = 'discharge2';
+    else if (desc.includes('discharge 3')) phase = 'discharge3';
+
+        if (phase) {
+            const totalMins = (parseInt(row.hours) * 60) + parseInt(row.minutes);
+            if (currentPhase !== phase) {
+                if (currentSegment) segments[currentPhase].push(currentSegment);
+                currentPhase = phase;
+                currentSegment = { startTs: row.ts, endTs: row.ts, startMins: totalMins, endMins: totalMins };
+            } else {
+                currentSegment.endTs = row.ts;
+                currentSegment.endMins = totalMins;
+            }
+        } else if (currentSegment) {
+            segments[currentPhase].push(currentSegment);
+            currentPhase = null;
+            currentSegment = null;
+        }
+    });
+    if (currentSegment) segments[currentPhase].push(currentSegment);
+
+    console.log(`Windows Found: D1(${segments.discharge1.length}), D2(${segments.discharge2.length}), D3(${segments.discharge3.length})`);
+
+    // Calculate Durations
+    const calcDuration = (phaseSegments) => phaseSegments.reduce((acc, seg) => acc + (seg.endMins - seg.startMins), 0);
+    results['discharge1_waktu_avg'] = calcDuration(segments.discharge1);
+    results['discharge2_waktu_avg'] = calcDuration(segments.discharge2);
+    results['discharge3_waktu_avg'] = calcDuration(segments.discharge3);
+
+    // --- 2. GET SENSOR DATA ---
+    const sqlSensor = `
+        SELECT \`time@timestamp\` AS ts, data_format_2 AS valve, data_format_3 AS speed
+        FROM \`ems_saka\`.\`${sensorTableName}\`
+        WHERE data_format_0 LIKE ? 
+        AND \`time@timestamp\` BETWEEN ? AND ?
+    `;
+    
+    const [sensorRows] = await db4.promise().query(sqlSensor, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    const isInSegment = (ts, phaseSegments) => phaseSegments.some(seg => ts >= seg.startTs && ts <= seg.endTs);
+
+    const d1Data = sensorRows.filter(r => isInSegment(r.ts, segments.discharge1));
+    const d2Data = sensorRows.filter(r => isInSegment(r.ts, segments.discharge2));
+    const d3Data = sensorRows.filter(r => isInSegment(r.ts, segments.discharge3));
+
+    console.log(`Filtered EPH Sensors: D1(${d1Data.length}), D2(${d2Data.length}), D3(${d3Data.length})`);
+    console.log(`------------------------------------------`);
+
+    // --- 3. CALCULATE METRICS ---
+    const calculateMetrics = (prefix, groupRows, mappingArray) => {
+        mappingArray.forEach(m => {
+            const values = groupRows.map(r => parseFloat(r[m.dbKey])).filter(v => !isNaN(v));
+            if (values.length > 0) {
+                results[`${prefix}_${m.tagKey}_min`] = Math.min(...values);
+                results[`${prefix}_${m.tagKey}_max`] = Math.max(...values);
+                results[`${prefix}_${m.tagKey}_avg`] = values.reduce((a, b) => a + b, 0) / values.length;
+            }
+        });
+    };
+
+    const sensorMap = [{ dbKey: 'valve', tagKey: 'valve' }, { dbKey: 'speed', tagKey: 'speed' }];
+    if (d1Data.length > 0) calculateMetrics('discharge1', d1Data, sensorMap);
+    if (d2Data.length > 0) calculateMetrics('discharge2', d2Data, sensorMap);
+    if (d3Data.length > 0) calculateMetrics('discharge3', d3Data, sensorMap);
+
+    return results;
+};
+
+const getBinderData = async (startTime, endTime) => {
+    // We only need the numeric columns for our Min/Max/Avg calculations
+    const sql = `
+        SELECT 
+            data_format_6 AS speed, 
+            data_format_7 AS waktu
+        FROM \`parammachine_saka\`.\`mezanine.tengah_Ebr_Binder1_data\`
+        WHERE \`time@timestamp\` BETWEEN ? AND ?
+    `;
+
+    // Make sure to use the correct database connection here (db3 or db4)
+    const [rows] = await db4.promise().query(sql, [startTime, endTime]);
+
+    const results = {
+        binder_speed_min: null,
+        binder_speed_max: null,
+        binder_speed_avg: null,
+        binder_waktu_min: null,
+        binder_waktu_max: null,
+        binder_waktu_avg: null
+    };
+
+    if (rows.length > 0) {
+        // Extract and filter valid numbers
+        const speeds = rows.map(r => parseFloat(r.speed)).filter(v => !isNaN(v));
+        const waktus = rows.map(r => parseFloat(r.waktu)).filter(v => !isNaN(v));
+
+        if (speeds.length > 0) {
+            results.binder_speed_min = Math.min(...speeds);
+            results.binder_speed_max = Math.max(...speeds);
+            results.binder_speed_avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+        }
+
+        if (waktus.length > 0) {
+            results.binder_waktu_min = Math.min(...waktus);
+            results.binder_waktu_max = Math.max(...waktus);
+            results.binder_waktu_avg = waktus.reduce((a, b) => a + b, 0) / waktus.length;
+        }
+    }
+
+    return results;
+};
+
+const getMonitoringData = async (monitorTable, startTime, endTime) => {
+    // If we don't have a table name, fail gracefully
+    if (!monitorTable) {
+        console.log('No monitoring table provided to helper.');
+        return {};
+    }
+
+    const sql = `
+        SELECT 
+            MIN(data_format_0)/10.0 AS suhu_min1, 
+            MAX(data_format_0)/10.0 AS suhu_max1, 
+            ROUND(AVG(data_format_0)/10.0, 1) AS suhu_avg1, 
+            
+            MIN(data_format_1)/10.0 AS rh_min1, 
+            MAX(data_format_1)/10.0 AS rh_max1, 
+            ROUND(AVG(data_format_1)/10.0, 1) AS rh_avg1 
+            
+        FROM \`ems_saka\`.\`${monitorTable}\` 
+        WHERE \`time@timestamp\` BETWEEN ? AND ?
+    `;
+
+    try {
+        const [rows] = await db4.promise().query(sql, [startTime, endTime]);
+
+        // If the query returns a row but the values are null (no data found in that window)
+        if (rows.length === 0 || rows[0].suhu_min1 === null) {
+            return {
+                suhu_min1: null, suhu_max1: null, suhu_avg1: null,
+                rh_min1: null, rh_max1: null, rh_avg1: null
+            };
+        }
+
+        // Return the first row directly, which contains our aliased keys
+        return rows[0]; 
+    } catch (error) {
+        console.error("Error in getMonitoringData:", error);
+        return {};
+    }
 };
 
 module.exports = {
@@ -12932,6 +13446,293 @@ getWH2DashboardData: async (req, res) => {
         res.status(500).json({ error: 'Internal server error while fetching data' });
     }
 },
+
+// --- MAIN CONTROLLER CALLED BY FRONTEND ---
+    GetSuhuMonitoringData: async (req, res) => {
+    try {
+        const { selectedDate, line, batch } = req.body;
+
+        if (!selectedDate || !line || !batch) {
+            return res.status(400).send({ error: "Date, Line, and Batch are required" });
+        }
+
+        // 1. Calculate Time Boundaries
+        const startOfDay = new Date(`${selectedDate}T00:00:00+07:00`);
+        const endOfDay = new Date(`${selectedDate}T23:59:59+07:00`);
+        let dayStart = Math.floor(startOfDay.getTime() / 1000);
+        let dayEnd = Math.floor(endOfDay.getTime() / 1000);
+        
+        if (line === 'Line 1' || line === 'Line 3') {
+            dayStart += 25200;
+            dayEnd += 25200;
+        }
+
+        let monitorTable = 'cMT-DB-EMS-UTY2_R_X06_New_data';
+        
+        // ==========================================
+        // STEP 1: FIND EXACT BATCH TIME WINDOW (DYNAMIC LINE SUPPORT)
+        // ==========================================
+        let boundsSql = '';
+        let boundsResult;
+
+        if (line === 'Line 1') {
+            let pmaTable = 'cMT-FHDGEA1_EBR_PMA_new_data';
+            boundsSql = `
+                SELECT MIN(\`time@timestamp\`) AS batch_start, MAX(\`time@timestamp\`) AS batch_end 
+                FROM \`ems_saka\`.\`${pmaTable}\` 
+                WHERE \`time@timestamp\` BETWEEN ? AND ? AND CONVERT(data_format_0 USING utf8) LIKE ?
+            `;
+            [boundsResult] = await db4.promise().query(boundsSql, [dayStart, dayEnd, `%${batch}%`]);
+        
+        } else if (line === 'Line 3') {
+            boundsSql = `
+                SELECT MIN(\`timestamp\`) AS batch_start, MAX(\`timestamp\`) AS batch_end 
+                FROM \`test\`.\`NodeRed_PMA_L3\` 
+                WHERE \`timestamp\` BETWEEN ? AND ? AND batchid LIKE ?
+            `;
+            [boundsResult] = await dbTest.promise().query(boundsSql, [dayStart, dayEnd, `%${batch}%`]);
+        }
+
+        const batchStart = boundsResult[0].batch_start;
+        const batchEnd = boundsResult[0].batch_end;
+
+        if (!batchStart || !batchEnd) return res.status(404).send({ error: "Batch not found" });
+
+        // ==========================================
+        // STEP 2: FETCH ALL DATA USING HELPERS
+        // ==========================================
+        const [
+            monitoringData,
+            pmaData,
+            fbdData,
+            ephData,
+            mixerData,
+            binderData
+        ] = await Promise.all([
+            getMonitoringData(monitorTable, dayStart, dayEnd),
+            getPmaPhasesData(line, batch, batchStart, batchEnd),
+            getFBDPhaseData(line, batch, dayStart, dayEnd),
+            getEPHPhaseData(line, batch, dayStart, dayEnd),
+            getMixerData(batchStart, batchEnd),
+            getBinderData(dayStart, dayEnd) // Using dayStart/dayEnd temporarily for dummy data testing
+        ]);
+
+        // ==========================================
+        // STEP 3: ASSEMBLE FINAL PAYLOAD
+        // ==========================================
+        const combinedData = { 
+            ...monitoringData,
+            ...pmaData,
+            ...fbdData,
+            ...ephData,
+            ...mixerData,
+            ...binderData
+        };
+
+        res.status(200).send(combinedData);
+
+    } catch (error) {
+        console.error("Database error in GetSuhuMonitoringData:", error);
+        res.status(500).send({ error: error.message });
+    }
+},
+
+    generateBatchPDF: async (req, res) => {
+        try {
+            // 1. Get the data sent from your React frontend
+            const reportData = req.body; 
+
+            // 2. Load your clean Word template
+            const templatePath = path.resolve(__dirname, "../controllers/FormTemplate.docx");
+            const content = fs.readFileSync(templatePath, "binary");
+
+            const zip = new PizZip(content);
+            const doc = new Docxtemplater(zip, { 
+                paragraphLoop: true, 
+                linebreaks: true 
+            });
+
+            // 3. Inject the data into the template
+            doc.render(reportData);
+
+            // 4. Generate the DOCX buffer
+            const docxBuf = doc.getZip().generate({ type: "nodebuffer" });
+
+            // 5. Convert to PDF using LibreOffice-convert
+            console.log(`Generating PDF for Batch: ${reportData.nomor_batch}`);
+            libre.convert(docxBuf, '.pdf', undefined, (err, pdfBuf) => {
+                if (err) {
+                    return res.status(500).send({ error: "PDF Conversion failed" });
+                }
+
+                // 6. Send the PDF back to the browser
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename=Batch_Report_${reportData.nomor_batch}.pdf`);
+                res.send(pdfBuf);
+            });
+
+        } catch (error) {
+            console.error("Export error:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+    getAvailableBatches: async (req, res) => {
+    try {
+      const { selectedDate, line } = req.body;
+
+      if (!selectedDate || !line) {
+        return res.status(400).send("Date and Line are required");
+      }
+
+      let queryGet = '';
+      let result = [];
+
+      // ==========================================
+      // FORK THE LOGIC BASED ON THE LINE SELECTED
+      // ==========================================
+      if (line === 'Line 1') {
+        const tableName = 'cMT-FHDGEA1_EBR_PMA_new_data';
+        queryGet = `
+          SELECT 
+            CONVERT(data_format_0 USING utf8) AS BATCH
+          FROM 
+            \`ems_saka\`.\`${tableName}\`
+          WHERE 
+            DATE(FROM_UNIXTIME(\`time@timestamp\`)) = ?
+          GROUP BY 
+            data_format_0
+        `;
+        // Execute on db4
+        [result] = await db4.promise().query(queryGet, [selectedDate]);
+
+      } else if (line === 'Line 3') {
+        // Line 3 uses a different database, table, and column names
+        const tableName = 'NodeRed_PMA_L3';
+        queryGet = `
+          SELECT 
+            batchid AS BATCH
+          FROM 
+            \`test\`.\`${tableName}\`
+          WHERE 
+            DATE(FROM_UNIXTIME(\`timestamp\`)) = ?
+          GROUP BY 
+            batchid
+        `;
+        // Execute on dbTest
+        [result] = await dbTest.promise().query(queryGet, [selectedDate]);
+
+      } else {
+        return res.status(400).send("Invalid Line selected");
+      }
+
+      // --- CLEANUP LOGIC (Runs on both lines equally) ---
+      const cleanedBatches = result.map(row => {
+        if (!row.BATCH) return null;
+        
+        // This regex removes EVERYTHING except letters, numbers, hyphens, and underscores
+        const cleanString = row.BATCH.replace(/[^a-zA-Z0-9-_]/g, '');
+        
+        return { BATCH: cleanString };
+      }).filter(row => row && row.BATCH !== ''); // Remove any empty rows
+
+      // Send the beautifully cleaned list back to React
+      return res.status(200).send(cleanedBatches);
+
+    } catch (error) {
+      console.error("Batch fetch error:", error);
+      return res.status(500).send({ error: "Database query failed" });
+    }
+  },
+
+ getLoadingData: async (fbdTable, fbdBatchSearch, batchStart, batchEnd) => {
+        const fbdSql = `
+            SELECT 
+                MIN(data_format_1) AS loading_temp_min1,
+                MAX(data_format_1) AS loading_temp_max1,
+                AVG(data_format_1) AS loading_temp_avg1,
+                MIN(data_format_2) AS loading_flow_min1,
+                MAX(data_format_2) AS loading_flow_max1,
+                AVG(data_format_2) AS loading_flow_avg1,
+                MIN(data_format_3) AS loading_time_min1,
+                MAX(data_format_3) AS loading_time_max1,
+                AVG(data_format_3) AS loading_time_avg1,
+                MIN(data_format_4) AS loading_valve_min1,
+                MAX(data_format_4) AS loading_valve_max1,
+                AVG(data_format_4) AS loading_valve_avg1,
+                MIN(data_format_5) AS loading_filter_min1,
+                MAX(data_format_5) AS loading_filter_max1,
+                AVG(data_format_5) AS loading_filter_avg1,
+                MIN(data_format_6) AS loading_filtershake_min1,
+                MAX(data_format_6) AS loading_filtershake_max1,
+                AVG(data_format_6) AS loading_filtershake_avg1
+            FROM \`ems_saka\`.\`${fbdTable}\`
+            WHERE CONVERT(data_format_0 USING utf8) LIKE ?
+            AND \`time@timestamp\` BETWEEN ? AND ?
+        `;
+
+        // --- NEW SAFETY NET ---
+        try {
+            const [rows] = await db4.promise().query(fbdSql, [`%${fbdBatchSearch}%`, batchStart, batchEnd]);
+            return rows[0] || {};
+        } catch (error) {
+            console.warn(`⚠️ Warning: FBD Table '${fbdTable}' missing or offline. Skipping FBD data.`);
+            return {}; // Return an empty object so the PDF just shows dashes, instead of crashing the server
+        }
+    },
+
+    getBatchMonitoring: async (req, res) => {
+        try {
+            const { selectedDate, line, batch } = req.body;
+
+            // ... (keep your date/timestamp logic here) ...
+
+            let pmaTable = line === 'Line 1' ? 'cMT-FHDGEA1_EBR_PMA_new_data' : 'cMT-GEA-L3_EBR_PMA_new_data';
+            let fbdTable = line === 'Line 1' ? 'cMT-FHDGEA1_EBR_FBD_new_data' : 'cMT-GEA-L3_EBR_FBD_new_data';
+            let monitorTable = line === 'Line 1' ? 'cMT-FHDGEA1_your_suhu_table' : 'cMT-DB-EMS-UTY2_R_X06_New_data';
+
+            // ==========================================
+            // STEP 1: FIND THE TIME WINDOW
+            // ==========================================
+            const boundsSql = `... (keep your bounds query here) ...`;
+            const [boundsResult] = await db4.promise().query(boundsSql, [dayStart, dayEnd, `%${batch}%`]);
+            
+            const batchStart = boundsResult[0].batch_start;
+            const batchEnd = boundsResult[0].batch_end;
+
+            // Prepare the 12-character FBD string
+            const fbdBatchSearch = batch.substring(0, 12);
+
+            // ==========================================
+            // STEP 2: ORCHESTRATE THE MINION CONTROLLERS
+            // ==========================================
+            const monitoringSql = `... (keep your Suhu query string here) ...`;
+            const binderSql = `... (keep your Binder query string here) ...`;
+
+            // Run everything simultaneously
+            const [
+                [monitoringRows], 
+                [binderRows], 
+                fbdData // Notice we are calling our new separate controller function!
+            ] = await Promise.all([
+                db4.promise().query(monitoringSql, [batchStart, batchEnd]),
+                db4.promise().query(binderSql, [batchStart, batchEnd]),
+                getLoadingData(fbdTable, fbdBatchSearch, batchStart, batchEnd) 
+            ]);
+
+            // STEP 3: Combine and send back to React
+            const combinedData = {
+                ...monitoringRows[0],
+                ...binderRows[0],
+                ...fbdData
+            };
+
+            res.status(200).send(combinedData);
+
+        } catch (error) {
+            console.error("Database error in getBatchMonitoring:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
 
 
 

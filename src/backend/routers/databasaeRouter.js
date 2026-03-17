@@ -412,6 +412,13 @@ routers.get("/getHourlyHeatmap", databaseControllers.getHourlyHeatmap);
 
 routers.get("/getWH2DashboardData", databaseControllers.getWH2DashboardData);
 
+routers.post("/GetSuhuMonitoringData", databaseControllers.GetSuhuMonitoringData);
+routers.post("/generateBatchPDF", databaseControllers.generateBatchPDF);
+routers.post("/getAvailableBatches", databaseControllers.getAvailableBatches);
+routers.post("/getLoadingData", databaseControllers.getLoadingData);
+routers.post("/getBatchMonitoring", databaseControllers.getBatchMonitoring);
+
+
 
 module.exports = routers;
 
