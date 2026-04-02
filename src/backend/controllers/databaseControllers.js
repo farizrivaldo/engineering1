@@ -412,7 +412,7 @@ const getLoadingData = async (fbdTable, fbdBatchSearch, batchStart, batchEnd) =>
 }; */
 
 // --- HELPER: PMA GRANULATION LOGIC (SUPPORTS LINE 1 & 3) ---
-const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
+const getPmaPhasesData1 = async (line, batchSearch, batchStart, batchEnd) => {
     let pmaSql = '';
     let dbConn;
 
@@ -535,7 +535,138 @@ const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
     return pmaResult;
 };
 
-const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
+const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
+    let dbConn, dbName, tableName, ampereCol, chopperCol;
+
+    // Set configuration based on the selected line
+    if (line === 'Line 1') {
+        dbConn = dbTest; 
+        dbName = 'test'; // Change this if your NodeRed_PMA_L1 is actually in the 'test' database
+        tableName = 'NodeRed_PMA_L1';
+        ampereCol = 'impeler_ampere'; // L1 Spelling
+        chopperCol = 'chopper_rpm';   // L1 Spelling
+    } else if (line === 'Line 3') {
+        dbConn = dbTest;
+        dbName = 'test';
+        tableName = 'NodeRed_PMA_L3';
+        ampereCol = 'impeller_ampere'; // L3 Spelling
+        chopperCol = 'Chopper_rpm';    // L3 Spelling
+    } else {
+        return {};
+    }
+
+    // ==========================================
+    // STEP 1: FETCH EXACT BATCH ID
+    // ==========================================
+    const findBatchSql = `
+        SELECT batchid 
+        FROM \`${dbName}\`.\`${tableName}\`
+        WHERE batchid LIKE ? AND \`timestamp\` BETWEEN ? AND ?
+        LIMIT 1
+    `;
+    const [batchRows] = await dbConn.promise().query(findBatchSql, [`%${batchSearch}%`, batchStart, batchEnd]);
+    
+    // Fallback to the search term if for some reason the query is empty
+    const exactBatchId = batchRows.length > 0 ? batchRows[0].batchid : batchSearch;
+
+    // ==========================================
+    // STEP 2: FETCH PHASE DATA USING EXACT ID
+    // ==========================================
+    const pmaSql = `
+        SELECT 
+            LOWER(TRIM(processid)) AS phase,
+            MIN(impeller_rpm) AS impeller_min, MAX(impeller_rpm) AS impeller_max, AVG(impeller_rpm) AS impeller_avg,
+            MIN(filterclear_interval_sec) AS filter_min, MAX(filterclear_interval_sec) AS filter_max, AVG(filterclear_interval_sec) AS filter_avg,
+            MIN(processtime_min) AS waktu_min, MAX(processtime_min) AS waktu_max, AVG(processtime_min) AS waktu_avg,
+            MIN(${chopperCol}) AS chopper_min, MAX(${chopperCol}) AS chopper_max, AVG(${chopperCol}) AS chopper_avg,
+            MIN(pump_speed) AS pump_min, MAX(pump_speed) AS pump_max, AVG(pump_speed) AS pump_avg,
+            MIN(${ampereCol}) AS ampere_min, MAX(${ampereCol}) AS ampere_max, AVG(${ampereCol}) AS ampere_avg
+        FROM \`${dbName}\`.\`${tableName}\`
+        WHERE batchid = ?
+        AND \`timestamp\` BETWEEN ? AND ?
+        GROUP BY LOWER(TRIM(processid))
+    `;
+
+    const [rows] = await dbConn.promise().query(pmaSql, [exactBatchId, batchStart, batchEnd]);
+    
+    // ==========================================
+    // 🛑 DEBUG LOGGER
+    // ==========================================
+    console.log(`\n--- PMA DATA FOR BATCH: ${exactBatchId} (${line}) ---`);
+    console.log(`Total Phase Groups Found: ${rows.length}`);
+    rows.forEach((row, index) => {
+        console.log(`Row ${index + 1}: ->${row.phase}<- (Length: ${row.phase?.length})`);
+    });
+    console.log(`------------------------------------------\n`);
+
+    const pmaResult = {};
+    const assignMetrics = (prefix, row) => {
+        // Core metrics
+        pmaResult[`${prefix}_impeller_min`] = row.impeller_min;
+        pmaResult[`${prefix}_impeller_max`] = row.impeller_max;
+        pmaResult[`${prefix}_impeller_avg`] = row.impeller_avg;
+        
+        pmaResult[`${prefix}_waktu_min`] = row.waktu_min;
+        pmaResult[`${prefix}_waktu_max`] = row.waktu_max;
+        pmaResult[`${prefix}_waktu_avg`] = row.waktu_avg;
+
+        // Chopper
+        pmaResult[`${prefix}_chopper_min`] = row.chopper_min;
+        pmaResult[`${prefix}_chopper_max`] = row.chopper_max;
+        pmaResult[`${prefix}_chopper_avg`] = row.chopper_avg;
+
+        // Filter Clear
+        pmaResult[`${prefix}_filter_clear_min`] = row.filter_min;
+        pmaResult[`${prefix}_filter_clear_max`] = row.filter_max;
+        pmaResult[`${prefix}_filter_clear_avg`] = row.filter_avg;
+
+        // Pump Speed & Ampere
+        pmaResult[`${prefix}_pump_min`] = row.pump_min;
+        pmaResult[`${prefix}_pump_max`] = row.pump_max;
+        pmaResult[`${prefix}_pump_avg`] = row.pump_avg;
+        
+        pmaResult[`${prefix}_ampere_min`] = row.ampere_min;
+        pmaResult[`${prefix}_ampere_max`] = row.ampere_max;
+        pmaResult[`${prefix}_ampere_avg`] = row.ampere_avg;
+    };
+
+    rows.forEach(row => {
+        // The NodeRed tables probably don't have hidden \0 bytes, but it's safe to keep the scrubber
+        const phase = row.phase.replace(/\0/g, '').trim(); 
+        
+        // 1. INPUT MATERIAL
+        if (phase.includes('input material 2') || phase.includes('input material ii') || phase.includes('vacuum loading 2') || phase.includes('vacuum loading ii')) {
+            assignMetrics('input2', row);
+        }
+        else if (phase === 'input material' || phase.includes('input material 1') || phase.includes('input material i') || phase.includes('vacuum loading 1') || phase.includes('vacuum loading i')) {
+            assignMetrics('input1', row);
+        }
+        
+        // 2. MIXING
+        else if (phase.includes('mixing 4') || phase.includes('mixing iv')) {
+            assignMetrics('mix4', row);
+        }
+        else if (phase.includes('mixing 3') || phase.includes('mixing iii')) {
+            assignMetrics('mix3', row);
+        }
+        else if (phase.includes('mixing 2') || phase.includes('mixing ii')) {
+            assignMetrics('mix2', row);
+        }
+        else if (phase === 'mixing' || phase.includes('mixing 1') || phase.includes('mixing i')) {
+            assignMetrics('mix1', row);
+        }
+
+        // 3. DISCHARGE
+        else if (phase.startsWith('discharge ')) {
+            const num = phase.replace('discharge ', '');
+            assignMetrics(`discharge${num}`, row);
+        }
+    });
+
+    return pmaResult;
+};
+
+const getFBDPhaseData1 = async (line, batch, dayStart, dayEnd) => {
     const baseBatch = batch.split('-')[0].trim(); 
     const results = {};
 
@@ -659,6 +790,151 @@ const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
     return results;
 };
 
+const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
+    // We keep the -1/-2 suffix removal logic so we can find the base batch ID
+    const baseBatch = batch.split('-')[0].trim(); 
+    const results = {};
+
+    // For now, we only process Line 1.
+    if (line !== 'Line 1') return results; 
+
+    const stateTableName = 'mezanine.tengah_CtrlIntrfceFBDL1_data';
+    
+    // UPDATED: Sensor table name to the new NodeRed table
+    const sensorTableName = 'NodeRed_FBD_L1'; 
+
+    // --- 1. GET TIME SEGMENTS (Unchanged) ---
+    // The state table remains the same (mezanine) since it dictates the time windows
+    const sqlState = `
+    SELECT \`time@timestamp\` AS ts, data_format_6 AS description, data_format_3 AS hours, data_format_4 AS minutes
+    FROM \`parammachine_saka\`.\`${stateTableName}\`
+    WHERE data_format_7 LIKE ? 
+    AND \`time@timestamp\` BETWEEN ? AND ?
+    ORDER BY \`time@timestamp\` ASC
+    `;
+    
+    const [stateRows] = await db4.promise().query(sqlState, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    console.log(`--- FBD STATE LOG FOR BATCH: ${batch} ---`);
+    console.log(`Total state rows found: ${stateRows.length}`);
+
+    let segments = { loading: [], drying: [] };
+    let currentPhase = null;
+    let currentSegment = null;
+
+    stateRows.forEach(row => {
+        let phase = null;
+        if (row.description && row.description.includes('Transfer Granul - load')) phase = 'loading';
+        else if (row.description && row.description.includes('endpoint 30,7 Temp. ex')) phase = 'drying';
+
+        if (phase) {
+            const totalMins = (parseInt(row.hours) * 60) + parseInt(row.minutes);
+            
+            if (currentPhase !== phase) {
+                if (currentSegment) segments[currentPhase].push(currentSegment);
+                currentPhase = phase;
+                currentSegment = { startTs: row.ts, endTs: row.ts, startMins: totalMins, endMins: totalMins };
+            } else {
+                currentSegment.endTs = row.ts;
+                currentSegment.endMins = totalMins;
+            }
+        } else {
+            if (currentSegment) {
+                segments[currentPhase].push(currentSegment);
+                currentPhase = null;
+                currentSegment = null;
+            }
+        }
+    });
+    if (currentSegment) segments[currentPhase].push(currentSegment);
+
+    let totalLoadingTime = 0;
+    let totalDryingTime = 0;
+    segments.loading.forEach(seg => totalLoadingTime += (seg.endMins - seg.startMins));
+    segments.drying.forEach(seg => totalDryingTime += (seg.endMins - seg.startMins));
+
+    console.log(`Segments Found:`, {
+        loading_count: segments.loading.length,
+        drying_count: segments.drying.length
+    });
+
+    // --- 2. GET SENSOR DATA (UPDATED) ---
+    // Switched to use dbTest and the explicit column names from NodeRed_FBD_L1
+    const sqlSensor = `
+    SELECT 
+        \`timestamp\` AS ts, 
+        inlet_temp AS temp, 
+        inlet_airflow AS airflow, 
+        valve AS valve, 
+        filterclear_intervaltime AS filter_clear, 
+        numberofshake AS filter_shake,
+        product_temp AS exhaust 
+    FROM \`test\`.\`${sensorTableName}\`
+    WHERE batch LIKE ? 
+    AND \`timestamp\` BETWEEN ? AND ?
+    `;
+    
+    // UPDATED: Executing the query on dbTest instead of db4
+    const [sensorRows] = await dbTest.promise().query(sqlSensor, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    const isInSegment = (ts, phaseSegments) => phaseSegments.some(seg => ts >= seg.startTs && ts <= seg.endTs);
+    
+    // The filter logic remains unchanged since we aliased the columns in the SQL query
+    let loadingSensorData = [];
+    let dryingSensorData = [];
+
+    if (segments.loading && segments.loading.length > 0) {
+        loadingSensorData = sensorRows.filter(r => isInSegment(r.ts, segments.loading));
+    }
+    
+    if (segments.drying && segments.drying.length > 0) {
+        dryingSensorData = sensorRows.filter(r => isInSegment(r.ts, segments.drying));
+    }
+
+    console.log(`Filtered Sensor Rows: Loading (${loadingSensorData.length}), Drying (${dryingSensorData.length})`);
+    console.log(`------------------------------------------`);
+
+    // --- 3. CALCULATE METRICS (Unchanged) ---
+    const calculateMetrics = (prefix, groupRows, mappingArray) => {
+        mappingArray.forEach(m => {
+            const values = groupRows.map(r => parseFloat(r[m.dbKey])).filter(v => !isNaN(v));
+            if (values.length > 0) {
+                results[`${prefix}_${m.tagKey}_min`] = Math.min(...values);
+                results[`${prefix}_${m.tagKey}_max`] = Math.max(...values);
+                results[`${prefix}_${m.tagKey}_avg`] = values.reduce((a, b) => a + b, 0) / values.length;
+            }
+        });
+    };
+
+    if (loadingSensorData.length > 0) {
+        calculateMetrics('loading', loadingSensorData, [
+            { dbKey: 'temp', tagKey: 'temp' },
+            { dbKey: 'airflow', tagKey: 'flow' },
+            { dbKey: 'filter_clear', tagKey: 'filter' },
+            { dbKey: 'filter_shake', tagKey: 'filtershake' },
+            { dbKey: 'valve', tagKey: 'valve' }
+        ]);
+        results['loading_time_avg'] = totalLoadingTime; 
+    }
+
+    if (dryingSensorData.length > 0) {
+        calculateMetrics('drying', dryingSensorData, [
+            { dbKey: 'temp', tagKey: 'temp' },
+            { dbKey: 'airflow', tagKey: 'airflow' },
+            { dbKey: 'filter_clear', tagKey: 'filter' },
+            { dbKey: 'filter_shake', tagKey: 'filtershake' },
+            // UPDATED: Changed from 'data_format_3' to our explicit alias 'exhaust'
+            { dbKey: 'exhaust', tagKey: 'exhaust' } 
+        ]);
+        
+        results['drying_pengeringan_avg'] = totalDryingTime;
+    } else if (totalDryingTime > 0) {
+        results['drying_pengeringan_avg'] = totalDryingTime;
+    }
+
+    return results;
+};
+
 const getMixerData = async (batchStart, batchEnd) => {
     // We query data_format_0 which represents the mixing time/parameter
     const sql = `
@@ -687,7 +963,7 @@ const getMixerData = async (batchStart, batchEnd) => {
     return results;
 };
 
-const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
+const getEPHPhaseData1 = async (line, batch, dayStart, dayEnd) => {
     const baseBatch = batch.replace(/-[12]$/, '').trim();
     const results = {};
     if (line !== 'Line 1') return results;
@@ -789,6 +1065,132 @@ const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
     console.log(`------------------------------------------`);
 
     // --- 3. CALCULATE METRICS ---
+    const calculateMetrics = (prefix, groupRows, mappingArray) => {
+        mappingArray.forEach(m => {
+            const values = groupRows.map(r => parseFloat(r[m.dbKey])).filter(v => !isNaN(v));
+            if (values.length > 0) {
+                results[`${prefix}_${m.tagKey}_min`] = Math.min(...values);
+                results[`${prefix}_${m.tagKey}_max`] = Math.max(...values);
+                results[`${prefix}_${m.tagKey}_avg`] = values.reduce((a, b) => a + b, 0) / values.length;
+            }
+        });
+    };
+
+    const sensorMap = [{ dbKey: 'valve', tagKey: 'valve' }, { dbKey: 'speed', tagKey: 'speed' }];
+    if (d1Data.length > 0) calculateMetrics('discharge1', d1Data, sensorMap);
+    if (d2Data.length > 0) calculateMetrics('discharge2', d2Data, sensorMap);
+    if (d3Data.length > 0) calculateMetrics('discharge3', d3Data, sensorMap);
+
+    return results;
+};
+
+const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
+    const baseBatch = batch.replace(/-[12]$/, '').trim();
+    const results = {};
+    if (line !== 'Line 1') return results;
+
+    const stateTableName = 'mezanine.tengah_CtrlIntrfceEPHL1_data';
+    // UPDATED: Sensor table name to the new NodeRed table
+    const sensorTableName = 'NodeRed_EPH_L1';
+
+    // --- 1. THE DIAGNOSTIC QUERY ---
+    // First, let's see if the table is even alive
+    const [allRowsToday] = await db4.promise().query(
+        `SELECT data_format_7 FROM \`parammachine_saka\`.\`${stateTableName}\` WHERE \`time@timestamp\` BETWEEN ? AND ? LIMIT 1`, 
+        [dayStart, dayEnd]
+    );
+    
+    if (allRowsToday.length === 0) {
+        console.log(`!!! ALERT: EPH Table is TOTALLY EMPTY for this time range (${dayStart} to ${dayEnd})`);
+    }
+
+    // --- 2. THE MAIN QUERY (Matching FBD style) ---
+    const sqlState = `
+        SELECT \`time@timestamp\` AS ts, data_format_6 AS description, data_format_3 AS hours, data_format_4 AS minutes
+        FROM \`parammachine_saka\`.\`${stateTableName}\`
+        WHERE data_format_7 LIKE ? 
+        AND \`time@timestamp\` BETWEEN ? AND ?
+        ORDER BY \`time@timestamp\` ASC
+    `;
+    
+    const [stateRows] = await db4.promise().query(sqlState, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    console.log(`--- EPH DEBUG ---`);
+    console.log(`Batch: ${baseBatch} | Range: ${dayStart}-${dayEnd}`);
+    console.log(`Total state rows found: ${stateRows.length}`);
+
+    // LOG: See the first few descriptions to check for Pengayakan strings
+    if (stateRows.length > 0) {
+        console.log(`Sample Mezzanine Description: "${stateRows[0].description}"`);
+    }
+
+    let segments = { discharge1: [], discharge2: [], discharge3: [] };
+    let currentPhase = null;
+    let currentSegment = null;
+
+    stateRows.forEach(row => {
+        let phase = null;
+        
+        // Convert Buffer/BLOB to String before calling toLowerCase()
+        const desc = row.description 
+            ? row.description.toString().toLowerCase() 
+            : '';
+
+        if (desc.includes('discharge 1')) phase = 'discharge1';
+        else if (desc.includes('discharge 2')) phase = 'discharge2';
+        else if (desc.includes('discharge 3')) phase = 'discharge3';
+
+        if (phase) {
+            const totalMins = (parseInt(row.hours) * 60) + parseInt(row.minutes);
+            if (currentPhase !== phase) {
+                if (currentSegment) segments[currentPhase].push(currentSegment);
+                currentPhase = phase;
+                currentSegment = { startTs: row.ts, endTs: row.ts, startMins: totalMins, endMins: totalMins };
+            } else {
+                currentSegment.endTs = row.ts;
+                currentSegment.endMins = totalMins;
+            }
+        } else if (currentSegment) {
+            segments[currentPhase].push(currentSegment);
+            currentPhase = null;
+            currentSegment = null;
+        }
+    });
+    if (currentSegment) segments[currentPhase].push(currentSegment);
+
+    console.log(`Windows Found: D1(${segments.discharge1.length}), D2(${segments.discharge2.length}), D3(${segments.discharge3.length})`);
+
+    // Calculate Durations
+    const calcDuration = (phaseSegments) => phaseSegments.reduce((acc, seg) => acc + (seg.endMins - seg.startMins), 0);
+    results['discharge1_waktu_avg'] = calcDuration(segments.discharge1);
+    results['discharge2_waktu_avg'] = calcDuration(segments.discharge2);
+    results['discharge3_waktu_avg'] = calcDuration(segments.discharge3);
+
+    // --- 2. GET SENSOR DATA (UPDATED) ---
+    // Changed to use dbTest and explicit column names from NodeRed_EPH_L1
+    const sqlSensor = `
+        SELECT 
+            \`timestamp\` AS ts, 
+            valve AS valve, 
+            speed AS speed
+        FROM \`test\`.\`${sensorTableName}\`
+        WHERE batchid LIKE ? 
+        AND \`timestamp\` BETWEEN ? AND ?
+    `;
+    
+    // UPDATED: Executing the query on dbTest instead of db4
+    const [sensorRows] = await dbTest.promise().query(sqlSensor, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+    const isInSegment = (ts, phaseSegments) => phaseSegments.some(seg => ts >= seg.startTs && ts <= seg.endTs);
+
+    const d1Data = sensorRows.filter(r => isInSegment(r.ts, segments.discharge1));
+    const d2Data = sensorRows.filter(r => isInSegment(r.ts, segments.discharge2));
+    const d3Data = sensorRows.filter(r => isInSegment(r.ts, segments.discharge3));
+
+    console.log(`Filtered EPH Sensors: D1(${d1Data.length}), D2(${d2Data.length}), D3(${d3Data.length})`);
+    console.log(`------------------------------------------`);
+
+    // --- 3. CALCULATE METRICS (Unchanged) ---
     const calculateMetrics = (prefix, groupRows, mappingArray) => {
         mappingArray.forEach(m => {
             const values = groupRows.map(r => parseFloat(r[m.dbKey])).filter(v => !isNaN(v));
@@ -9001,26 +9403,29 @@ readPendingJobs: async (request, response) => {
      * Called by: POST /part/assign-jobs
      */
    assignJobs: async (request, response) => {
-        const { jobIds, scheduled_date } = request.body; 
+    const { jobIds, scheduled_date } = request.body; 
 
-        if (!jobIds || !scheduled_date || jobIds.length === 0) {
-            return response.status(400).send({ error: "Missing job IDs or scheduled date." });
-        }
+    if (!jobIds || !scheduled_date || jobIds.length === 0) {
+        return response.status(400).send({ error: "Missing job IDs or scheduled date." });
+    }
 
-        // Get the promise-wrapped version of your single db4 connection
-        const db4Promise = db4.promise();
-        let assignedCount = 0;
-        const errors = [];
+    // 1. Get the promise-wrapped pool
+    const pool = db4.promise();
+    let connection;
+    let assignedCount = 0;
+    const errors = [];
+
+    try {
+        // 2. CHECK OUT a dedicated connection from the pool
+        connection = await pool.getConnection();
 
         for (const pendingId of jobIds) {
-            // We no longer need 'let connection' here
             try {
-                // --- THIS IS THE FIX ---
-                // We start the transaction directly on the db4 connection
-                await db4Promise.beginTransaction(); 
+                // 3. Start the transaction on THIS SPECIFIC connection
+                await connection.beginTransaction(); 
 
-                // 1. Get the pending job info
-                const [pendingRows] = await db4Promise.query(
+                // 1. Get the pending job info (using 'connection', not 'pool')
+                const [pendingRows] = await connection.query(
                     'SELECT machine_id, wo_number FROM pmp_pending_jobs WHERE pending_id = ? AND status = ?',
                     [pendingId, 'Pending']
                 );
@@ -9032,14 +9437,14 @@ readPendingJobs: async (request, response) => {
                 const machineId = pendingJob.machine_id;
 
                 // 2. Create the new "live" work order
-                const [woResult] = await db4Promise.query(
+                const [woResult] = await connection.query(
                     'INSERT INTO pmp_work_orders (machine_id, wo_number, scheduled_date, status) VALUES (?, ?, ?, ?)',
                     [machineId, pendingJob.wo_number, scheduled_date, 'Open']
                 );
                 const newWorkOrderId = woResult.insertId;
 
                 // 3. Find all default operations
-                const [opsToCopy] = await db4Promise.query(
+                const [opsToCopy] = await connection.query(
                     'SELECT description FROM pmp_default_operations WHERE machine_id = ?',
                     [machineId]
                 );
@@ -9052,25 +9457,25 @@ readPendingJobs: async (request, response) => {
                         opsValues.push(newWorkOrderId, op.description);
                     });
                     
-                    await db4Promise.query(
+                    await connection.query(
                         `INSERT INTO pmp_work_order_operations (work_order_id, description) VALUES ${opsPlaceholders}`,
                         opsValues
                     );
                 }
 
                 // 5. Update the pending job to "Assigned"
-                await db4Promise.query(
+                await connection.query(
                     "UPDATE pmp_pending_jobs SET status = 'Assigned' WHERE pending_id = ?",
                     [pendingId]
                 );
 
                 // 6. Commit changes for THIS job
-                await db4Promise.commit();
+                await connection.commit();
                 assignedCount++;
 
             } catch (err) {
                 // If any step failed, roll back the transaction
-                await db4Promise.rollback();
+                await connection.rollback();
                 
                 if (err.code === 'ER_DUP_ENTRY') {
                     errors.push(`Failed for WO ${pendingId}: This Work Order number already exists in the live table.`);
@@ -9078,31 +9483,40 @@ readPendingJobs: async (request, response) => {
                     errors.push(`Failed for WO ${pendingId}: ${err.message}`);
                 }
             }
-            // We don't use 'finally' or 'release()' because 
-            // we are re-using the same single connection for the next loop.
         } // End of for...loop
 
-        // --- Response Logic ---
-        if (errors.length > 0 && assignedCount === 0) {
-            return response.status(409).send({ 
-                message: `All ${jobIds.length} jobs failed to assign. See errors.`,
-                assignedCount: 0,
-                errors: errors,
-            });
+    } catch (globalErr) {
+         // Catch issues getting the connection itself
+         console.error("Database Connection Error:", globalErr);
+         return response.status(500).send({ error: "Failed to connect to the database." });
+    } finally {
+        // 4. ALWAYS release the connection back to the pool, even if things crashed!
+        if (connection) {
+            connection.release();
         }
-        if (errors.length > 0) {
-            return response.status(207).send({ 
-                message: `Assignment partially successful. ${assignedCount} jobs assigned.`,
-                assignedCount: assignedCount,
-                errors: errors,
-            });
-        }
-        return response.status(201).send({
-            message: `Assignment complete. ${assignedCount} jobs assigned.`,
-            assignedCount: assignedCount,
-            errors: [],
+    }
+
+    // --- Response Logic ---
+    if (errors.length > 0 && assignedCount === 0) {
+        return response.status(409).send({ 
+            message: `All ${jobIds.length} jobs failed to assign. See errors.`,
+            assignedCount: 0,
+            errors: errors,
         });
-    },
+    }
+    if (errors.length > 0) {
+        return response.status(207).send({ 
+            message: `Assignment partially successful. ${assignedCount} jobs assigned.`,
+            assignedCount: assignedCount,
+            errors: errors,
+        });
+    }
+    return response.status(201).send({
+        message: `Assignment complete. ${assignedCount} jobs assigned.`,
+        assignedCount: assignedCount,
+        errors: [],
+    });
+},
 
     updatePMPTechnician: async (request, response) => {
         const { id } = request.params;
@@ -13475,28 +13889,69 @@ getWH2DashboardData: async (req, res) => {
         let boundsSql = '';
         let boundsResult;
 
+       // STEP 1: FIND EXACT BATCH TIME WINDOW (GLOBAL CALENDAR SEARCH)
+        // ==========================================
+        const baseBatch = batch.replace(/-[12]$/, '').trim();
+        const searchLike = `%${baseBatch}%`;
+
+        let batchStart = null;
+        let batchEnd = null;
+
+        // Use the raw date string from the body (e.g., '2026-03-13') 
+        // to match the dropdown's logic exactly.
+        const searchDate = selectedDate; 
+
         if (line === 'Line 1') {
-            let pmaTable = 'cMT-FHDGEA1_EBR_PMA_new_data';
-            boundsSql = `
-                SELECT MIN(\`time@timestamp\`) AS batch_start, MAX(\`time@timestamp\`) AS batch_end 
-                FROM \`ems_saka\`.\`${pmaTable}\` 
-                WHERE \`time@timestamp\` BETWEEN ? AND ? AND CONVERT(data_format_0 USING utf8) LIKE ?
-            `;
-            [boundsResult] = await db4.promise().query(boundsSql, [dayStart, dayEnd, `%${batch}%`]);
-        
+            const [ [pma], [fbd], [eph] ] = await Promise.all([
+                dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_PMA_L1\` WHERE batchid LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate]),
+                dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_FBD_L1\` WHERE batch LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate]),
+                dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_EPH_L1\` WHERE batchid LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate])
+            ]);
+
+            let minArr = [pma[0]?.minT, fbd[0]?.minT, eph[0]?.minT].filter(val => val != null);
+            let maxArr = [pma[0]?.maxT, fbd[0]?.maxT, eph[0]?.maxT].filter(val => val != null);
+
+            if (minArr.length > 0) batchStart = Math.min(...minArr);
+            if (maxArr.length > 0) batchEnd = Math.max(...maxArr);
+
         } else if (line === 'Line 3') {
-            boundsSql = `
-                SELECT MIN(\`timestamp\`) AS batch_start, MAX(\`timestamp\`) AS batch_end 
-                FROM \`test\`.\`NodeRed_PMA_L3\` 
-                WHERE \`timestamp\` BETWEEN ? AND ? AND batchid LIKE ?
-            `;
-            [boundsResult] = await dbTest.promise().query(boundsSql, [dayStart, dayEnd, `%${batch}%`]);
+            // Expanded Line 3 to be a truly Global Search across all machines
+            const [ [pma3], [fbd3], [eph3] ] = await Promise.all([
+                dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_PMA_L3\` WHERE batchid LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate]),
+                dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_FBD_L3\` WHERE batch LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate]),
+                dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_EPH_L3\` WHERE batch_id LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate])
+            ]);
+
+            let minArr = [pma3[0]?.minT, fbd3[0]?.minT, eph3[0]?.minT].filter(val => val != null);
+            let maxArr = [pma3[0]?.maxT, fbd3[0]?.maxT, eph3[0]?.maxT].filter(val => val != null);
+
+            if (minArr.length > 0) batchStart = Math.min(...minArr);
+            if (maxArr.length > 0) batchEnd = Math.max(...maxArr);
         }
 
-        const batchStart = boundsResult[0].batch_start;
-        const batchEnd = boundsResult[0].batch_end;
-
         if (!batchStart || !batchEnd) return res.status(404).send({ error: "Batch not found" });
+
+        // ==========================================
+        // STEP 1.5: CALCULATE BATCH TIMES
+        // ==========================================
+        
+        // Helper to format timestamps to HH:mm:ss
+        const formatTime = (ts) => {
+            const date = new Date(ts * 1000);
+            return date.toLocaleTimeString('en-GB', { hour12: false }); // Returns "14:30:05"
+        };
+
+        const startTimeFormatted = formatTime(batchStart);
+        const endTimeFormatted = formatTime(batchEnd);
+
+        // Calculate Duration
+        const durationSeconds = batchEnd - batchStart;
+        const hours = Math.floor(durationSeconds / 3600);
+        const minutes = Math.floor((durationSeconds % 3600) / 60);
+        const seconds = durationSeconds % 60;
+        
+        // Format duration as "02h 15m 30s"
+        const totalDurationFormatted = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
 
         // ==========================================
         // STEP 2: FETCH ALL DATA USING HELPERS
@@ -13509,18 +13964,23 @@ getWH2DashboardData: async (req, res) => {
             mixerData,
             binderData
         ] = await Promise.all([
-            getMonitoringData(monitorTable, dayStart, dayEnd),
+            getMonitoringData(monitorTable, batchStart, batchEnd),
             getPmaPhasesData(line, batch, batchStart, batchEnd),
             getFBDPhaseData(line, batch, dayStart, dayEnd),
             getEPHPhaseData(line, batch, dayStart, dayEnd),
             getMixerData(batchStart, batchEnd),
-            getBinderData(dayStart, dayEnd) // Using dayStart/dayEnd temporarily for dummy data testing
+            getBinderData(batchStart, batchEnd)
         ]);
 
         // ==========================================
         // STEP 3: ASSEMBLE FINAL PAYLOAD
         // ==========================================
         const combinedData = { 
+            // Add the new time metadata here
+            batch_start_time: startTimeFormatted,
+            batch_end_time: endTimeFormatted,
+            batch_total_duration: totalDurationFormatted,
+            
             ...monitoringData,
             ...pmaData,
             ...fbdData,
@@ -13578,71 +14038,64 @@ getWH2DashboardData: async (req, res) => {
     },
     getAvailableBatches: async (req, res) => {
     try {
-      const { selectedDate, line } = req.body;
+        const { selectedDate, line } = req.body;
+        if (!selectedDate || !line) return res.status(400).send("Date and Line are required");
 
-      if (!selectedDate || !line) {
-        return res.status(400).send("Date and Line are required");
-      }
+        let combinedResults = [];
 
-      let queryGet = '';
-      let result = [];
+        // --- SAFE QUERY HELPER ---
+        // This prevents one bad table from crashing the whole dropdown
+        const safeQuery = async (db, sql, params, name) => {
+            try {
+                const [rows] = await db.promise().query(sql, params);
+                return rows;
+            } catch (err) {
+                console.warn(`[WARNING] Failed to fetch batches for ${name}: ${err.message}`);
+                return []; // Return empty array so the others can still load
+            }
+        };
 
-      // ==========================================
-      // FORK THE LOGIC BASED ON THE LINE SELECTED
-      // ==========================================
-      if (line === 'Line 1') {
-        const tableName = 'cMT-FHDGEA1_EBR_PMA_new_data';
-        queryGet = `
-          SELECT 
-            CONVERT(data_format_0 USING utf8) AS BATCH
-          FROM 
-            \`ems_saka\`.\`${tableName}\`
-          WHERE 
-            DATE(FROM_UNIXTIME(\`time@timestamp\`)) = ?
-          GROUP BY 
-            data_format_0
-        `;
-        // Execute on db4
-        [result] = await db4.promise().query(queryGet, [selectedDate]);
+        // ==========================================
+        // FORK THE LOGIC BASED ON THE LINE SELECTED
+        // ==========================================
+        if (line === 'Line 1') {
+            
+            // Try fetching from all 3 independently. 
+            // NOTE: I changed PMA to use dbTest and 'test' database just in case that was the error! 
+            // If it belongs in db4/'ems_saka', change it back.
+            const pma = await safeQuery(dbTest, `SELECT batchid AS BATCH FROM \`test\`.\`NodeRed_PMA_L1\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batchid`, [selectedDate], "PMA_L1");
+            const fbd = await safeQuery(dbTest, `SELECT batch AS BATCH FROM \`test\`.\`NodeRed_FBD_L1\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batch`, [selectedDate], "FBD_L1");
+            const eph = await safeQuery(dbTest, `SELECT batchid AS BATCH FROM \`test\`.\`NodeRed_EPH_L1\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batchid`, [selectedDate], "EPH_L1");
 
-      } else if (line === 'Line 3') {
-        // Line 3 uses a different database, table, and column names
-        const tableName = 'NodeRed_PMA_L3';
-        queryGet = `
-          SELECT 
-            batchid AS BATCH
-          FROM 
-            \`test\`.\`${tableName}\`
-          WHERE 
-            DATE(FROM_UNIXTIME(\`timestamp\`)) = ?
-          GROUP BY 
-            batchid
-        `;
-        // Execute on dbTest
-        [result] = await dbTest.promise().query(queryGet, [selectedDate]);
+            // Combine whatever successfully came back
+            combinedResults = [...pma, ...fbd, ...eph];
 
-      } else {
-        return res.status(400).send("Invalid Line selected");
-      }
+        } else if (line === 'Line 3') {
+            const pma3 = await safeQuery(dbTest, `SELECT batchid AS BATCH FROM \`test\`.\`NodeRed_PMA_L3\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batchid`, [selectedDate], "PMA_L3");
+            combinedResults = pma3;
+            
+        } else {
+            return res.status(400).send("Invalid Line selected");
+        }
 
-      // --- CLEANUP LOGIC (Runs on both lines equally) ---
-      const cleanedBatches = result.map(row => {
-        if (!row.BATCH) return null;
-        
-        // This regex removes EVERYTHING except letters, numbers, hyphens, and underscores
-        const cleanString = row.BATCH.replace(/[^a-zA-Z0-9-_]/g, '');
-        
-        return { BATCH: cleanString };
-      }).filter(row => row && row.BATCH !== ''); // Remove any empty rows
+        // --- CLEANUP & DEDUPLICATION LOGIC ---
+        const cleanedBatches = combinedResults.map(row => {
+            if (!row.BATCH) return null;
+            // Remove everything except letters, numbers, hyphens, and underscores
+            return row.BATCH.replace(/[^a-zA-Z0-9-_]/g, '');
+        }).filter(batch => batch && batch !== ''); 
 
-      // Send the beautifully cleaned list back to React
-      return res.status(200).send(cleanedBatches);
+        // Use a Set to remove duplicate batch names that appeared on multiple machines
+        const uniqueBatches = [...new Set(cleanedBatches)].map(batch => ({ BATCH: batch }));
+
+        return res.status(200).send(uniqueBatches);
 
     } catch (error) {
-      console.error("Batch fetch error:", error);
-      return res.status(500).send({ error: "Database query failed" });
+        // This will only trigger if something catastrophically fails outside the SQL queries
+        console.error("Critical Batch fetch error:", error);
+        return res.status(500).send({ error: "Server processing failed" });
     }
-  },
+},
 
  getLoadingData: async (fbdTable, fbdBatchSearch, batchStart, batchEnd) => {
         const fbdSql = `
