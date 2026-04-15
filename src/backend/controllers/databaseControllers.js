@@ -542,7 +542,7 @@ const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
     if (line === 'Line 1') {
         dbConn = dbTest; 
         dbName = 'test'; // Change this if your NodeRed_PMA_L1 is actually in the 'test' database
-        tableName = 'NodeRed_PMA_L1';
+        tableName = 'NodeRed_PMA_L1'; 
         ampereCol = 'impeler_ampere'; // L1 Spelling
         chopperCol = 'chopper_rpm';   // L1 Spelling
     } else if (line === 'Line 3') {
@@ -1290,6 +1290,56 @@ const getMonitoringData = async (monitorTable, startTime, endTime) => {
     } catch (error) {
         console.error("Error in getMonitoringData:", error);
         return {};
+    }
+};
+
+const getRecipeData = async (line, batchSearch) => {
+    if (line !== 'Line 1') return { recipe_name: null, product_name: null };
+
+    // Use the base batch (e.g., STMXGF62898)
+    const baseBatch = batchSearch.split('-')[0].trim();
+    const searchParam = `%${baseBatch}%`;
+
+    try {
+        // --- STEP 1: TRY EPH TABLE (Better Names) ---
+        const ephSql = `
+            SELECT EPH_RecipeName AS recipe_name, EPH_RecipeDescription AS product_name
+            FROM \`test\`.\`NodeRed_recipe_EPH_L1\`
+            WHERE EPH_BatchID LIKE ?
+            ORDER BY unix_timestamp DESC LIMIT 1
+        `;
+        const [ephRows] = await dbTest.promise().query(ephSql, [searchParam]);
+
+        if (ephRows.length > 0 && ephRows[0].product_name) {
+            console.log(`Recipe found in EPH for ${baseBatch}`);
+            return {
+                recipe_name: ephRows[0].recipe_name,
+                product_name: ephRows[0].product_name.toString().trim()
+            };
+        }
+
+        // --- STEP 2: FALLBACK TO FBD TABLE (If EPH is empty) ---
+        const fbdSql = `
+            SELECT FBD_RecipeName AS recipe_name, FBD_RecipeDescription AS product_name
+            FROM \`test\`.\`NodeRed_recipe_FBD_L1\`
+            WHERE FBD_BatchID LIKE ?
+            ORDER BY unix_timestamp DESC LIMIT 1
+        `;
+        const [fbdRows] = await dbTest.promise().query(fbdSql, [searchParam]);
+
+        if (fbdRows.length > 0) {
+            console.log(`Recipe found in FBD (Fallback) for ${baseBatch}`);
+            return {
+                recipe_name: fbdRows[0].recipe_name,
+                product_name: fbdRows[0].product_name.toString().trim()
+            };
+        }
+
+        return { recipe_name: 'Not Found', product_name: 'Unknown Product' };
+
+    } catch (err) {
+        console.error("Error in getRecipeData cascade:", err);
+        return { recipe_name: 'Error', product_name: 'Error' };
     }
 };
 
@@ -13962,14 +14012,16 @@ getWH2DashboardData: async (req, res) => {
             fbdData,
             ephData,
             mixerData,
-            binderData
+            binderData,
+            recipeData
         ] = await Promise.all([
             getMonitoringData(monitorTable, batchStart, batchEnd),
             getPmaPhasesData(line, batch, batchStart, batchEnd),
             getFBDPhaseData(line, batch, dayStart, dayEnd),
             getEPHPhaseData(line, batch, dayStart, dayEnd),
             getMixerData(batchStart, batchEnd),
-            getBinderData(batchStart, batchEnd)
+            getBinderData(batchStart, batchEnd),
+            getRecipeData(line, batch, batchStart, batchEnd)
         ]);
 
         // ==========================================
@@ -13986,7 +14038,8 @@ getWH2DashboardData: async (req, res) => {
             ...fbdData,
             ...ephData,
             ...mixerData,
-            ...binderData
+            ...binderData,
+            ...recipeData
         };
 
         res.status(200).send(combinedData);
@@ -14187,9 +14240,68 @@ getWH2DashboardData: async (req, res) => {
         }
     },
 
+    getToday20SecAverages: async (req, res) => {
+        try {
+            const sql = `
+                SELECT 
+                    FROM_UNIXTIME(UNIX_TIMESTAMP(\`timestamp\`) DIV 20 * 20) AS bucket_time,
+                    ROUND(AVG(velocity_mms), 4) AS avg_velocity,
+                    ROUND(AVG(acceleration_g), 4) AS avg_acceleration
+                FROM monitoring_k6cm
+                WHERE DATE(\`timestamp\`) = CURDATE()
+                GROUP BY bucket_time
+                ORDER BY bucket_time ASC
+            `;
+            const [rows] = await db4.promise().query(sql);
+            res.status(200).send(rows);
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    },
 
+    getShiftAverages: async (req, res) => {
+        try {
+            const sql = `
+                SELECT 
+                    DATE(DATE_SUB(\`timestamp\`, INTERVAL 390 MINUTE)) AS production_date,
+                    CASE 
+                        WHEN TIME(\`timestamp\`) >= '06:30:00' AND TIME(\`timestamp\`) < '15:00:00' THEN 1
+                        WHEN TIME(\`timestamp\`) >= '15:00:00' AND TIME(\`timestamp\`) < '22:45:00' THEN 2
+                        ELSE 3
+                    END AS shift_number,
+                    ROUND(AVG(velocity_mms), 4) AS avg_velocity,
+                    ROUND(AVG(acceleration_g), 4) AS avg_acceleration
+                FROM monitoring_k6cm
+                WHERE DATE(DATE_SUB(\`timestamp\`, INTERVAL 390 MINUTE)) >= DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+                GROUP BY production_date, shift_number
+                ORDER BY production_date ASC, shift_number ASC
+            `;
+            const [rows] = await db4.promise().query(sql);
+            res.status(200).send(rows);
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    },
 
-  
+    getDailyAverages: async (req, res) => {
+        try {
+            const sql = `
+                SELECT 
+                    DATE(DATE_SUB(\`timestamp\`, INTERVAL 390 MINUTE)) AS production_date,
+                    ROUND(AVG(velocity_mms), 4) AS avg_velocity,
+                    ROUND(AVG(acceleration_g), 4) AS avg_acceleration
+                FROM monitoring_k6cm
+                WHERE DATE(DATE_SUB(\`timestamp\`, INTERVAL 390 MINUTE)) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                GROUP BY production_date
+                ORDER BY production_date ASC
+            `;
+            const [rows] = await db4.promise().query(sql);
+            res.status(200).send(rows);
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    }
+
 
 
 

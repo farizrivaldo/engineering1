@@ -419,6 +419,11 @@ routers.post("/getLoadingData", databaseControllers.getLoadingData);
 routers.post("/getBatchMonitoring", databaseControllers.getBatchMonitoring);
 
 
+routers.get("/getToday20SecAverages", databaseControllers.getToday20SecAverages);
+routers.get("/getShiftAverages", databaseControllers.getShiftAverages);
+routers.get("/getDailyAverages", databaseControllers.getDailyAverages);
+
+
 
 module.exports = routers;
 
