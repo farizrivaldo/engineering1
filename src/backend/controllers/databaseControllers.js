@@ -14300,7 +14300,160 @@ getWH2DashboardData: async (req, res) => {
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
+    },
+
+    uploadWorkOrders: async (req, res) => {
+        try {
+            // The JSON array from your Python script should be sent in the request body
+            const workOrders = req.body;
+
+            // Basic validation to ensure we actually received an array
+            if (!Array.isArray(workOrders) || workOrders.length === 0) {
+                return res.status(400).send({ message: "Invalid or empty JSON data provided." });
+            }
+
+            const sql = `
+                INSERT INTO pmp_main_work_orders 
+                (pwo_number, asset_number, schedule_date, description, area, operations, source_file, page_number)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                asset_number = VALUES(asset_number),
+                schedule_date = VALUES(schedule_date),
+                operations = VALUES(operations),
+                description = VALUES(description)
+            `;
+
+            let successCount = 0;
+
+            // Loop through the array and insert each Work Order
+            for (const wo of workOrders) {
+                // Stringify the operations array for the MariaDB JSON column
+                const opsJsonString = JSON.stringify(wo.Operations);
+
+                const values = [
+                    wo.PWO_Number,
+                    wo.Asset_Number,
+                    wo.Schedule_Date,
+                    wo.Description,
+                    wo.Area,
+                    opsJsonString,
+                    wo.Source_File,
+                    wo.Page
+                ];
+
+                await db4.promise().query(sql, values);
+                successCount++;
+            }
+
+            // Send a success response matching your standard format
+            res.status(200).send({ 
+                message: "Work orders successfully imported", 
+                recordsProcessed: successCount 
+            });
+
+        } catch (error) {
+            // Catch any database errors and return a 500 status
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+    // 1. Get all Open Work Orders for the Dashboard
+  // 1. Get all Work Orders for the Dashboard
+    getWorkOrders: async (req, res) => {
+        try {
+            const sql = `
+                SELECT 
+                    pwo_number, 
+                    asset_number, 
+                    DATE_FORMAT(schedule_date, '%Y-%m-%d') AS schedule_date,
+                    description, 
+                    area, 
+                    status,
+                    operations 
+                FROM pmp_main_work_orders
+                ORDER BY schedule_date ASC
+            `;
+            const [rows] = await db4.promise().query(sql);
+            
+            // Send the raw data straight to React!
+            res.status(200).send(rows);
+        } catch (error) {
+            console.error("Error fetching work orders:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+    // 2. Get a Specific PWO (For the Technician Form)
+    getWorkOrderById: async (req, res) => {
+        try {
+            const { pwo_number } = req.params;
+            const sql = `
+                SELECT 
+                    pwo_number,
+                    asset_number,
+                    description,
+                    operations,
+                    technician_summary,
+                    status
+                FROM pmp_main_work_orders
+                WHERE pwo_number = ?
+            `;
+            const [rows] = await db4.promise().query(sql, [pwo_number]);
+            
+            if (rows.length === 0) {
+                return res.status(404).send({ message: 'Work Order not found' });
+            }
+
+            // MariaDB usually returns the JSON column as a string. 
+            // We parse it here so the React frontend gets a clean JavaScript array.
+            let pwoData = rows[0];
+            if (typeof pwoData.operations === 'string') {
+                pwoData.operations = JSON.parse(pwoData.operations);
+            }
+
+            res.status(200).send(pwoData);
+        } catch (error) {
+            console.error("Error fetching PWO by ID:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
+    // 3. Save the Technician's Notes
+    updateWorkOrder: async (req, res) => {
+        try {
+            const { pwo_number } = req.params;
+            const { operations, technician_summary, status } = req.body; 
+
+            const sql = `
+                UPDATE pmp_main_work_orders 
+                SET 
+                    operations = ?, 
+                    technician_summary = ?, 
+                    status = ?
+                WHERE pwo_number = ?
+            `;
+            
+            // CRITICAL: We MUST stringify the array before sending it to MariaDB's JSON column
+            const opsJsonString = JSON.stringify(operations);
+
+            const [result] = await db4.promise().query(sql, [
+                opsJsonString, 
+                technician_summary || '', 
+                status || 'Completed', 
+                pwo_number
+            ]);
+
+            if (result.affectedRows === 0) {
+                return res.status(404).send({ message: "Work order not found or no changes made." });
+            }
+
+            res.status(200).send({ message: 'Work order updated successfully' });
+        } catch (error) {
+            console.error("Error updating work order:", error);
+            res.status(500).send({ error: error.message });
+        }
     }
+
 
 
 

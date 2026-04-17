@@ -423,7 +423,11 @@ routers.get("/getToday20SecAverages", databaseControllers.getToday20SecAverages)
 routers.get("/getShiftAverages", databaseControllers.getShiftAverages);
 routers.get("/getDailyAverages", databaseControllers.getDailyAverages);
 
+routers.post("/uploadWorkOrders", databaseControllers.uploadWorkOrders);
 
+routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
+routers.get('/:pwo_number', databaseControllers.getWorkOrderById);
+routers.put('/:pwo_number', databaseControllers.updateWorkOrder);
 
 module.exports = routers;
 
