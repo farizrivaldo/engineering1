@@ -104,9 +104,11 @@ const db = mysql.createPool({
   database: process.env.DB_DATABASE1,
   port: process.env.DB_PORT,
   multipleStatements: true,
-  connectionLimit: 10,
+  connectionLimit: 2,
   waitForConnections: true,
-  queueLimit: 0
+  queueLimit: 0,
+  idleTimeout: 60000,    // Closes idle connections after 1 minute
+  enableKeepAlive: false  // Keeps the connection healthy while active
 });
 
 // 2. Pool 2
@@ -117,9 +119,11 @@ const db2 = mysql.createPool({
   database: process.env.DB_DATABASE2,
   port: process.env.DB_PORT,
   multipleStatements: true,
-  connectionLimit: 10,
+  connectionLimit: 2,
   waitForConnections: true,
-  queueLimit: 0
+  queueLimit: 0,
+  idleTimeout: 60000,
+  enableKeepAlive: false
 });
 
 // 3. Pool 3 (Converted from Connection)
@@ -130,9 +134,12 @@ const db3 = mysql.createPool({
   database: process.env.DB_DATABASE3,
   port: process.env.DB_PORT2,
   multipleStatements: true,
-  connectionLimit: 10,
+  connectionLimit: 2,
   waitForConnections: true,
-  queueLimit: 0
+  queueLimit: 0,
+  idleTimeout: 60000,
+  enableKeepAlive: false
+
 });
 
 // 4. Pool 4 (Converted from Connection)
@@ -143,9 +150,11 @@ const db4 = mysql.createPool({
   database: process.env.DB_DATABASE4,
   port: process.env.DB_PORT2,
   multipleStatements: true,
-  connectionLimit: 10,
+  connectionLimit: 2,
   waitForConnections: true,
-  queueLimit: 0
+  queueLimit: 0,
+  idleTimeout: 60000,
+  enableKeepAlive: false
 });
 
 // 5. Test Pool (Converted from Connection)
@@ -156,9 +165,11 @@ const dbTest = mysql.createPool({
   database: process.env.DB_DATABASE_TEST,
   port: process.env.DB_PORT2,
   multipleStatements: true,
-  connectionLimit: 10,
+  connectionLimit: 2,
   waitForConnections: true,
-  queueLimit: 0
+  queueLimit: 0,
+  idleTimeout: 60000,
+  enableKeepAlive: false
 });
 
 // 6. PostgreSQL (Already a Pool)
@@ -168,6 +179,8 @@ const post = new Pool({
   password: process.env.DB_PASSWORD3,
   database: process.env.DB_DATABASE5,
   port: process.env.DB_PORT3,
+  idleTimeout: 60000,
+  enableKeepAlive: true
 });
 
 // --- NO MANUAL .connect() CALLS NEEDED FOR POOLS ---

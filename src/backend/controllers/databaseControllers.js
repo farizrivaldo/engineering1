@@ -935,6 +935,68 @@ const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
     return results;
 };
 
+const getFBDRecipeData = async (line, batch, dayStart, dayEnd) => {
+    const results = {};
+    const baseBatch = batch.split('-')[0].trim();
+
+    if (line !== 'Line 1') return results;
+
+    const tableName = 'NodeRed_recipe_FBD_L1';
+
+    try {
+        const sqlRecipe = `
+            SELECT * FROM \`test\`.\`${tableName}\` 
+            WHERE batch LIKE ? 
+            ORDER BY \`timestamp\` DESC 
+            LIMIT 1
+        `;
+        
+        const [rows] = await dbTest.promise().query(sqlRecipe, [`%${baseBatch}%`]);
+
+        if (rows && rows.length > 0) {
+            const row = rows[0];
+
+            // --- DIAGNOSTIC LOG (Optional: Remove after it works) ---
+            // This will show you exactly what the column names are in your terminal
+            // console.log("Actual Database Columns:", Object.keys(row));
+
+            // Helper to handle hyphen vs underscore inconsistency
+            const getVal = (col) => row[col] ?? row[col.replace(/-/g, '_')] ?? '-';
+
+            // --- LOADING SETPOINTS ---
+            results['loading_recipe_temp'] = getVal('FBD_InletAirTemp');
+            results['loading_recipe_flow'] = getVal('FBD_FluidsingAirFlow1');
+            results['loading_recipe_filter'] = getVal('FBD_FilterClearIntervalTime');
+            results['loading_recipe_filtershake'] = getVal('FBD_NumberOfFilterShakes');
+            results['loading_recipe_time'] = getVal('FBD-ProcessTimeTripMin');
+            results['loading_recipe_valve'] = getVal('FBD_InletAirPosition1');
+
+            // --- DRYING SETPOINTS ---
+            results['drying_recipe_temp'] = getVal('FBD_InletAirTemp1');
+            results['drying_recipe_flow'] = getVal('FBD_FluidsingAirFlow2');
+            results['drying_recipe_filter'] = getVal('FBD_FilterClearIntervalTime1');
+            results['drying_recipe_filtershake'] = getVal('FBD_NumberOfFilterShakes1');
+            results['drying_recipe_time'] = getVal('FBD-ProcessTimeTripMin1');
+            results['drying_recipe_exhaust'] = getVal('FBD_ExhaustAirTemperatureTrip2');
+
+            // --- TRANSFER SETPOINTS ---
+            results['transfer_recipe_temp'] = getVal('FBD_InletAirTemp3');
+            results['transfer_recipe_flow'] = getVal('FBD_FluidsingAirFlow3');
+
+            // --- DISCHARGE SETPOINTS (Using your discharge_1 naming) ---
+            results['discharge_1_recipe_valve'] = getVal('FBD-ExhaustValvePosition3');
+            results['discharge_2_recipe_valve'] = getVal('FBD-ExhaustValvePosition4');
+            results['discharge_3_recipe_valve'] = getVal('FBD-ExhaustValvePosition5');
+        }
+
+        return results;
+
+    } catch (error) {
+        console.error(`Error fetching FBD Recipe Data:`, error);
+        return results; 
+    }
+};
+
 const getMixerData = async (batchStart, batchEnd) => {
     // We query data_format_0 which represents the mixing time/parameter
     const sql = `
@@ -13556,6 +13618,15 @@ getAllLatestTimestamps: async (req, res) => {
                 secondaryColumn: 'created_time', 
                 type: 'split_datetime', 
             },
+            {
+                key: 'IPC_Hardness', 
+                table: 'ipc_hardness', 
+                db: db4, 
+                category: 'IPC', 
+                columnName: 'created_date', 
+                secondaryColumn: 'time_insert', 
+                type: 'split_datetime', 
+            },
 
             // ==========================================
             // EXISTING TABLES (Line 1, Line 3, NodeRed)
@@ -13611,6 +13682,10 @@ getAllLatestTimestamps: async (req, res) => {
             { key: 'NR_Time_Vacum_L1',     table: 'NodeRed_timeproses_VACUM_L1',    db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_Time_Vacum_Open',   table: 'NodeRed_timeproses_VACUM_OpenSystem', db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
             { key: 'NR_Time_Wetmill_L1',   table: 'NodeRed_timeproses_WETMILL_L1',  db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NodeRed_WH1_Monitoring',   table: 'NodeRed_WH1_Monitoring',  db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+            { key: 'NodeRed_WH2_Monitoring',   table: 'NodeRed_WH2_Monitoring',  db: dbTest, category: 'NodeRed', columnName: 'timestamp', type: 'unix' },
+           
+
         ];
 
         const queries = dataSources.map(async (source) => {
@@ -13912,7 +13987,7 @@ getWH2DashboardData: async (req, res) => {
 },
 
 // --- MAIN CONTROLLER CALLED BY FRONTEND ---
-    GetSuhuMonitoringData: async (req, res) => {
+ GetSuhuMonitoringData: async (req, res) => {
     try {
         const { selectedDate, line, batch } = req.body;
 
@@ -13934,21 +14009,13 @@ getWH2DashboardData: async (req, res) => {
         let monitorTable = 'cMT-DB-EMS-UTY2_R_X06_New_data';
         
         // ==========================================
-        // STEP 1: FIND EXACT BATCH TIME WINDOW (DYNAMIC LINE SUPPORT)
-        // ==========================================
-        let boundsSql = '';
-        let boundsResult;
-
-       // STEP 1: FIND EXACT BATCH TIME WINDOW (GLOBAL CALENDAR SEARCH)
+        // STEP 1: FIND EXACT BATCH TIME WINDOW (GLOBAL CALENDAR SEARCH)
         // ==========================================
         const baseBatch = batch.replace(/-[12]$/, '').trim();
         const searchLike = `%${baseBatch}%`;
 
         let batchStart = null;
         let batchEnd = null;
-
-        // Use the raw date string from the body (e.g., '2026-03-13') 
-        // to match the dropdown's logic exactly.
         const searchDate = selectedDate; 
 
         if (line === 'Line 1') {
@@ -13965,7 +14032,6 @@ getWH2DashboardData: async (req, res) => {
             if (maxArr.length > 0) batchEnd = Math.max(...maxArr);
 
         } else if (line === 'Line 3') {
-            // Expanded Line 3 to be a truly Global Search across all machines
             const [ [pma3], [fbd3], [eph3] ] = await Promise.all([
                 dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_PMA_L3\` WHERE batchid LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate]),
                 dbTest.promise().query(`SELECT MIN(\`timestamp\`) AS minT, MAX(\`timestamp\`) AS maxT FROM \`test\`.\`NodeRed_FBD_L3\` WHERE batch LIKE ? AND DATE(FROM_UNIXTIME(\`timestamp\`)) = ?`, [searchLike, searchDate]),
@@ -13984,23 +14050,19 @@ getWH2DashboardData: async (req, res) => {
         // ==========================================
         // STEP 1.5: CALCULATE BATCH TIMES
         // ==========================================
-        
-        // Helper to format timestamps to HH:mm:ss
         const formatTime = (ts) => {
             const date = new Date(ts * 1000);
-            return date.toLocaleTimeString('en-GB', { hour12: false }); // Returns "14:30:05"
+            return date.toLocaleTimeString('en-GB', { hour12: false });
         };
 
         const startTimeFormatted = formatTime(batchStart);
         const endTimeFormatted = formatTime(batchEnd);
 
-        // Calculate Duration
         const durationSeconds = batchEnd - batchStart;
         const hours = Math.floor(durationSeconds / 3600);
         const minutes = Math.floor((durationSeconds % 3600) / 60);
         const seconds = durationSeconds % 60;
         
-        // Format duration as "02h 15m 30s"
         const totalDurationFormatted = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
 
         // ==========================================
@@ -14013,7 +14075,8 @@ getWH2DashboardData: async (req, res) => {
             ephData,
             mixerData,
             binderData,
-            recipeData
+            recipeData,
+            fbdRecipeData // <-- NEW: Added to destructuring array
         ] = await Promise.all([
             getMonitoringData(monitorTable, batchStart, batchEnd),
             getPmaPhasesData(line, batch, batchStart, batchEnd),
@@ -14021,14 +14084,14 @@ getWH2DashboardData: async (req, res) => {
             getEPHPhaseData(line, batch, dayStart, dayEnd),
             getMixerData(batchStart, batchEnd),
             getBinderData(batchStart, batchEnd),
-            getRecipeData(line, batch, batchStart, batchEnd)
+            getRecipeData(line, batch, batchStart, batchEnd),
+            getFBDRecipeData(line, batch, batchStart, batchEnd) // <-- NEW: Added to parallel execution
         ]);
 
         // ==========================================
         // STEP 3: ASSEMBLE FINAL PAYLOAD
         // ==========================================
         const combinedData = { 
-            // Add the new time metadata here
             batch_start_time: startTimeFormatted,
             batch_end_time: endTimeFormatted,
             batch_total_duration: totalDurationFormatted,
@@ -14039,7 +14102,8 @@ getWH2DashboardData: async (req, res) => {
             ...ephData,
             ...mixerData,
             ...binderData,
-            ...recipeData
+            ...recipeData,
+            ...fbdRecipeData // <-- NEW: Spread into the master JSON payload
         };
 
         res.status(200).send(combinedData);
