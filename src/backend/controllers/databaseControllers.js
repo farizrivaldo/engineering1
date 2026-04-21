@@ -14433,6 +14433,7 @@ getWH2DashboardData: async (req, res) => {
                     description, 
                     area, 
                     status,
+                    isClosed,
                     operations 
                 FROM pmp_main_work_orders
                 ORDER BY schedule_date ASC
@@ -14457,7 +14458,6 @@ getWH2DashboardData: async (req, res) => {
                     asset_number,
                     description,
                     operations,
-                    technician_summary,
                     status
                 FROM pmp_main_work_orders
                 WHERE pwo_number = ?
@@ -14492,7 +14492,6 @@ getWH2DashboardData: async (req, res) => {
                 UPDATE pmp_main_work_orders 
                 SET 
                     operations = ?, 
-                    technician_summary = ?, 
                     status = ?
                 WHERE pwo_number = ?
             `;
@@ -14502,7 +14501,6 @@ getWH2DashboardData: async (req, res) => {
 
             const [result] = await db4.promise().query(sql, [
                 opsJsonString, 
-                technician_summary || '', 
                 status || 'Completed', 
                 pwo_number
             ]);
@@ -14516,7 +14514,20 @@ getWH2DashboardData: async (req, res) => {
             console.error("Error updating work order:", error);
             res.status(500).send({ error: error.message });
         }
-    }
+    },
+    closeWorkOrder: async (req, res) => {
+        try {
+            const { pwo_number } = req.params;
+            const sql = `UPDATE pmp_main_work_orders SET isClosed = 1 WHERE pwo_number = ?`;
+            
+            await db.promise().query(sql, [pwo_number]);
+            
+            res.status(200).send({ message: "Work order closed successfully" });
+        } catch (error) {
+            console.error("Error closing work order:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
 
 
 
