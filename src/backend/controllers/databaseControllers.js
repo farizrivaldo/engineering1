@@ -14520,7 +14520,7 @@ getWH2DashboardData: async (req, res) => {
             const { pwo_number } = req.params;
             const sql = `UPDATE pmp_main_work_orders SET isClosed = 1 WHERE pwo_number = ?`;
             
-            await db.promise().query(sql, [pwo_number]);
+            await db4.promise().query(sql, [pwo_number]);
             
             res.status(200).send({ message: "Work order closed successfully" });
         } catch (error) {
