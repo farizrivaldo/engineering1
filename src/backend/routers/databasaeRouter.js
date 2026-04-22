@@ -425,9 +425,14 @@ routers.get("/getDailyAverages", databaseControllers.getDailyAverages);
 
 routers.post("/uploadWorkOrders", databaseControllers.uploadWorkOrders);
 
+routers.get('/getInventoryParts', databaseControllers.getInventoryParts);
+
+
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);
 routers.put('/:pwo_number', databaseControllers.updateWorkOrder);
+routers.put('/:pwo_number/close', databaseControllers.closeWorkOrder);
+
 
 module.exports = routers;
 

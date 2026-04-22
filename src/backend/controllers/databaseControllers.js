@@ -666,6 +666,80 @@ const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
     return pmaResult;
 };
 
+const getPMARecipeData = async (line, batch, dayStart, dayEnd) => {
+    const results = {};
+    const baseBatch = batch.split('-')[0].trim();
+    
+    if (line !== 'Line 1') return results;
+
+    try {
+        const sqlRecipe = `
+            SELECT * FROM \`test\`.\`NodeRed_recipe_GEA_L1\` 
+            WHERE \`PMA_BacthID\` LIKE ? 
+            ORDER BY \`unix_timestamp\` DESC 
+            LIMIT 1
+        `;
+        
+        const [rows] = await dbTest.promise().query(sqlRecipe, [`%${baseBatch}%`]);
+
+        console.log(`[PMA Recipe] Searching Batch: "${baseBatch}" | Rows Found: ${rows.length}`);
+
+        if (rows && rows.length > 0) {
+            const row = rows[0];
+            
+            const getVal = (targetName) => {
+                if (row[targetName] !== undefined) return row[targetName];
+                const normalizedTarget = targetName.toLowerCase().replace(/-/g, '_');
+                const actualKey = Object.keys(row).find(key => 
+                    key.toLowerCase().replace(/-/g, '_') === normalizedTarget
+                );
+                return actualKey !== undefined ? row[actualKey] : null; 
+            };
+
+            // --- SPEED & WAKTU ---
+            results['pma_recipe_pump_speed1'] = getVal('PMA-SolutionPumpSpeed1');
+            
+            // --- INPUT MATERIAL ---
+            results['pma_recipe_loading_speed'] = getVal('PMA-ImpellerLoadingSpeed');
+            results['pma_recipe_filter_interval'] = getVal('PMA-FilterClearIntervalTime');
+
+            // --- MIXING I - IV ---
+            results['mix1_recipe_impeller'] = getVal('PMA-ImpellerSpeed1');
+            results['mix1_recipe_chopper'] = getVal('PMA-ChopperSpeed1');
+            results['mix1_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin1');
+
+            results['mix2_recipe_impeller'] = getVal('PMA-ImpellerSpeed2');
+            results['mix2_recipe_chopper'] = getVal('PMA-ChopperSpeed2');
+            results['mix2_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin2');
+
+            results['mix3_recipe_impeller'] = getVal('PMA-ImpellerSpeed3');
+            results['mix3_recipe_chopper'] = getVal('PMA-ChopperSpeed3');
+            results['mix3_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin3');
+            results['mix3_recipe_pump'] = getVal('PMA-SolutionPumpSpeed2');
+
+            results['mix4_recipe_impeller'] = getVal('PMA-ImpellerSpeed4');
+            results['mix4_recipe_chopper'] = getVal('PMA-ChopperSpeed4');
+            results['mix4_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin4');
+            results['mix4_recipe_pump'] = getVal('PMA-SolutionPumpSpeed3');
+
+            // --- DISCHARGE I - XII ---
+            // A quick loop since there are 12 of them mapped sequentially from 5 to 16
+            for (let i = 1; i <= 12; i++) {
+                const dbIndex = i + 4; // Discharge 1 maps to ImpellerSpeed5, etc.
+                results[`discharge${i}_recipe_impeller`] = getVal(`PMA-ImpellerSpeed${dbIndex}`);
+                results[`discharge${i}_recipe_chopper`] = getVal(`PMA-ChopperSpeed${dbIndex}`);
+                results[`discharge${i}_recipe_time`] = getVal(`PMA-ProcessTimeTripLevelMin${dbIndex}`);
+            }
+        }
+        
+        return results;
+
+    } catch (error) {
+        console.error(`[PMA Recipe ERROR] Failed to fetch data:`, error.message);
+        return results; 
+    }
+};
+
 const getFBDPhaseData1 = async (line, batch, dayStart, dayEnd) => {
     const baseBatch = batch.split('-')[0].trim(); 
     const results = {};
@@ -946,8 +1020,8 @@ const getFBDRecipeData = async (line, batch, dayStart, dayEnd) => {
     try {
         const sqlRecipe = `
             SELECT * FROM \`test\`.\`${tableName}\` 
-            WHERE batch LIKE ? 
-            ORDER BY \`timestamp\` DESC 
+            WHERE FBD_BatchID LIKE ? 
+            ORDER BY \`unix_timestamp\` DESC 
             LIMIT 1
         `;
         
@@ -1270,6 +1344,64 @@ const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
     if (d3Data.length > 0) calculateMetrics('discharge3', d3Data, sensorMap);
 
     return results;
+};
+
+const getEPHRecipeData = async (line, batch, dayStart, dayEnd) => {
+    const results = {};
+    const baseBatch = batch.split('-')[0].trim();
+    
+    if (line !== 'Line 1') return results;
+
+    try {
+        // FIXED: Now using `EPH_BatchID` and `unix_timestamp` exactly as they appear in the DB
+        const sqlRecipe = `
+            SELECT * FROM \`test\`.\`NodeRed_recipe_EPH_L1\` 
+            WHERE \`EPH_BatchID\` LIKE ? 
+            ORDER BY \`unix_timestamp\` DESC 
+            LIMIT 1
+        `;
+        
+        const [rows] = await dbTest.promise().query(sqlRecipe, [`%${baseBatch}%`]);
+
+        // LOGGING: This should now say "Rows Found: 1" in your terminal!
+        console.log(`[EPH Recipe] Searching Batch: "${baseBatch}" | Rows Found: ${rows.length}`);
+
+        if (rows && rows.length > 0) {
+            const row = rows[0];
+            
+            // Smart search to handle hyphens vs underscores automatically
+            const getVal = (targetName) => {
+                if (row[targetName] !== undefined) return row[targetName];
+                const normalizedTarget = targetName.toLowerCase().replace(/-/g, '_');
+                const actualKey = Object.keys(row).find(key => 
+                    key.toLowerCase().replace(/-/g, '_') === normalizedTarget
+                );
+                return actualKey !== undefined ? row[actualKey] : null; 
+            };
+
+            // --- DISCHARGE 1 SETPOINTS ---
+            results['discharge_1_recipe_valve'] = getVal('FBD-ExhaustValvePosition3');
+            results['discharge_1_recipe_speed'] = getVal('EPH-DrymillSpeed2');
+            results['discharge_1_recipe_time'] = getVal('EPH-ProcessTimeTripMin');
+
+            // --- DISCHARGE 2 SETPOINTS ---
+            results['discharge_2_recipe_valve'] = getVal('FBD-ExhaustValvePosition4');
+            results['discharge_2_recipe_speed'] = getVal('EPH-DrymillSpeed3');
+            results['discharge_2_recipe_time'] = getVal('EPH-ProcessTimeTripMin2');
+
+            // --- DISCHARGE 3 SETPOINTS ---
+            results['discharge_3_recipe_valve'] = getVal('FBD-ExhaustValvePosition5');
+            results['discharge_3_recipe_speed'] = getVal('EPH-DrymillSpeed4');
+            results['discharge_3_recipe_time'] = getVal('EPH-ProcessTimeTripMin3');
+        }
+        
+        return results;
+
+    } catch (error) {
+        // If the query fails, it will print the exact SQL error here so we can see it
+        console.error(`[EPH Recipe ERROR] Failed to fetch data:`, error.message);
+        return results; 
+    }
 };
 
 const getBinderData = async (startTime, endTime) => {
@@ -14076,7 +14208,9 @@ getWH2DashboardData: async (req, res) => {
             mixerData,
             binderData,
             recipeData,
-            fbdRecipeData // <-- NEW: Added to destructuring array
+            fbdRecipeData,
+            ephRecipeData,
+            pmaRecipeData // <-- NEW: Added to destructuring array
         ] = await Promise.all([
             getMonitoringData(monitorTable, batchStart, batchEnd),
             getPmaPhasesData(line, batch, batchStart, batchEnd),
@@ -14085,7 +14219,9 @@ getWH2DashboardData: async (req, res) => {
             getMixerData(batchStart, batchEnd),
             getBinderData(batchStart, batchEnd),
             getRecipeData(line, batch, batchStart, batchEnd),
-            getFBDRecipeData(line, batch, batchStart, batchEnd) // <-- NEW: Added to parallel execution
+            getFBDRecipeData(line, batch, batchStart, batchEnd), // <-- NEW: Added to parallel execution
+            getEPHRecipeData(line, batch, batchStart, batchEnd), // <-- NEW: Added to parallel execution
+            getPMARecipeData(line, batch, batchStart, batchEnd)  // <-- NEW: Added to parallel execution
         ]);
 
         // ==========================================
@@ -14103,7 +14239,9 @@ getWH2DashboardData: async (req, res) => {
             ...mixerData,
             ...binderData,
             ...recipeData,
-            ...fbdRecipeData // <-- NEW: Spread into the master JSON payload
+            ...fbdRecipeData, // <-- NEW: Spread into the master JSON payload
+            ...ephRecipeData,  // <-- NEW: Spread into the master JSON payload
+            ...pmaRecipeData   // <-- NEW: Spread into the master JSON payload
         };
 
         res.status(200).send(combinedData);
@@ -14177,38 +14315,72 @@ getWH2DashboardData: async (req, res) => {
         // ==========================================
         if (line === 'Line 1') {
             
-            // Try fetching from all 3 independently. 
-            // NOTE: I changed PMA to use dbTest and 'test' database just in case that was the error! 
-            // If it belongs in db4/'ems_saka', change it back.
+            // Fetch from all 3 independently
             const pma = await safeQuery(dbTest, `SELECT batchid AS BATCH FROM \`test\`.\`NodeRed_PMA_L1\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batchid`, [selectedDate], "PMA_L1");
             const fbd = await safeQuery(dbTest, `SELECT batch AS BATCH FROM \`test\`.\`NodeRed_FBD_L1\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batch`, [selectedDate], "FBD_L1");
             const eph = await safeQuery(dbTest, `SELECT batchid AS BATCH FROM \`test\`.\`NodeRed_EPH_L1\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batchid`, [selectedDate], "EPH_L1");
 
-            // Combine whatever successfully came back
-            combinedResults = [...pma, ...fbd, ...eph];
+            // --- MAP BATCHES TO MACHINES ---
+            const batchMap = new Map();
+
+            // Helper to clean the batch ID and assign it to its machine
+            const addToMap = (dataArray, machineName) => {
+                dataArray.forEach(row => {
+                    if (!row.BATCH) return;
+                    
+                    // Remove everything except letters, numbers, hyphens, and underscores
+                    const cleanName = row.BATCH.replace(/[^a-zA-Z0-9-_]/g, '');
+                    if (!cleanName) return;
+
+                    // If batch doesn't exist in our map yet, create it
+                    if (!batchMap.has(cleanName)) {
+                        batchMap.set(cleanName, { name: cleanName, machines: [] });
+                    }
+                    
+                    // Add the machine tag to this batch
+                    batchMap.get(cleanName).machines.push(machineName);
+                });
+            };
+
+            addToMap(pma, 'PMA');
+            addToMap(fbd, 'FBD');
+            addToMap(eph, 'EPH');
+
+            // --- FORMAT FOR FRONTEND ---
+            uniqueBatches = Array.from(batchMap.values()).map(data => {
+                // If it has all 3, just show the clean name. 
+                // If not, append the machines it was found on.
+                let displayName = data.machines.length === 3 
+                    ? data.name 
+                    : `${data.name} (${data.machines.join(', ')})`;
+
+                return { 
+                    BATCH: data.name,      // The raw ID needed for your database queries
+                    DISPLAY: displayName   // The human-readable text for the UI dropdown
+                };
+            });
 
         } else if (line === 'Line 3') {
+            // Line 3 logic remains mostly the same, but adapted to the new { BATCH, DISPLAY } format
             const pma3 = await safeQuery(dbTest, `SELECT batchid AS BATCH FROM \`test\`.\`NodeRed_PMA_L3\` WHERE DATE(FROM_UNIXTIME(\`timestamp\`)) = ? GROUP BY batchid`, [selectedDate], "PMA_L3");
-            combinedResults = pma3;
             
+            const cleanedPma3 = pma3.map(row => {
+                if (!row.BATCH) return null;
+                return row.BATCH.replace(/[^a-zA-Z0-9-_]/g, '');
+            }).filter(b => b);
+
+            uniqueBatches = [...new Set(cleanedPma3)].map(batch => ({ 
+                BATCH: batch, 
+                DISPLAY: batch // Only one machine queried here so far, so they are identical
+            }));
+
         } else {
-            return res.status(400).send("Invalid Line selected");
+            return res.status(400).send({ error: "Invalid Line selected" });
         }
-
-        // --- CLEANUP & DEDUPLICATION LOGIC ---
-        const cleanedBatches = combinedResults.map(row => {
-            if (!row.BATCH) return null;
-            // Remove everything except letters, numbers, hyphens, and underscores
-            return row.BATCH.replace(/[^a-zA-Z0-9-_]/g, '');
-        }).filter(batch => batch && batch !== ''); 
-
-        // Use a Set to remove duplicate batch names that appeared on multiple machines
-        const uniqueBatches = [...new Set(cleanedBatches)].map(batch => ({ BATCH: batch }));
 
         return res.status(200).send(uniqueBatches);
 
     } catch (error) {
-        // This will only trigger if something catastrophically fails outside the SQL queries
         console.error("Critical Batch fetch error:", error);
         return res.status(500).send({ error: "Server processing failed" });
     }
@@ -14525,6 +14697,30 @@ getWH2DashboardData: async (req, res) => {
             res.status(200).send({ message: "Work order closed successfully" });
         } catch (error) {
             console.error("Error closing work order:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+    
+    getInventoryParts: async (req, res) => {
+        try {
+            const sql = `
+                SELECT 
+                    Part_Number, 
+                    Part_Description, 
+                    Part_Location, 
+                    Type, 
+                    Description, 
+                    Availability, 
+                    DATE_FORMAT(Last_Date, '%Y-%m-%d %H:%i:%s') AS Last_Date
+                FROM sparepart_engineering
+                ORDER BY Part_Number ASC
+            `;
+            const [rows] = await db4.promise().query(sql);
+            
+            // Send the raw data straight to React!
+            res.status(200).send(rows);
+        } catch (error) {
+            console.error("Error fetching inventory parts:", error);
             res.status(500).send({ error: error.message });
         }
     },
