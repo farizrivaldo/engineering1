@@ -14845,31 +14845,43 @@ getWH2DashboardData: async (req, res) => {
         try {
             const { updates } = req.body; 
 
-            if (!updates || !Array.isArray(updates)) {
-                return res.status(400).send({ error: "Invalid data payload." });
+            if (!updates || !Array.isArray(updates) || updates.length === 0) {
+                return res.status(400).send({ error: "Invalid or empty data payload." });
             }
 
-            for (const part of updates) {
-                // We only need the partNumber and availability now!
+            // 1. Start building the single giant SQL string
+            let updateSql = 'UPDATE sparepart_engineering SET Availability = CASE Part_Number ';
+            
+            const queryParams = [];
+            const partNumbers = [];
+
+            // 2. Loop through the array ONCE to build the SQL logic
+            updates.forEach((part) => {
                 const { partNumber, availability } = part; 
+                
+                // Adds: WHEN 'SPMT001' THEN 5
+                updateSql += 'WHEN ? THEN ? ';
+                queryParams.push(partNumber, availability);
+                partNumbers.push(partNumber);
+            });
 
-                // NOW() automatically grabs the exact current timestamp from your server
-                const updateSql = `
-                    UPDATE sparepart_engineering 
-                    SET Availability = ?, Last_Date = NOW()
-                    WHERE Part_Number = ?
-                `;
-                const queryParams = [availability, partNumber];
+            // 3. Close the CASE statement and add the timestamp and WHERE clause
+            updateSql += 'END, Last_Date = NOW() WHERE Part_Number IN (?);';
+            
+            // Add the array of all part numbers to the very end of our parameters
+            queryParams.push(partNumbers);
 
-                // Execute the update
-                await db4.promise().query(updateSql, queryParams);
-            }
+            // 4. Send ONE single query to the database
+            await db4.promise().query(updateSql, queryParams);
 
-            res.status(200).send({ message: "Inventory successfully updated with current timestamp." });
+            res.status(200).send({ message: "Bulk inventory updated instantly." });
 
         } catch (error) {
-            console.error("Batch update failed:", error);
-            res.status(500).send({ error: "Failed to update database records." });
+            console.error("Bulk update failed:", error);
+            res.status(500).send({ 
+                error: "Failed to update database records.", 
+                details: error.message 
+            });
         }
     },
 
