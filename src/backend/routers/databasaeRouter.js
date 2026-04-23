@@ -427,6 +427,10 @@ routers.post("/uploadWorkOrders", databaseControllers.uploadWorkOrders);
 
 routers.get('/getInventoryParts', databaseControllers.getInventoryParts);
 
+routers.post('/createSparepartLog', databaseControllers.createSparepartLog);
+
+routers.get('/getSparepartLogs', databaseControllers.getSparepartLogs);
+
 
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);

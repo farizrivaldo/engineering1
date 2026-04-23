@@ -14725,6 +14725,98 @@ getWH2DashboardData: async (req, res) => {
         }
     },
 
+    createSparepartLog: async (req, res) => {
+        // 1. Grab a dedicated connection from db4 for the transaction
+        const connection = await db4.promise().getConnection();
+
+        try {
+            // Extract the data sent from the React frontend
+            const { Employee_Name, Work_Order_Number, Items_Taken } = req.body;
+
+            // 2. Start the transaction! Everything after this is grouped together.
+            await connection.beginTransaction();
+
+            // 3. Insert the record into the Log Table
+            // Express usually receives JSON as a Javascript Array. 
+            // We must convert it back to a raw JSON string to save it in your LONGTEXT column.
+            const itemsStringified = JSON.stringify(Items_Taken);
+            
+            const insertLogSql = `
+                INSERT INTO Sparepart_Logs (Employee_Name, Work_Order_Number, Items_Taken)
+                VALUES (?, ?, ?)
+            `;
+            await connection.query(insertLogSql, [Employee_Name, Work_Order_Number, itemsStringified]);
+
+            // 4. Loop through the array of items and deduct the quantities
+            // We expect Items_Taken to look like: [{ part_number: 'SPM...', qty: 2 }, ...]
+            for (const item of Items_Taken) {
+                const updateInventorySql = `
+                    UPDATE sparepart_engineering 
+                    SET Availability = Availability - ? 
+                    WHERE Part_Number = ?
+                `;
+                
+                // Execute the update for this specific part
+                await connection.query(updateInventorySql, [item.qty, item.part_number]);
+            }
+
+            // 5. If we made it here without any errors, COMMIT the changes permanently!
+            await connection.commit();
+            res.status(201).send({ message: "Log created and inventory successfully updated." });
+
+        } catch (error) {
+            // 6. DISASTER RECOVERY: If anything failed (e.g., a typo in a part number), 
+            // ROLLBACK undoes the log insert and any partial inventory updates.
+            await connection.rollback();
+            console.error("Transaction Error - Rollback triggered:", error);
+            res.status(500).send({ error: "Failed to process transaction. No changes were made." });
+            
+        } finally {
+            // 7. Always release the connection back to db4's pool so your server doesn't crash
+            connection.release();
+        }
+    },
+
+    getSparepartLogs: async (req, res) => {
+        try {
+            // 1. Fetch the data, format the date, and sort newest first
+            const sql = `
+                SELECT 
+                    Log_ID, 
+                    Employee_Name, 
+                    DATE_FORMAT(Log_Date, '%Y-%m-%d %H:%i:%s') AS Log_Date, 
+                    Work_Order_Number, 
+                    Items_Taken 
+                FROM Sparepart_Logs
+                ORDER BY Log_Date DESC
+            `;
+            const [rows] = await db4.promise().query(sql);
+
+            // 2. Parse the LONGTEXT strings back into real JSON arrays
+            // If we don't do this, React will just see a massive, unreadable string.
+            const formattedRows = rows.map(row => {
+                let parsedItems = [];
+                try {
+                    parsedItems = JSON.parse(row.Items_Taken);
+                } catch (parseError) {
+                    console.warn(`Could not parse JSON for Log_ID ${row.Log_ID}`);
+                }
+
+                return {
+                    ...row,
+                    Items_Taken: parsedItems
+                };
+            });
+
+            // 3. Send the clean data to the frontend
+            res.status(200).send(formattedRows);
+
+        } catch (error) {
+            console.error("Error fetching sparepart logs:", error);
+            res.status(500).send({ error: error.message });
+        }
+    },
+
 
 
 
