@@ -14711,6 +14711,7 @@ getWH2DashboardData: async (req, res) => {
                     Type, 
                     Description, 
                     Availability, 
+                    Reorder_Min,
                     DATE_FORMAT(Last_Date, '%Y-%m-%d %H:%i:%s') AS Last_Date
                 FROM sparepart_engineering
                 ORDER BY Part_Number ASC
@@ -14731,7 +14732,7 @@ getWH2DashboardData: async (req, res) => {
 
         try {
             // Extract the data sent from the React frontend
-            const { Employee_Name, Work_Order_Number, Items_Taken } = req.body;
+            const { Employee_Name, Division, Work_Order_Number, Description, Items_Taken } = req.body;
 
             // 2. Start the transaction! Everything after this is grouped together.
             await connection.beginTransaction();
@@ -14741,11 +14742,11 @@ getWH2DashboardData: async (req, res) => {
             // We must convert it back to a raw JSON string to save it in your LONGTEXT column.
             const itemsStringified = JSON.stringify(Items_Taken);
             
-            const insertLogSql = `
-                INSERT INTO Sparepart_Logs (Employee_Name, Work_Order_Number, Items_Taken)
-                VALUES (?, ?, ?)
-            `;
-            await connection.query(insertLogSql, [Employee_Name, Work_Order_Number, itemsStringified]);
+              const insertLogSql = `
+                  INSERT INTO Sparepart_Logs (Employee_Name, Division, Work_Order_Number, Description, Items_Taken)
+                  VALUES (?, ?, ?, ?, ?)
+              `;
+            await connection.query(insertLogSql, [Employee_Name, Division, Work_Order_Number, Description, itemsStringified]);
 
             // 4. Loop through the array of items and deduct the quantities
             // We expect Items_Taken to look like: [{ part_number: 'SPM...', qty: 2 }, ...]
@@ -14784,9 +14785,11 @@ getWH2DashboardData: async (req, res) => {
                 SELECT 
                     Log_ID, 
                     Employee_Name, 
+                    Division,
                     DATE_FORMAT(Log_Date, '%Y-%m-%d %H:%i:%s') AS Log_Date, 
-                    Work_Order_Number, 
-                    Items_Taken 
+                    Work_Order_Number,
+                    Description,
+                    Items_Taken
                 FROM Sparepart_Logs
                 ORDER BY Log_Date DESC
             `;
@@ -14814,6 +14817,59 @@ getWH2DashboardData: async (req, res) => {
         } catch (error) {
             console.error("Error fetching sparepart logs:", error);
             res.status(500).send({ error: error.message });
+        }
+    },
+
+    updateSparepartLog: async (req, res) => {
+        try {
+            const { id } = req.params; // Grabs the Log_ID from the URL
+            const { Employee_Name, Division, Work_Order_Number, Description } = req.body;
+
+            const sql = `
+                UPDATE Sparepart_Logs 
+                SET Employee_Name = ?, Division = ?, Work_Order_Number = ?, Description = ?
+                WHERE Log_ID = ?
+            `;
+            
+            await db4.promise().query(sql, [Employee_Name, Division, Work_Order_Number, Description, id]);
+
+            res.status(200).send({ message: "Audit log updated successfully." });
+
+        } catch (error) {
+            console.error("Error updating sparepart log:", error);
+            res.status(500).send({ error: "Failed to update log." });
+        }
+    },
+
+    updateInventoryBatch: async (req, res) => {
+        try {
+            const { updates } = req.body; 
+
+            if (!updates || !Array.isArray(updates)) {
+                return res.status(400).send({ error: "Invalid data payload." });
+            }
+
+            for (const part of updates) {
+                // We only need the partNumber and availability now!
+                const { partNumber, availability } = part; 
+
+                // NOW() automatically grabs the exact current timestamp from your server
+                const updateSql = `
+                    UPDATE sparepart_engineering 
+                    SET Availability = ?, Last_Date = NOW()
+                    WHERE Part_Number = ?
+                `;
+                const queryParams = [availability, partNumber];
+
+                // Execute the update
+                await db4.promise().query(updateSql, queryParams);
+            }
+
+            res.status(200).send({ message: "Inventory successfully updated with current timestamp." });
+
+        } catch (error) {
+            console.error("Batch update failed:", error);
+            res.status(500).send({ error: "Failed to update database records." });
         }
     },
 

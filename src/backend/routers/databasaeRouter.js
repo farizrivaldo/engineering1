@@ -431,6 +431,10 @@ routers.post('/createSparepartLog', databaseControllers.createSparepartLog);
 
 routers.get('/getSparepartLogs', databaseControllers.getSparepartLogs);
 
+routers.put('/updateSparepartLog/:id', databaseControllers.updateSparepartLog);
+
+routers.post('/updateInventoryBatch', databaseControllers.updateInventoryBatch);
+
 
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);
