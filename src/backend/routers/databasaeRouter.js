@@ -435,6 +435,8 @@ routers.put('/updateSparepartLog/:id', databaseControllers.updateSparepartLog);
 
 routers.post('/updateInventoryBatch', databaseControllers.updateInventoryBatch);
 
+routers.get("/granulation-batch-record", databaseControllers.getGranulationData);
+routers.get('/export-pdf', databaseControllers.getExportData);
 
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);

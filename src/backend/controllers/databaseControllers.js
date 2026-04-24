@@ -14885,6 +14885,129 @@ getWH2DashboardData: async (req, res) => {
         }
     },
 
+    getGranulationData: async (req, res) => {
+    try {
+        const { line, machine, startDate, endDate, page, limit } = req.query;
+        if (!line || !machine || !startDate || !endDate) {
+            return res.status(400).json({ error: "Filter belum lengkap" });
+        }
+
+        const tableMapping = { 
+            'Line 1': { 'PMA': 'NodeRed_PMA_L1', 'Wetmill': 'NodeRed_Wetmill_L1', 'FBD': 'NodeRed_FBD_L1', 'EPH': 'NodeRed_EPH_L1' },
+            'Line 3': { 'PMA': 'NodeRed_PMA_L3', 'Wetmill': 'NodeRed_WETMILL_L3', 'FBD': 'NodeRed_FBD_L3_2', 'EPH': 'NodeRed_EPH_L3', 'PMA kW Meter': 'cMT-GEA-L3_PMA_KWmeter_data' }
+        };
+        
+        const tableName = tableMapping[line]?.[machine];
+        if (!tableName) return res.status(400).send({ error: "Tabel tidak ditemukan" });
+
+        const startUnix = new Date(startDate).getTime() / 1000;
+        const endUnix = new Date(endDate).getTime() / 1000;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+
+        // --- PILIH KONEKSI DB ---
+        // Jika kW Meter pakai db3, selain itu pakai dbTest
+        const activeDB = (machine === 'PMA kW Meter') ? db3 : dbTest;
+
+        let sqlData, sqlCount, timeCol;
+
+        if (machine === 'PMA kW Meter') {
+            timeCol = `\`time@timestamp\``;
+            
+            // Query hitung total rows
+            sqlCount = `SELECT COUNT(*) as total FROM \`${tableName}\` WHERE ${timeCol} BETWEEN ? AND ?`;
+
+            // Query ambil data dengan pembatasan 14 karakter
+            sqlData = `
+                SELECT 
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol} + 25200), '%d/%m/%Y %H:%i:%s') as wib_time,
+                    -- Kita bersihkan karakter '&' dan spasi/karakter null di ujung string
+                    REPLACE(REPLACE(REPLACE(CAST(data_format_0 AS CHAR), '&', ''), '\\0', ''), ' ', '') as Batch_ID,
+                    TRIM(BOTH '\\0' FROM REPLACE(CAST(data_format_1 AS CHAR), '&', '')) as Process_ID,
+                    data_format_2 as Chopper_RPM,
+                    data_format_3 as Chopper_Current,
+                    data_format_4 as Impeller_RPM,
+                    data_format_5 as Impeller_Current,
+                    data_format_6 as Impeller_Kw
+                FROM \`${tableName}\`
+                WHERE ${timeCol} BETWEEN ? AND ?
+                ORDER BY ${timeCol} ASC
+                LIMIT ? OFFSET ?`;
+        } else {
+            timeCol = `\`timestamp\``;
+            sqlCount = `SELECT COUNT(*) as total FROM \`${tableName}\` WHERE ${timeCol} BETWEEN ? AND ?`;
+            sqlData = `
+                SELECT 
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m/%Y %H:%i:%s') as wib_time,
+                    t.* FROM \`${tableName}\` t
+                WHERE t.${timeCol} BETWEEN ? AND ?
+                ORDER BY t.${timeCol} ASC
+                LIMIT ? OFFSET ?`;
+        }
+
+        const [countResult] = await activeDB.promise().query(sqlCount, [startUnix, endUnix]);
+        const totalRows = countResult[0].total;
+
+        const [rows] = await activeDB.promise().query(sqlData, [startUnix, endUnix, parseInt(limit), offset]);
+
+        res.status(200).json({
+            totalRows,
+            totalPages: Math.ceil(totalRows / limit) || 0,
+            currentPage: parseInt(page),
+            data: rows
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+},
+
+    getExportData: async (req, res) => {
+        try {
+            const { line, machine, startDate, endDate } = req.query;
+            const tableMapping = { 
+                'Line 1': { 'PMA': 'NodeRed_PMA_L1', 'Wetmill': 'NodeRed_Wetmill_L1', 'FBD': 'NodeRed_FBD_L1', 'EPH': 'NodeRed_EPH_L1' },
+                'Line 3': { 'PMA': 'NodeRed_PMA_L3', 'Wetmill': 'NodeRed_WETMILL_L3', 'FBD': 'NodeRed_FBD_L3_2', 'EPH': 'NodeRed_EPH_L3', 'PMA kW Meter': 'cMT-GEA-L3_PMA_KWmeter_data' }
+            };
+            const tableName = tableMapping[line]?.[machine];
+            if (!tableName) return res.status(400).send({ error: "Tabel tidak ditemukan" });
+
+            const startUnix = new Date(startDate).getTime() / 1000;
+            const endUnix = new Date(endDate).getTime() / 1000;
+
+            // Pilih koneksi db3 atau dbTest
+            const activeDB = (machine === 'PMA kW Meter') ? db3 : dbTest;
+
+            let sqlExport;
+            if (machine === 'PMA kW Meter') {
+                sqlExport = `
+                    SELECT 
+                        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\` + 25200), '%d/%m/%Y %H:%i:%s') as wib_time,
+                        REPLACE(REPLACE(REPLACE(CAST(data_format_0 AS CHAR), '&', ''), '\\0', ''), ' ', '') as Batch_ID,
+                        TRIM(BOTH '\\0' FROM REPLACE(CAST(data_format_1 AS CHAR), '&', '')) as Process_ID,
+                        data_format_2 as Chopper_RPM,
+                        data_format_3 as Chopper_Current,
+                        data_format_4 as Impeller_RPM,
+                        data_format_5 as Impeller_Current,
+                        data_format_6 as Impeller_Kw
+                    FROM \`${tableName}\`
+                    WHERE \`time@timestamp\` BETWEEN ? AND ?
+                    ORDER BY \`time@timestamp\` ASC`;
+            
+            } else {
+                sqlExport = `
+                    SELECT 
+                        DATE_FORMAT(FROM_UNIXTIME(timestamp), '%d/%m/%Y %H:%i:%s') as wib_time,
+                        t.* FROM \`${tableName}\` t
+                    WHERE t.\`timestamp\` BETWEEN ? AND ?
+                    ORDER BY t.\`timestamp\` ASC`;
+            }
+
+            const [rows] = await activeDB.promise().query(sqlExport, [startUnix, endUnix]);
+            res.status(200).json(rows);
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    }
+
 
 
 
