@@ -14045,78 +14045,149 @@ getHourlyHeatmap: async (req, res) => {
     }
 },
 
+    // --- 1. READ (Updated to fetch raw_timestamp for CRUD mapping) ---
+    getWH2DashboardData: async (req, res) => {
+        try {
+            const { startDate, endDate, area, interval = 'hour' } = req.query;
 
-getWH2DashboardData: async (req, res) => {
-    try {
-        // 1. Extract parameters from the frontend request
-        const { startDate, endDate, area } = req.query;
+            if (!startDate || !endDate || !area) {
+                return res.status(400).json({ error: 'Missing required parameters' });
+            }
 
-        if (!startDate || !endDate || !area) {
-            return res.status(400).json({ error: 'Missing required parameters: startDate, endDate, or area' });
+            const areaMapping = {
+                'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+                'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+                'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+            };
+
+            const selectedColumns = areaMapping[area];
+            if (!selectedColumns) return res.status(400).json({ error: 'Invalid area' });
+
+            const intervalMapping = {
+                'minute': '%Y-%m-%d %H:%i:00',
+                'hour':   '%Y-%m-%d %H:00:00',
+                'day':    '%Y-%m-%d 00:00:00',
+                'month':  '%Y-%m-01 00:00:00'
+            };
+
+            const sqlDateFormat = intervalMapping[interval.toLowerCase()];
+            if (!sqlDateFormat) return res.status(400).json({ error: 'Invalid interval' });
+
+            const { temp: tempCol, hum: humCol } = selectedColumns;
+
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0); 
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999); 
+
+            const startEpoch = Math.floor(start.getTime() / 1000); 
+            const endEpoch = Math.floor(end.getTime() / 1000);
+
+            const statsQuery = `
+                SELECT 
+                    ROUND(MAX(${tempCol}), 2) AS maxTemp, ROUND(MIN(${tempCol}), 2) AS minTemp, ROUND(AVG(${tempCol}), 2) AS avgTemp,
+                    ROUND(MAX(${humCol}), 2) AS maxHum, ROUND(MIN(${humCol}), 2) AS minHum, ROUND(AVG(${humCol}), 2) AS avgHum
+                FROM NodeRed_WH2_Monitoring
+                WHERE timestamp >= ? AND timestamp <= ?
+            `;
+
+            // THE FIX: Added MIN(timestamp) as raw_timestamp. 
+            // When in minute interval, this gives the exact DB identifier needed for UPDATE/DELETE.
+            const intervalQuery = `
+                SELECT 
+                    MIN(timestamp) AS raw_timestamp, 
+                    DATE_FORMAT(FROM_UNIXTIME(timestamp), '${sqlDateFormat}') AS log_time,
+                    ROUND(AVG(${tempCol}), 2) AS temperature,
+                    ROUND(AVG(${humCol}), 2) AS humidity
+                FROM NodeRed_WH2_Monitoring
+                WHERE timestamp >= ? AND timestamp <= ?
+                GROUP BY log_time
+                ORDER BY log_time ASC
+            `;
+
+            const [[statsRows], [intervalRows]] = await Promise.all([
+                dbTest.promise().query(statsQuery, [startEpoch, endEpoch]),
+                dbTest.promise().query(intervalQuery, [startEpoch, endEpoch])
+            ]);
+
+            res.status(200).json({
+                success: true,
+                statistics: statsRows[0] || {}, 
+                intervalData: intervalRows 
+            });
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            res.status(500).json({ error: 'Internal server error' });
         }
+    },
 
-        // 2. Map frontend 'area' selection to database columns securely
-        // This prevents SQL injection by strictly controlling which columns can be queried
-        const areaMapping = {
-            'Area 1': { temp: 'temp1', hum: 'hum1' },
-            'Area 2': { temp: 'temp2', hum: 'hum2' },
-            'Area 3': { temp: 'temp3', hum: 'hum3' }
-        };
+    // --- 2. UPDATE ---
+    updateWH2DashboardData: async (req, res) => {
+        try {
+            const { area, raw_timestamp, temperature, humidity } = req.body;
 
-        const selectedColumns = areaMapping[area];
-        if (!selectedColumns) {
-            return res.status(400).json({ error: 'Invalid area selected' });
+            if (!area || !raw_timestamp || temperature === undefined || humidity === undefined) {
+                return res.status(400).json({ error: 'Missing update parameters' });
+            }
+
+            const areaMapping = {
+                'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+                'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+                'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+            };
+
+            const cols = areaMapping[area];
+            if (!cols) return res.status(400).json({ error: 'Invalid area' });
+
+            const updateQuery = `
+                UPDATE NodeRed_WH2_Monitoring 
+                SET ${cols.temp} = ?, ${cols.hum} = ? 
+                WHERE timestamp = ?
+            `;
+
+            await dbTest.promise().query(updateQuery, [temperature, humidity, raw_timestamp]);
+            res.status(200).json({ success: true, message: 'Data updated successfully' });
+
+        } catch (error) {
+            console.error('Error updating data:', error);
+            res.status(500).json({ error: 'Internal server error' });
         }
+    },
 
-        const { temp: tempCol, hum: humCol } = selectedColumns;
+    // --- 3. DELETE (Soft delete for specific area via NULL) ---
+    deleteWH2DashboardData: async (req, res) => {
+        try {
+            const { area, raw_timestamp } = req.body; // Using req.body for DELETE to pass area easily
 
-        // 3. Query A: Get absolute Min, Max, and overall Average from RAW 1-minute data
-        // We use UNIX_TIMESTAMP() to convert standard date strings (YYYY-MM-DD HH:mm:ss) to seconds
-        const statsQuery = `
-            SELECT 
-                ROUND(MAX(${tempCol}), 2) AS maxTemp,
-                ROUND(MIN(${tempCol}), 2) AS minTemp,
-                ROUND(AVG(${tempCol}), 2) AS avgTemp,
-                ROUND(MAX(${humCol}), 2) AS maxHum,
-                ROUND(MIN(${humCol}), 2) AS minHum,
-                ROUND(AVG(${humCol}), 2) AS avgHum
-            FROM NodeRed_WH2_Monitoring
-            WHERE timestamp >= UNIX_TIMESTAMP(?) 
-              AND timestamp <= UNIX_TIMESTAMP(?)
-        `;
+            if (!area || !raw_timestamp) {
+                return res.status(400).json({ error: 'Missing delete parameters' });
+            }
 
-        // 4. Query B: Get 1-hour aggregated data for the Chart and Table
-        // FROM_UNIXTIME converts your 10-digit epoch back to a datetime
-        // DATE_FORMAT truncates the minutes/seconds to '00:00' to group everything by the hour
-        const hourlyQuery = `
-            SELECT 
-                DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d %H:00:00') AS log_time,
-                ROUND(AVG(${tempCol}), 2) AS temperature,
-                ROUND(AVG(${humCol}), 2) AS humidity
-            FROM NodeRed_WH2_Monitoring
-            WHERE timestamp >= UNIX_TIMESTAMP(?) 
-              AND timestamp <= UNIX_TIMESTAMP(?)
-            GROUP BY log_time
-            ORDER BY log_time ASC
-        `;
+            const areaMapping = {
+                'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+                'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+                'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+            };
 
-        const [[statsRows], [hourlyRows]] = await Promise.all([
-            dbTest.promise().query(statsQuery, [startDate, endDate]),
-            dbTest.promise().query(hourlyQuery, [startDate, endDate])
-        ]);
+            const cols = areaMapping[area];
+            if (!cols) return res.status(400).json({ error: 'Invalid area' });
 
-        // 6. Send structured response to the frontend
-        res.status(200).json({
-            success: true,
-            statistics: statsRows[0] || {}, // statsRows[0] grabs the single row of Min/Max/Avg data
-            hourlyData: hourlyRows // Array of hourly averages for the Chart and Table
-        });
+            // THE FIX: Sets to NULL instead of DELETE FROM to protect other areas in the same row
+            const deleteQuery = `
+                UPDATE NodeRed_WH2_Monitoring 
+                SET ${cols.temp} = NULL, ${cols.hum} = NULL 
+                WHERE timestamp = ?
+            `;
 
-    } catch (error) {
-        console.error('Error fetching WH2 Dashboard Data:', error);
-        res.status(500).json({ error: 'Internal server error while fetching data' });
-    }
-},
+            await dbTest.promise().query(deleteQuery, [raw_timestamp]);
+            res.status(200).json({ success: true, message: 'Data deleted successfully' });
+
+        } catch (error) {
+            console.error('Error deleting data:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    },
 
 // --- MAIN CONTROLLER CALLED BY FRONTEND ---
  GetSuhuMonitoringData: async (req, res) => {
@@ -14919,7 +14990,7 @@ getWH2DashboardData: async (req, res) => {
             // Query ambil data dengan pembatasan 14 karakter
             sqlData = `
                 SELECT 
-                    DATE_FORMAT(FROM_UNIXTIME(${timeCol} + 25200), '%d/%m/%Y %H:%i:%s') as wib_time,
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m/%Y %H:%i:%s') as wib_time,
                     -- Kita bersihkan karakter '&' dan spasi/karakter null di ujung string
                     REPLACE(REPLACE(REPLACE(CAST(data_format_0 AS CHAR), '&', ''), '\\0', ''), ' ', '') as Batch_ID,
                     TRIM(BOTH '\\0' FROM REPLACE(CAST(data_format_1 AS CHAR), '&', '')) as Process_ID,
@@ -14980,7 +15051,7 @@ getWH2DashboardData: async (req, res) => {
             if (machine === 'PMA kW Meter') {
                 sqlExport = `
                     SELECT 
-                        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\` + 25200), '%d/%m/%Y %H:%i:%s') as wib_time,
+                        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%d/%m/%Y %H:%i:%s') as wib_time,
                         REPLACE(REPLACE(REPLACE(CAST(data_format_0 AS CHAR), '&', ''), '\\0', ''), ' ', '') as Batch_ID,
                         TRIM(BOTH '\\0' FROM REPLACE(CAST(data_format_1 AS CHAR), '&', '')) as Process_ID,
                         data_format_2 as Chopper_RPM,
