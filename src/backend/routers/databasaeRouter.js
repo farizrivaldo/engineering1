@@ -412,6 +412,14 @@ routers.get("/getHourlyHeatmap", databaseControllers.getHourlyHeatmap);
 
 routers.get("/getWH2DashboardData", databaseControllers.getWH2DashboardData);
 
+routers.post("/createWH2DashboardData",veryfyToken, databaseControllers.createWH2DashboardData);
+routers.put('/updateWH2DashboardData',veryfyToken, databaseControllers.updateWH2DashboardData);
+routers.delete("/deleteWH2DashboardData",veryfyToken, databaseControllers.deleteWH2DashboardData);
+routers.get("/getWH2AuditLogs", databaseControllers.getWH2AuditLogs);
+
+routers.get("/getWarehouseUsers",veryfyToken, databaseControllers.getWarehouseUsers);
+routers.put("/updateUserLevel", veryfyToken, databaseControllers.updateUserLevel);
+
 routers.post("/GetSuhuMonitoringData", databaseControllers.GetSuhuMonitoringData);
 routers.post("/generateBatchPDF", databaseControllers.generateBatchPDF);
 routers.post("/getAvailableBatches", databaseControllers.getAvailableBatches);

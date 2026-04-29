@@ -1800,11 +1800,15 @@ module.exports = {
     const hashPassword = await bcrypt.hash(password, salt);
     const defaultImage =
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
-    let addUserQuery = `INSERT INTO users VALUES (null, ${db.escape(
-      username
-    )}, ${db.escape(email)}, ${db.escape(hashPassword)}, ${db.escape(
-      name
-    )}, false,1,null)`;
+    let addUserQuery = `INSERT INTO users VALUES (null, 
+    ${db.escape(username)}, 
+    ${db.escape(email)}, 
+    ${db.escape(hashPassword)}, 
+    ${db.escape(name)}, 
+    false,
+    1,
+    null,
+    null)`;
     let addUserResult = await query(addUserQuery);
 
     let mail = {
@@ -14047,53 +14051,69 @@ getHourlyHeatmap: async (req, res) => {
 
     // --- 1. READ (Updated to fetch raw_timestamp for CRUD mapping) ---
     getWH2DashboardData: async (req, res) => {
-        try {
-            const { startDate, endDate, area, interval = 'hour' } = req.query;
+    try {
+        const { startDate, endDate, area, interval = 'hour' } = req.query;
 
-            if (!startDate || !endDate || !area) {
-                return res.status(400).json({ error: 'Missing required parameters' });
-            }
+        if (!startDate || !endDate || !area) {
+            return res.status(400).json({ error: 'Missing required parameters' });
+        }
 
-            const areaMapping = {
-                'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
-                'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
-                'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
-            };
+        const areaMapping = {
+            'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+            'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+            'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+        };
 
-            const selectedColumns = areaMapping[area];
-            if (!selectedColumns) return res.status(400).json({ error: 'Invalid area' });
+        const selectedColumns = areaMapping[area];
+        if (!selectedColumns) return res.status(400).json({ error: 'Invalid area' });
 
+        const { temp: tempCol, hum: humCol } = selectedColumns;
+
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0); 
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); 
+
+        const startEpoch = Math.floor(start.getTime() / 1000); 
+        const endEpoch = Math.floor(end.getTime() / 1000);
+
+        const statsQuery = `
+            SELECT 
+                ROUND(MAX(${tempCol}), 2) AS maxTemp, ROUND(MIN(${tempCol}), 2) AS minTemp, ROUND(AVG(${tempCol}), 2) AS avgTemp,
+                ROUND(MAX(${humCol}), 2) AS maxHum, ROUND(MIN(${humCol}), 2) AS minHum, ROUND(AVG(${humCol}), 2) AS avgHum
+            FROM NodeRed_WH2_Monitoring
+            WHERE timestamp >= ? AND timestamp <= ?
+        `;
+
+        let intervalQuery;
+
+        // THE FIX: Separate logic for "minute" (Raw Data) vs other intervals (Aggregated Data)
+        if (interval.toLowerCase() === 'minute') {
+            // HOW IT WORKS: No GROUP BY, no AVG(). We pull every single row exactly as it exists in the database.
+            // We also include '%s' (seconds) so you can identify duplicate entries happening in the same minute.
+            intervalQuery = `
+                SELECT 
+                    timestamp AS raw_timestamp, 
+                    DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d %H:%i:%s') AS log_time,
+                    ROUND(${tempCol}, 2) AS temperature,
+                    ROUND(${humCol}, 2) AS humidity
+                FROM NodeRed_WH2_Monitoring
+                WHERE timestamp >= ? AND timestamp <= ?
+                ORDER BY timestamp ASC
+            `;
+        } else {
             const intervalMapping = {
-                'minute': '%Y-%m-%d %H:%i:00',
                 'hour':   '%Y-%m-%d %H:00:00',
                 'day':    '%Y-%m-%d 00:00:00',
                 'month':  '%Y-%m-01 00:00:00'
             };
-
+            
             const sqlDateFormat = intervalMapping[interval.toLowerCase()];
             if (!sqlDateFormat) return res.status(400).json({ error: 'Invalid interval' });
 
-            const { temp: tempCol, hum: humCol } = selectedColumns;
-
-            const start = new Date(startDate);
-            start.setHours(0, 0, 0, 0); 
-            const end = new Date(endDate);
-            end.setHours(23, 59, 59, 999); 
-
-            const startEpoch = Math.floor(start.getTime() / 1000); 
-            const endEpoch = Math.floor(end.getTime() / 1000);
-
-            const statsQuery = `
-                SELECT 
-                    ROUND(MAX(${tempCol}), 2) AS maxTemp, ROUND(MIN(${tempCol}), 2) AS minTemp, ROUND(AVG(${tempCol}), 2) AS avgTemp,
-                    ROUND(MAX(${humCol}), 2) AS maxHum, ROUND(MIN(${humCol}), 2) AS minHum, ROUND(AVG(${humCol}), 2) AS avgHum
-                FROM NodeRed_WH2_Monitoring
-                WHERE timestamp >= ? AND timestamp <= ?
-            `;
-
-            // THE FIX: Added MIN(timestamp) as raw_timestamp. 
-            // When in minute interval, this gives the exact DB identifier needed for UPDATE/DELETE.
-            const intervalQuery = `
+            // HOW IT WORKS: For hour, day, and month, we still use GROUP BY and AVG() 
+            // so the dashboard graph doesn't get overwhelmed with millions of data points.
+            intervalQuery = `
                 SELECT 
                     MIN(timestamp) AS raw_timestamp, 
                     DATE_FORMAT(FROM_UNIXTIME(timestamp), '${sqlDateFormat}') AS log_time,
@@ -14104,90 +14124,303 @@ getHourlyHeatmap: async (req, res) => {
                 GROUP BY log_time
                 ORDER BY log_time ASC
             `;
-
-            const [[statsRows], [intervalRows]] = await Promise.all([
-                dbTest.promise().query(statsQuery, [startEpoch, endEpoch]),
-                dbTest.promise().query(intervalQuery, [startEpoch, endEpoch])
-            ]);
-
-            res.status(200).json({
-                success: true,
-                statistics: statsRows[0] || {}, 
-                intervalData: intervalRows 
-            });
-
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            res.status(500).json({ error: 'Internal server error' });
         }
-    },
+
+        const [[statsRows], [intervalRows]] = await Promise.all([
+            dbTest.promise().query(statsQuery, [startEpoch, endEpoch]),
+            dbTest.promise().query(intervalQuery, [startEpoch, endEpoch])
+        ]);
+
+        res.status(200).json({
+            success: true,
+            statistics: statsRows[0] || {}, 
+            intervalData: intervalRows 
+        });
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+},
 
     // --- 2. UPDATE ---
     updateWH2DashboardData: async (req, res) => {
-        try {
-            const { area, raw_timestamp, temperature, humidity } = req.body;
+    try {
+        const { area, raw_timestamp, temperature, humidity } = req.body;
+        
+        // 1. Get the user from the token (Assuming your auth middleware sets req.user)
+        const userName = req.user ? req.user.name : 'Unknown User'; 
 
-            if (!area || !raw_timestamp || temperature === undefined || humidity === undefined) {
-                return res.status(400).json({ error: 'Missing update parameters' });
-            }
-
-            const areaMapping = {
-                'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
-                'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
-                'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
-            };
-
-            const cols = areaMapping[area];
-            if (!cols) return res.status(400).json({ error: 'Invalid area' });
-
-            const updateQuery = `
-                UPDATE NodeRed_WH2_Monitoring 
-                SET ${cols.temp} = ?, ${cols.hum} = ? 
-                WHERE timestamp = ?
-            `;
-
-            await dbTest.promise().query(updateQuery, [temperature, humidity, raw_timestamp]);
-            res.status(200).json({ success: true, message: 'Data updated successfully' });
-
-        } catch (error) {
-            console.error('Error updating data:', error);
-            res.status(500).json({ error: 'Internal server error' });
+        if (!area || !raw_timestamp || temperature === undefined || humidity === undefined) {
+            return res.status(400).json({ error: 'Missing update parameters' });
         }
-    },
+
+        const areaMapping = {
+            'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+            'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+            'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+        };
+        const cols = areaMapping[area];
+
+        // 2. READ BEFORE WRITE: Fetch the old data so we can log it
+        const fetchOldQuery = `SELECT ${cols.temp} AS oldTemp, ${cols.hum} AS oldHum FROM NodeRed_WH2_Monitoring WHERE timestamp = ?`;
+        const [oldRows] = await dbTest.promise().query(fetchOldQuery, [raw_timestamp]);
+        
+        if (oldRows.length === 0) {
+            return res.status(404).json({ error: 'Data not found' });
+        }
+
+        const oldData = oldRows[0];
+
+        // 3. Perform the actual UPDATE on the sensor table
+        const updateQuery = `UPDATE NodeRed_WH2_Monitoring SET ${cols.temp} = ?, ${cols.hum} = ? WHERE timestamp = ?`;
+        await dbTest.promise().query(updateQuery, [temperature, humidity, raw_timestamp]);
+
+        // 4. Construct the JSON Details payload
+        const auditDetails = {
+            area: area,
+            temperature: { old: oldData.oldTemp, new: Number(temperature) },
+            humidity: { old: oldData.oldHum, new: Number(humidity) }
+        };
+
+        // 5. Save everything to the Audit Table
+        const auditQuery = `
+            INSERT INTO WH2_Audit_Logs (user_name, action_type, target_timestamp, details)
+            VALUES (?, 'UPDATE', ?, ?)
+        `;
+        // JSON.stringify() converts the JavaScript object into a JSON string for MySQL
+        await db4.promise().query(auditQuery, [userName, raw_timestamp, JSON.stringify(auditDetails)]);
+
+        res.status(200).json({ success: true, message: 'Data updated and logged successfully' });
+
+    } catch (error) {
+        console.error('Error updating data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+},
 
     // --- 3. DELETE (Soft delete for specific area via NULL) ---
     deleteWH2DashboardData: async (req, res) => {
-        try {
-            const { area, raw_timestamp } = req.body; // Using req.body for DELETE to pass area easily
+    try {
+        const { area, raw_timestamp } = req.body;
+        
+        // 1. Get the user from the token
+        const userName = req.user ? req.user.name : 'Unknown User';
 
-            if (!area || !raw_timestamp) {
-                return res.status(400).json({ error: 'Missing delete parameters' });
-            }
-
-            const areaMapping = {
-                'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
-                'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
-                'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
-            };
-
-            const cols = areaMapping[area];
-            if (!cols) return res.status(400).json({ error: 'Invalid area' });
-
-            // THE FIX: Sets to NULL instead of DELETE FROM to protect other areas in the same row
-            const deleteQuery = `
-                UPDATE NodeRed_WH2_Monitoring 
-                SET ${cols.temp} = NULL, ${cols.hum} = NULL 
-                WHERE timestamp = ?
-            `;
-
-            await dbTest.promise().query(deleteQuery, [raw_timestamp]);
-            res.status(200).json({ success: true, message: 'Data deleted successfully' });
-
-        } catch (error) {
-            console.error('Error deleting data:', error);
-            res.status(500).json({ error: 'Internal server error' });
+        if (!area || !raw_timestamp) {
+            return res.status(400).json({ error: 'Missing delete parameters' });
         }
-    },
+
+        const areaMapping = {
+            'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+            'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+            'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+        };
+
+        const cols = areaMapping[area];
+        if (!cols) return res.status(400).json({ error: 'Invalid area' });
+
+        // 2. READ BEFORE WRITE: Fetch the exact data we are about to delete
+        const fetchOldQuery = `SELECT ${cols.temp} AS oldTemp, ${cols.hum} AS oldHum FROM NodeRed_WH2_Monitoring WHERE timestamp = ?`;
+        const [oldRows] = await dbTest.promise().query(fetchOldQuery, [raw_timestamp]);
+        
+        if (oldRows.length === 0) {
+            return res.status(404).json({ error: 'Data not found' });
+        }
+
+        const oldData = oldRows[0];
+
+        // 3. Perform the Soft Delete (Set to NULL)
+        const deleteQuery = `
+            UPDATE NodeRed_WH2_Monitoring 
+            SET ${cols.temp} = NULL, ${cols.hum} = NULL 
+            WHERE timestamp = ?
+        `;
+        await dbTest.promise().query(deleteQuery, [raw_timestamp]);
+
+        // 4. Construct the JSON Details payload (Old has data, New is null)
+        const auditDetails = {
+            area: area,
+            temperature: { old: oldData.oldTemp, new: null },
+            humidity: { old: oldData.oldHum, new: null }
+        };
+
+        // 5. Save to the Audit Table
+        const auditQuery = `
+            INSERT INTO WH2_Audit_Logs (user_name, action_type, target_timestamp, details)
+            VALUES (?, 'DELETE', ?, ?)
+        `;
+        await db4.promise().query(auditQuery, [userName, raw_timestamp, JSON.stringify(auditDetails)]);
+
+        res.status(200).json({ success: true, message: 'Data deleted and logged successfully' });
+
+    } catch (error) {
+        console.error('Error deleting data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+},
+
+    createWH2DashboardData: async (req, res) => {
+    try {
+        const { timestamp, area, temperature, humidity } = req.body;
+        
+        // 1. Get the user from the token
+        const userName = req.user ? req.user.name : 'Unknown User';
+
+        const epoch = Math.floor(new Date(timestamp).getTime() / 1000);
+
+        const areaMapping = {
+            'Area 1': { temp: 'O2THG022_temp', hum: 'O2THG022_hum' },
+            'Area 2': { temp: 'O2THG023_temp', hum: 'O2THG023_hum' },
+            'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
+        };
+
+        const cols = areaMapping[area];
+        if (!cols) return res.status(400).json({ error: 'Invalid area' });
+
+        // 2. Ensure data doesn't already exist to prevent overwrites
+        const checkQuery = `SELECT timestamp FROM NodeRed_WH2_Monitoring WHERE timestamp = ?`;
+        const [existingData] = await dbTest.promise().query(checkQuery, [epoch]);
+
+        if (existingData.length > 0) {
+            return res.status(409).json({ 
+                error: 'Data already exists for this specific time. Please use Edit Mode if you need to change it.' 
+            });
+        }
+
+        // 3. Perform the Insert
+        const insertQuery = `
+            INSERT INTO NodeRed_WH2_Monitoring (timestamp, ${cols.temp}, ${cols.hum})
+            VALUES (?, ?, ?)
+        `;
+        await dbTest.promise().query(insertQuery, [epoch, temperature, humidity]);
+
+        // 4. Construct the JSON Details payload (Old is null, New has data)
+        const auditDetails = {
+            area: area,
+            temperature: { old: null, new: Number(temperature) },
+            humidity: { old: null, new: Number(humidity) }
+        };
+
+        // 5. Save to the Audit Table
+        const auditQuery = `
+            INSERT INTO WH2_Audit_Logs (user_name, action_type, target_timestamp, details)
+            VALUES (?, 'CREATE', ?, ?)
+        `;
+        await db4.promise().query(auditQuery, [userName, epoch, JSON.stringify(auditDetails)]);
+
+        res.status(201).json({ success: true, message: 'Missing data successfully filled and logged.' });
+
+    } catch (error) {
+        console.error('Error creating data:', error);
+        res.status(500).json({ error: 'Failed to create entry.' });
+    }
+},
+
+getWH2AuditLogs: async (req, res) => {
+    try {
+        const { search, month, year, startDate, endDate } = req.query;
+
+        // Base query
+        let query = `SELECT * FROM WH2_Audit_Logs WHERE 1=1 `;
+        let queryParams = [];
+
+        // 1. Search Filter (Checks Name or Action Type)
+        if (search) {
+            query += ` AND (user_name LIKE ? OR action_type LIKE ?) `;
+            queryParams.push(`%${search}%`, `%${search}%`);
+        }
+
+        // 2. Date Logic: Advanced vs Standard
+        if (startDate && endDate) {
+            // Advanced Range (e.g., '2026-04-10' to '2026-04-20')
+            query += ` AND DATE(action_timestamp) >= ? AND DATE(action_timestamp) <= ? `;
+            queryParams.push(startDate, endDate);
+        } else if (month && year) {
+            // Standard Month/Year 
+            query += ` AND MONTH(action_timestamp) = ? AND YEAR(action_timestamp) = ? `;
+            queryParams.push(month, year);
+        }
+
+        // Sort newest first
+        query += ` ORDER BY action_timestamp DESC`;
+
+        const [rows] = await db4.promise().query(query, queryParams);
+
+        res.status(200).json({ success: true, logs: rows });
+
+    } catch (error) {
+        console.error('Error fetching audit logs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+},
+
+getWarehouseUsers: async (req, res) => {
+    try {
+        // 1. Check if the middleware successfully attached the user
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized: Missing or invalid token' });
+        }
+
+        // 2. Extract the level safely. We use 'const' because we do not change this number below.
+        const userLevel = req.user.level ? parseInt(req.user.level, 10) : 5;
+        
+        // 3. The Security Lock
+        if (userLevel > 5) {
+            return res.status(403).json({ error: 'Forbidden: Managers only.' });
+        }
+
+        // 4. The Query. We use 'const' because this string doesn't change.
+        const query = `
+            SELECT id_users, username, name, email, level 
+            FROM users 
+            WHERE department = 'Warehouse'
+            ORDER BY name ASC
+        `;
+        
+        const [users] = await db.promise().query(query);
+        res.status(200).json({ success: true, users });
+
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+},
+
+updateUserLevel: async (req, res) => {
+    try {
+        const { target_user_id, new_level } = req.body;
+
+        // 1. Security Check: Manager level required
+        const userLevel = req.user.level ? parseInt(req.user.level, 10) : 5;
+        if (userLevel > 2) {
+            return res.status(403).json({ error: 'Forbidden: Managers only.' });
+        }
+
+        // 2. THE ULTIMATE LOCK: The WHERE clause
+        // By adding "AND department = 'Warehouse'", we make it physically 
+        // impossible for this query to alter an IT or HR user, even if 
+        // the manager somehow passes in the wrong target_user_id.
+        const updateQuery = `
+            UPDATE users 
+            SET level = ? 
+            WHERE id_users = ? AND department = 'Warehouse'
+        `;
+
+        const [result] = await db.promise().query(updateQuery, [new_level, target_user_id]);
+
+        // 3. Verify it actually worked
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found, or user does not belong to the Warehouse department.' });
+        }
+
+        res.status(200).json({ success: true, message: 'User level updated successfully.' });
+
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+},
 
 // --- MAIN CONTROLLER CALLED BY FRONTEND ---
  GetSuhuMonitoringData: async (req, res) => {
