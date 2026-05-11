@@ -15310,7 +15310,54 @@ updateUserLevel: async (req, res) => {
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
+    },
+
+    getChartData: async (req, res) => {
+    try {
+        const { line, machine, startDate, endDate } = req.query;
+        const tableName = tableMapping[line]?.[machine];
+        const activeDB = (machine === 'PMA kW Meter') ? db3 : dbTest;
+        const timeCol = (machine === 'PMA kW Meter') ? '`time@timestamp`' : '`timestamp`';
+
+        // HITUNG INTERVAL BERDASARKAN RENTANG WAKTU
+        const diffInHours = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60);
+        let interval;
+        if (diffInHours <= 24) interval = 60; // 1 Menit
+        else if (diffInHours <= 168) interval = 1800; // 30 Menit
+        else interval = 3600; // 1 Jam
+
+        let sqlChart;
+        if (machine === 'PMA kW Meter') {
+            sqlChart = `
+                SELECT 
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m %H:%i') as wib_time,
+                    AVG(data_format_2) as Chopper_RPM,
+                    AVG(data_format_4) as Impeller_RPM,
+                    AVG(data_format_6) as Impeller_Kw
+                FROM \`${tableName}\`
+                WHERE ${timeCol} BETWEEN ? AND ?
+                GROUP BY FLOOR(${timeCol} / ${interval})
+                ORDER BY ${timeCol} ASC`;
+        } else {
+            // Untuk mesin standar (PMA L1, FBD, dll)
+            // Sesuaikan nama kolom yang mau di-trend-kan
+            sqlChart = `
+                SELECT 
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m %H:%i') as wib_time,
+                    AVG(temp_inlet) as Temp_Inlet, 
+                    AVG(temp_outlet) as Temp_Outlet
+                FROM \`${tableName}\`
+                WHERE ${timeCol} BETWEEN ? AND ?
+                GROUP BY FLOOR(${timeCol} / ${interval})
+                ORDER BY ${timeCol} ASC`;
+        }
+
+        const [rows] = await activeDB.promise().query(sqlChart, [startUnix, endUnix]);
+        res.status(200).json(rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
+}
 
 
 
