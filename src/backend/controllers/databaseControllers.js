@@ -14064,10 +14064,14 @@ getHourlyHeatmap: async (req, res) => {
             'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
         };
 
-        const selectedColumns = areaMapping[area];
-        if (!selectedColumns) return res.status(400).json({ error: 'Invalid area' });
-
-        const { temp: tempCol, hum: humCol } = selectedColumns;
+        // 1. Determine which areas to query (Safely handles "All" without crashing)
+        let areasToQuery = [];
+        if (area === 'All') {
+            areasToQuery = Object.keys(areaMapping); // ['Area 1', 'Area 2', 'Area 3']
+        } else {
+            if (!areaMapping[area]) return res.status(400).json({ error: 'Invalid area' });
+            areasToQuery = [area]; // ['Area 1']
+        }
 
         const start = new Date(startDate);
         start.setHours(0, 0, 0, 0); 
@@ -14077,30 +14081,41 @@ getHourlyHeatmap: async (req, res) => {
         const startEpoch = Math.floor(start.getTime() / 1000); 
         const endEpoch = Math.floor(end.getTime() / 1000);
 
+        // Duplicate the timestamps for however many queries we are stacking
+        const queryParams = [].concat(...areasToQuery.map(() => [startEpoch, endEpoch]));
+
+        // --- 2. BUILD THE STATS QUERY (Stacks the areas to get a global max/min/avg) ---
+        const statsSubQueries = areasToQuery.map(a => {
+            const cols = areaMapping[a];
+            return `SELECT ${cols.temp} AS temp, ${cols.hum} AS hum FROM NodeRed_WH2_Monitoring WHERE timestamp >= ? AND timestamp <= ?`;
+        });
+        
         const statsQuery = `
             SELECT 
-                ROUND(MAX(${tempCol}), 2) AS maxTemp, ROUND(MIN(${tempCol}), 2) AS minTemp, ROUND(AVG(${tempCol}), 2) AS avgTemp,
-                ROUND(MAX(${humCol}), 2) AS maxHum, ROUND(MIN(${humCol}), 2) AS minHum, ROUND(AVG(${humCol}), 2) AS avgHum
-            FROM NodeRed_WH2_Monitoring
-            WHERE timestamp >= ? AND timestamp <= ?
+                ROUND(MAX(temp), 2) AS maxTemp, ROUND(MIN(temp), 2) AS minTemp, ROUND(AVG(temp), 2) AS avgTemp,
+                ROUND(MAX(hum), 2) AS maxHum, ROUND(MIN(hum), 2) AS minHum, ROUND(AVG(hum), 2) AS avgHum
+            FROM (${statsSubQueries.join(' UNION ALL ')}) AS combined_data
         `;
 
+        // --- 3. BUILD THE INTERVAL QUERY (Stacks the areas for the Graph and Table) ---
         let intervalQuery;
 
-        // THE FIX: Separate logic for "minute" (Raw Data) vs other intervals (Aggregated Data)
         if (interval.toLowerCase() === 'minute') {
-            // HOW IT WORKS: No GROUP BY, no AVG(). We pull every single row exactly as it exists in the database.
-            // We also include '%s' (seconds) so you can identify duplicate entries happening in the same minute.
-            intervalQuery = `
-                SELECT 
-                    timestamp AS raw_timestamp, 
-                    DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d %H:%i:%s') AS log_time,
-                    ROUND(${tempCol}, 2) AS temperature,
-                    ROUND(${humCol}, 2) AS humidity
-                FROM NodeRed_WH2_Monitoring
-                WHERE timestamp >= ? AND timestamp <= ?
-                ORDER BY timestamp ASC
-            `;
+            const intervalSubQueries = areasToQuery.map(a => {
+                const cols = areaMapping[a];
+                return `
+                    SELECT 
+                        timestamp AS raw_timestamp, 
+                        DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d %H:%i:%s') AS log_time,
+                        '${a}' AS area,
+                        ROUND(${cols.temp}, 2) AS temperature,
+                        ROUND(${cols.hum}, 2) AS humidity
+                    FROM NodeRed_WH2_Monitoring
+                    WHERE timestamp >= ? AND timestamp <= ?
+                `;
+            });
+            intervalQuery = intervalSubQueries.join(' UNION ALL ') + ' ORDER BY raw_timestamp ASC, area ASC';
+            
         } else {
             const intervalMapping = {
                 'hour':   '%Y-%m-%d %H:00:00',
@@ -14111,24 +14126,27 @@ getHourlyHeatmap: async (req, res) => {
             const sqlDateFormat = intervalMapping[interval.toLowerCase()];
             if (!sqlDateFormat) return res.status(400).json({ error: 'Invalid interval' });
 
-            // HOW IT WORKS: For hour, day, and month, we still use GROUP BY and AVG() 
-            // so the dashboard graph doesn't get overwhelmed with millions of data points.
-            intervalQuery = `
-                SELECT 
-                    MIN(timestamp) AS raw_timestamp, 
-                    DATE_FORMAT(FROM_UNIXTIME(timestamp), '${sqlDateFormat}') AS log_time,
-                    ROUND(AVG(${tempCol}), 2) AS temperature,
-                    ROUND(AVG(${humCol}), 2) AS humidity
-                FROM NodeRed_WH2_Monitoring
-                WHERE timestamp >= ? AND timestamp <= ?
-                GROUP BY log_time
-                ORDER BY log_time ASC
-            `;
+            const intervalSubQueries = areasToQuery.map(a => {
+                const cols = areaMapping[a];
+                return `
+                    SELECT 
+                        MIN(timestamp) AS raw_timestamp, 
+                        DATE_FORMAT(FROM_UNIXTIME(timestamp), '${sqlDateFormat}') AS log_time,
+                        '${a}' AS area,
+                        ROUND(AVG(${cols.temp}), 2) AS temperature,
+                        ROUND(AVG(${cols.hum}), 2) AS humidity
+                    FROM NodeRed_WH2_Monitoring
+                    WHERE timestamp >= ? AND timestamp <= ?
+                    GROUP BY log_time
+                `;
+            });
+            intervalQuery = intervalSubQueries.join(' UNION ALL ') + ' ORDER BY raw_timestamp ASC, area ASC';
         }
 
+        // --- 4. EXECUTE ---
         const [[statsRows], [intervalRows]] = await Promise.all([
-            dbTest.promise().query(statsQuery, [startEpoch, endEpoch]),
-            dbTest.promise().query(intervalQuery, [startEpoch, endEpoch])
+            dbTest.promise().query(statsQuery, queryParams),
+            dbTest.promise().query(intervalQuery, queryParams)
         ]);
 
         res.status(200).json({
@@ -14217,40 +14235,82 @@ getHourlyHeatmap: async (req, res) => {
             'Area 3': { temp: 'O2THG024_temp', hum: 'O2THG024_hum' }
         };
 
-        const cols = areaMapping[area];
-        if (!cols) return res.status(400).json({ error: 'Invalid area' });
+        // 2. Determine which areas are being deleted safely
+        let areasToDelete = [];
+        if (area === 'All') {
+            areasToDelete = Object.keys(areaMapping); 
+        } else {
+            if (!areaMapping[area]) return res.status(400).json({ error: 'Invalid area' });
+            areasToDelete = [area]; 
+        }
 
-        // 2. READ BEFORE WRITE: Fetch the exact data we are about to delete
-        const fetchOldQuery = `SELECT ${cols.temp} AS oldTemp, ${cols.hum} AS oldHum FROM NodeRed_WH2_Monitoring WHERE timestamp = ?`;
+        // 3. READ BEFORE WRITE: Dynamically construct the SELECT query
+        let selectCols = [];
+        areasToDelete.forEach(a => {
+            const cols = areaMapping[a];
+            selectCols.push(`${cols.temp} AS ${a.replace(' ', '')}_temp`);
+            selectCols.push(`${cols.hum} AS ${a.replace(' ', '')}_hum`);
+        });
+
+        const fetchOldQuery = `SELECT ${selectCols.join(', ')} FROM NodeRed_WH2_Monitoring WHERE timestamp = ?`;
         const [oldRows] = await dbTest.promise().query(fetchOldQuery, [raw_timestamp]);
         
         if (oldRows.length === 0) {
             return res.status(404).json({ error: 'Data not found' });
         }
-
         const oldData = oldRows[0];
 
-        // 3. Perform the Soft Delete (Set to NULL)
-        const deleteQuery = `
-            UPDATE NodeRed_WH2_Monitoring 
-            SET ${cols.temp} = NULL, ${cols.hum} = NULL 
-            WHERE timestamp = ?
-        `;
+        // 4. Perform the Soft Delete (Dynamically SET specific columns to NULL)
+        let updateCols = [];
+        areasToDelete.forEach(a => {
+            const cols = areaMapping[a];
+            updateCols.push(`${cols.temp} = NULL`);
+            updateCols.push(`${cols.hum} = NULL`);
+        });
+
+        const deleteQuery = `UPDATE NodeRed_WH2_Monitoring SET ${updateCols.join(', ')} WHERE timestamp = ?`;
         await dbTest.promise().query(deleteQuery, [raw_timestamp]);
 
-        // 4. Construct the JSON Details payload (Old has data, New is null)
-        const auditDetails = {
-            area: area,
-            temperature: { old: oldData.oldTemp, new: null },
-            humidity: { old: oldData.oldHum, new: null }
-        };
-
-        // 5. Save to the Audit Table
-        const auditQuery = `
-            INSERT INTO WH2_Audit_Logs (user_name, action_type, target_timestamp, details)
-            VALUES (?, 'DELETE', ?, ?)
+        // --- 4.5 THE GARBAGE COLLECTION CHECK ---
+        // Check if the entire row is now completely empty
+        const checkEmptyQuery = `
+            SELECT O2THG022_temp, O2THG022_hum, O2THG023_temp, O2THG023_hum, O2THG024_temp, O2THG024_hum
+            FROM NodeRed_WH2_Monitoring WHERE timestamp = ?
         `;
-        await db4.promise().query(auditQuery, [userName, raw_timestamp, JSON.stringify(auditDetails)]);
+        const [emptyCheckRows] = await dbTest.promise().query(checkEmptyQuery, [raw_timestamp]);
+        
+        if (emptyCheckRows.length > 0) {
+            const row = emptyCheckRows[0];
+            const isCompletelyEmpty = 
+                row.O2THG022_temp === null && row.O2THG022_hum === null &&
+                row.O2THG023_temp === null && row.O2THG023_hum === null &&
+                row.O2THG024_temp === null && row.O2THG024_hum === null;
+
+            // If it is completely empty, Hard Delete the row to prevent ghost rows in the UI
+            if (isCompletelyEmpty) {
+                await dbTest.promise().query(`DELETE FROM NodeRed_WH2_Monitoring WHERE timestamp = ?`, [raw_timestamp]);
+            }
+        }
+
+        // 5. Save to the Audit Table 
+        for (const targetArea of areasToDelete) {
+            const oldTemp = oldData[`${targetArea.replace(' ', '')}_temp`];
+            const oldHum = oldData[`${targetArea.replace(' ', '')}_hum`];
+
+            if (oldTemp !== null || oldHum !== null) {
+                const auditDetails = {
+                    area: targetArea,
+                    temperature: { old: oldTemp, new: null },
+                    humidity: { old: oldHum, new: null }
+                };
+
+                const auditQuery = `
+                    INSERT INTO WH2_Audit_Logs (user_name, action_type, target_timestamp, details)
+                    VALUES (?, 'DELETE', ?, ?)
+                `;
+                await db4.promise().query(auditQuery, [userName, raw_timestamp, JSON.stringify(auditDetails)]);
+            }
+        }
 
         res.status(200).json({ success: true, message: 'Data deleted and logged successfully' });
 
@@ -14392,9 +14452,11 @@ updateUserLevel: async (req, res) => {
         const { target_user_id, new_level } = req.body;
 
         // 1. Security Check: Manager level required
-        const userLevel = req.user.level ? parseInt(req.user.level, 10) : 5;
-        if (userLevel > 2) {
-            return res.status(403).json({ error: 'Forbidden: Managers only.' });
+        const userLevel = req.user.level ? parseInt(req.user.level, 10) : 1;
+        
+        // 2. THE LOCK: Kick out anyone who is NOT a 3 or a 5
+        if (userLevel !== 3 && userLevel !== 5) {
+            return res.status(403).json({ error: 'Forbidden: Requires Manager or Admin access.' });
         }
 
         // 2. THE ULTIMATE LOCK: The WHERE clause
@@ -15153,37 +15215,38 @@ updateUserLevel: async (req, res) => {
                 return res.status(400).send({ error: "Invalid or empty data payload." });
             }
 
-            // 1. Start building the single giant SQL string
-            let updateSql = 'UPDATE sparepart_engineering SET Availability = CASE Part_Number ';
-            
-            const queryParams = [];
-            const partNumbers = [];
+            // Map the data (Remember, some of these will now be explicitly 'null')
+            const valuesArray = updates.map(part => [
+                part.partNumber, 
+                part.description, 
+                part.availability, 
+                part.reorderMin, 
+                part.reorderMax,
+                new Date() 
+            ]);
 
-            // 2. Loop through the array ONCE to build the SQL logic
-            updates.forEach((part) => {
-                const { partNumber, availability } = part; 
-                
-                // Adds: WHEN 'SPMT001' THEN 5
-                updateSql += 'WHEN ? THEN ? ';
-                queryParams.push(partNumber, availability);
-                partNumbers.push(partNumber);
-            });
+            // The PROTECTED Bulk Upsert Query
+            // COALESCE(VALUES(Column), Column) protects existing data from being overwritten by missing CSV columns.
+            const upsertSql = `
+                INSERT INTO sparepart_engineering 
+                (Part_Number, Part_Description, Availability, Reorder_Min, Reorder_Max, Last_Date) 
+                VALUES ? 
+                ON DUPLICATE KEY UPDATE 
+                Part_Description = COALESCE(VALUES(Part_Description), Part_Description),
+                Availability = COALESCE(VALUES(Availability), Availability),
+                Reorder_Min = COALESCE(VALUES(Reorder_Min), Reorder_Min),
+                Reorder_Max = COALESCE(VALUES(Reorder_Max), Reorder_Max),
+                Last_Date = VALUES(Last_Date)
+            `;
 
-            // 3. Close the CASE statement and add the timestamp and WHERE clause
-            updateSql += 'END, Last_Date = NOW() WHERE Part_Number IN (?);';
-            
-            // Add the array of all part numbers to the very end of our parameters
-            queryParams.push(partNumbers);
+            await db4.promise().query(upsertSql, [valuesArray]);
 
-            // 4. Send ONE single query to the database
-            await db4.promise().query(updateSql, queryParams);
-
-            res.status(200).send({ message: "Bulk inventory updated instantly." });
+            res.status(200).send({ message: "Bulk inventory synced successfully." });
 
         } catch (error) {
-            console.error("Bulk update failed:", error);
+            console.error("Bulk sync failed:", error);
             res.status(500).send({ 
-                error: "Failed to update database records.", 
+                error: "Failed to sync database records.", 
                 details: error.message 
             });
         }
