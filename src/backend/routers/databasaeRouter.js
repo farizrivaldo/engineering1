@@ -446,6 +446,12 @@ routers.post('/updateInventoryBatch', databaseControllers.updateInventoryBatch);
 routers.get("/granulation-batch-record", databaseControllers.getGranulationData);
 routers.get('/export-pdf', databaseControllers.getExportData);
 
+routers.get('/SparepartgetAllParts', databaseControllers.SparepartgetAllParts);
+routers.post('/SparepartcreatePart', veryfyToken, databaseControllers.SparepartcreatePart);
+routers.put('/SparepartupdatePart/:id', veryfyToken, databaseControllers.SparepartupdatePart);
+routers.delete('/SparepartdeletePart/:id', veryfyToken, databaseControllers.SparepartdeletePart);
+routers.get('/SparepartgetInventoryLogs', databaseControllers.SparepartgetInventoryLogs);
+
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);
 routers.put('/:pwo_number', databaseControllers.updateWorkOrder);

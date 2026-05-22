@@ -15420,7 +15420,149 @@ updateUserLevel: async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}
+},
+
+// 1. READ ALL (Usually doesn't need to log who read it)
+    SparepartgetAllParts: async (req, res) => {
+        try {
+            const [rows] = await db4.promise().query('SELECT * FROM sparepart_non_inventory_parts ORDER BY Part_Name ASC');
+            res.status(200).json(rows);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    // 2. CREATE NEW
+    SparepartcreatePart: async (req, res) => {
+        const { Part_Name, Quantity, Unit, Rack, Shelf_Location } = req.body;
+        
+        // Extract the user from the decoded JWT token! 
+        // (Adjust .username or .name depending on what you packed into your JWT payload)
+        const username = req.user?.username || req.user?.name || 'Authorized User'; 
+        
+        const conn = await db4.promise().getConnection();
+
+        try {
+            await conn.beginTransaction(); 
+
+            // A. Insert the new part
+            const insertSql = `INSERT INTO sparepart_non_inventory_parts (Part_Name, Quantity, Unit, Rack, Shelf_Location) VALUES (?, ?, ?, ?, ?)`;
+            const [result] = await conn.query(insertSql, [Part_Name, Quantity, Unit, Rack, Shelf_Location]);
+            
+            // B. Write the log using the newly created ID
+            const logSql = `INSERT INTO sparepart_non_inventory_history_logs (Part_ID, Part_Name, Old_Quantity, New_Quantity, Change_Type, Changed_By) VALUES (?, ?, NULL, ?, 'CREATE', ?)`;
+            await conn.query(logSql, [result.insertId, Part_Name, Quantity, username]);
+
+            await conn.commit(); 
+            res.status(201).json({ message: "Part created successfully" });
+        } catch (error) {
+            await conn.rollback(); 
+            res.status(500).json({ error: error.message });
+        } finally {
+            conn.release();
+        }
+    },
+
+    // 3. UPDATE EXISTING
+    SparepartupdatePart: async (req, res) => {
+        const { id } = req.params;
+        const { Part_Name, Quantity, Unit, Rack, Shelf_Location } = req.body;
+        
+        // Extract from token
+        const username = req.user?.username || req.user?.name || 'Authorized User'; 
+        
+        const conn = await db4.promise().getConnection();
+
+        try {
+            await conn.beginTransaction();
+
+            const [oldData] = await conn.query(`SELECT Quantity FROM sparepart_non_inventory_parts WHERE Part_ID = ?`, [id]);
+            if (oldData.length === 0) throw new Error("Part not found");
+            const oldQuantity = oldData[0].Quantity;
+
+            const updateSql = `UPDATE sparepart_non_inventory_parts SET Part_Name = ?, Quantity = ?, Unit = ?, Rack = ?, Shelf_Location = ? WHERE Part_ID = ?`;
+            await conn.query(updateSql, [Part_Name, Quantity, Unit, Rack, Shelf_Location, id]);
+
+            if (oldQuantity !== parseInt(Quantity, 10)) {
+                const logSql = `INSERT INTO sparepart_non_inventory_history_logs (Part_ID, Part_Name, Old_Quantity, New_Quantity, Change_Type, Changed_By) VALUES (?, ?, ?, ?, 'UPDATE', ?)`;
+                await conn.query(logSql, [id, Part_Name, oldQuantity, Quantity, username]);
+            }
+
+            await conn.commit();
+            res.status(200).json({ message: "Part updated successfully" });
+        } catch (error) {
+            await conn.rollback();
+            res.status(500).json({ error: error.message });
+        } finally {
+            conn.release();
+        }
+    },
+
+    // 4. DELETE
+    SparepartdeletePart: async (req, res) => {
+        const { id } = req.params;
+        
+        // Extract from token
+        const username = req.user?.username || req.user?.name || 'Authorized User'; 
+        
+        const conn = await db4.promise().getConnection();
+
+        try {
+            await conn.beginTransaction();
+
+            const [oldData] = await conn.query(`SELECT Part_Name, Quantity FROM sparepart_non_inventory_parts WHERE Part_ID = ?`, [id]);
+            if (oldData.length === 0) throw new Error("Part not found");
+            
+            await conn.query(`DELETE FROM sparepart_non_inventory_parts WHERE Part_ID = ?`, [id]);
+
+            const logSql = `INSERT INTO sparepart_non_inventory_history_logs (Part_ID, Part_Name, Old_Quantity, New_Quantity, Change_Type, Changed_By) VALUES (?, ?, ?, NULL, 'DELETE', ?)`;
+            await conn.query(logSql, [id, oldData[0].Part_Name, oldData[0].Quantity, username]);
+
+            await conn.commit();
+            res.status(200).json({ message: "Part deleted successfully" });
+        } catch (error) {
+            await conn.rollback();
+            res.status(500).json({ error: error.message });
+        } finally {
+            conn.release();
+        }
+    },
+
+    // 5. VIEW LOGS
+    SparepartgetInventoryLogs: async (req, res) => {
+        try {
+            const [rows] = await db4.promise().query('SELECT * FROM sparepart_inventory_history_logs ORDER BY Changed_At DESC LIMIT 150');
+            res.status(200).json(rows);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    SparepartgetInventoryLogs: async (req, res) => {
+    try {
+        // Query matching your exact table name from the DBeaver screenshot
+        const sql = `
+            SELECT 
+                Log_ID, 
+                Part_ID, 
+                Part_Name, 
+                Old_Quantity, 
+                New_Quantity, 
+                Change_Type, 
+                Changed_By, 
+                Changed_At 
+            FROM sparepart_non_inventory_history_logs 
+            ORDER BY Changed_At DESC 
+            LIMIT 250
+        `;
+        
+        const [rows] = await db4.promise().query(sql);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Database error fetching inventory logs:", error);
+        res.status(500).json({ error: error.message });
+    }
+},
 
 
 
