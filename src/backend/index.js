@@ -11,7 +11,7 @@ const axios = require("axios");
 const http = require("http");
 const WebSocket = require("ws");
 const cron = require("node-cron");
-const fileUpload = require('express-fileupload'); // 1. Import it
+// const fileUpload = require('express-fileupload'); // 1. Import it 
 
 
 // Add this line with your other imports
@@ -19,7 +19,7 @@ const databaseControllers = require("./controllers/databaseControllers.js");
 
 const port = 8002;
 const app = express();
-app.use(fileUpload()); 
+// app.use(fileUpload()); 
 
 app.use(cors());
 // Enhance JSON parsing to capture raw body for debugging and increase size limit
