@@ -452,6 +452,10 @@ routers.put('/SparepartupdatePart/:id', veryfyToken, databaseControllers.Sparepa
 routers.delete('/SparepartdeletePart/:id', veryfyToken, databaseControllers.SparepartdeletePart);
 routers.get('/SparepartgetInventoryLogs', databaseControllers.SparepartgetInventoryLogs);
 
+routers.post('/uploadAndExtractPDF', databaseControllers.uploadAndExtractPDF);
+routers.post('/preview-pdf', databaseControllers.previewPDF);
+routers.post('/confirm-sync', databaseControllers.confirmSync);
+
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);
 routers.put('/:pwo_number', databaseControllers.updateWorkOrder);

@@ -24,6 +24,8 @@ const express = require("express");
 const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 const libre = require("libreoffice-convert");
+const { execFile } = require('child_process');
+
 
 const path = require('path'); // <--- ADD THIS LINE
 const readline = require('readline');
@@ -1536,6 +1538,29 @@ const getRecipeData = async (line, batchSearch) => {
         return { recipe_name: 'Error', product_name: 'Error' };
     }
 };
+
+function cleanDateString(dateStr) {
+    const monthsId = { 'Mei': 'May', 'Agu': 'Aug', 'Okt': 'Oct', 'Des': 'Dec' };
+    let cleaned = dateStr;
+    for (const [idMon, enMon] of Object.entries(monthsId)) {
+        cleaned = cleaned.replace(idMon, enMon);
+    }
+    return cleaned;
+}
+
+// Helper to safely format extracted dates to YYYY-MM-DD
+function formatScheduleDate(rawDateStr) {
+    try {
+        const cleaned = cleanDateString(rawDateStr);
+        const parsedDate = new Date(cleaned);
+        if (!isNaN(parsedDate)) {
+            return parsedDate.toISOString().split('T')[0];
+        }
+    } catch (e) {
+        console.error("Date formatting error:", e);
+    }
+    return "1970-01-01";
+}
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -15528,16 +15553,6 @@ updateUserLevel: async (req, res) => {
         }
     },
 
-    // 5. VIEW LOGS
-    SparepartgetInventoryLogs: async (req, res) => {
-        try {
-            const [rows] = await db4.promise().query('SELECT * FROM sparepart_inventory_history_logs ORDER BY Changed_At DESC LIMIT 150');
-            res.status(200).json(rows);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    },
-
     SparepartgetInventoryLogs: async (req, res) => {
     try {
         // Query matching your exact table name from the DBeaver screenshot
@@ -15564,6 +15579,227 @@ updateUserLevel: async (req, res) => {
     }
 },
 
+    uploadAndExtractPDF: async (req, res) => {
+        try {
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return res.status(400).send({ error: "No file was uploaded." });
+            }
+
+            const fileKey = Object.keys(req.files)[0];
+            const pdfFile = req.files[fileKey];
+            const originalFileName = pdfFile.name;
+
+            // 1. Save the file temporarily so Python can look at it
+            const tempFilePath = path.join(__dirname, `../temp_${Date.now()}_${originalFileName}`);
+            await pdfFile.mv(tempFilePath);
+
+            // 2. Point to your python parser script
+            const scriptPath = path.join(__dirname, '../parse_single.py');
+
+            // 3. Run your working python script from Node
+            execFile('python', [scriptPath, tempFilePath], async (error, stdout, stderr) => {
+                // Delete the temporary file immediately to stay clean
+                if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+
+                if (error || stderr) {
+                    console.error("Python exec fault:", error || stderr);
+                    
+                    // THE DIAGNOSTIC FIX: Send the actual error block back to React!
+                    return res.status(500).send({ 
+                        error: "Python engine failed.", 
+                        details: stderr || error.message 
+                    });
+                }
+
+                try {
+                    // 1. Read the perfectly structured data array from Python
+                    const parsedData = JSON.parse(stdout);
+                    if (!parsedData || parsedData.length === 0) {
+                        return res.status(422).send({ error: "No work orders could be extracted from this layout structure." });
+                    }
+
+                    console.log(`[DEBUG] Python extracted ${parsedData.length} work orders from file.`);
+                    let processedCount = 0;
+
+                    // 2. THE FIX: Loop through ALL extracted work orders instead of just taking parsedData[0]
+                    for (const wo of parsedData) {
+                        // THE FIX: Keep the full string (e.g., 'PWO-334234') without stripping it down to a negative number
+                        const cleanPwoNum = String(wo.PWO_Number).trim(); 
+
+                        if (!cleanPwoNum || cleanPwoNum === "Unknown") continue;
+
+                        // 3. Database Upsert Strategy for each individual work order
+                        const checkSql = `SELECT pwo_number FROM pmp_main_work_orders WHERE pwo_number = ?`;
+                        const [existingRows] = await db4.promise().query(checkSql, [cleanPwoNum]);
+
+                        if (existingRows.length > 0) {
+                            // Update existing records
+                            const updateSql = `
+                                UPDATE pmp_main_work_orders 
+                                SET asset_number = ?, schedule_date = ?, description = ?, area = ?, operations = ?, source_file = ?, page_number = ?
+                                WHERE pwo_number = ?
+                            `;
+                            await db4.promise().query(updateSql, [
+                                wo.Asset_Number, wo.Schedule_Date, wo.Description, wo.Area, 
+                                JSON.stringify(wo.Operations), originalFileName, wo.Page, cleanPwoNum
+                            ]);
+                        } else {
+                            // Insert brand new records
+                            const insertSql = `
+                                INSERT INTO pmp_main_work_orders 
+                                (pwo_number, asset_number, schedule_date, description, area, operations, status, isClosed, source_file, page_number) 
+                                VALUES (?, ?, ?, ?, ?, ?, 'Open', 0, ?, ?)
+                            `;
+                            await db4.promise().query(insertSql, [
+                                cleanPwoNum, wo.Asset_Number, wo.Schedule_Date, wo.Description, wo.Area, 
+                                JSON.stringify(wo.Operations), originalFileName, wo.Page 
+                            ]);
+                        }
+                        processedCount++;
+                    }
+
+                    // Send back the total count of processed items to your React frontend
+                    return res.status(200).send({
+                        success: true,
+                        message: `Successfully sync'd ${processedCount} work orders.`,
+                        stepsExtracted: processedCount
+                    });
+
+                } catch (jsonErr) {
+                    console.error("Failed to parse Python output stream:", jsonErr);
+                    return res.status(500).send({ error: "Data pipeline alignment synchronization error." });
+                }
+            });
+
+        } catch (err) {
+            console.error("Upload handler crash:", err);
+            res.status(500).send({ error: "Backend processing error: " + err.message });
+        }
+    },
+
+    previewPDF: async (req, res) => {
+        try {
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return res.status(400).send({ error: "No file was uploaded." });
+            }
+
+            const fileKey = Object.keys(req.files)[0];
+            const pdfFile = req.files[fileKey];
+            const originalFileName = pdfFile.name;
+
+            const tempFilePath = path.join(__dirname, `../temp_${Date.now()}_${originalFileName}`);
+            await pdfFile.mv(tempFilePath);
+
+            const scriptPath = path.resolve(__dirname, '..', 'parse_single.py');
+
+            execFile('python', [scriptPath, tempFilePath], (error, stdout, stderr) => {
+                if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+
+                if (error || stderr) {
+                    console.error("Python engine error:", error || stderr);
+                    return res.status(500).send({ error: "Python text extraction failed.", details: stderr });
+                }
+
+                try {
+                    const parsedData = JSON.parse(stdout);
+                    // Return data array straight back to user to verify layout visually
+                    return res.status(200).send({
+                        success: true,
+                        sourceFile: originalFileName,
+                        workOrders: parsedData
+                    });
+                } catch (jsonErr) {
+                    return res.status(500).send({ error: "Failed to parse document format stream data." });
+                }
+            });
+        } catch (err) {
+            res.status(500).send({ error: "Backend staging failure: " + err.message });
+        }
+    },
+
+    // --- 2. COMMIT ENDPOINT (SAVES EVERYTHING ONCE USER CONFIRMS) ---
+    confirmSync: async (req, res) => {
+    try {
+        console.log("\n[DEBUG] confirm-sync received raw body:", req.body);
+
+        let workOrders = req.body.workOrders || req.body.work_orders;
+        let sourceFile = req.body.sourceFile || req.body.source_file;
+
+        // --- THE ABSOLUTE BACKEND UN-NESTER FIX ---
+        // If workOrders contains the nested server response: { success: true, workOrders: [...] }
+        if (workOrders && !Array.isArray(workOrders) && workOrders.workOrders) {
+            console.log("[DEBUG] Detected double-nested payload structure. Auto-flattening...");
+            if (!sourceFile && workOrders.sourceFile) {
+                sourceFile = workOrders.sourceFile;
+            }
+            workOrders = workOrders.workOrders; // Safely strip away the wrapper and grab the real array!
+        }
+        // ------------------------------------------
+
+        // Final safety validation check
+        if (!workOrders || !Array.isArray(workOrders)) {
+            console.error("[DEBUG] Validation Hard-Failed: workOrders is missing or not an array!");
+            return res.status(400).send({ 
+                error: "Invalid data payload structure. 'workOrders' array field is required.",
+                receivedKeys: Object.keys(req.body)
+            });
+        }
+
+        console.log(`[DEBUG] Validation Passed. Processing ${workOrders.length} flat work orders...`);
+        let syncCount = 0;
+
+        for (const wo of workOrders) {
+            const cleanPwoNum = String(wo.PWO_Number || wo.pwo_number).trim();
+            if (!cleanPwoNum || cleanPwoNum === "Unknown") continue;
+
+            const pageNumber = wo.Page || wo.page || null;
+
+            // Database processing via db4
+            const checkSql = `SELECT pwo_number FROM pmp_main_work_orders WHERE pwo_number = ?`;
+            const [existingRows] = await db4.promise().query(checkSql, [cleanPwoNum]);
+
+            if (existingRows.length > 0) {
+                const updateSql = `
+                    UPDATE pmp_main_work_orders 
+                    SET asset_number = ?, schedule_date = ?, description = ?, area = ?, operations = ?, source_file = ?, page_number = ?
+                    WHERE pwo_number = ?
+                `;
+                await db4.promise().query(updateSql, [
+                    wo.Asset_Number || wo.asset_number, 
+                    wo.Schedule_Date || wo.schedule_date, 
+                    wo.Description || wo.description, 
+                    wo.Area || wo.area, 
+                    JSON.stringify(wo.Operations || wo.operations), 
+                    sourceFile, 
+                    pageNumber, 
+                    cleanPwoNum
+                ]);
+            } else {
+                const insertSql = `
+                    INSERT INTO pmp_main_work_orders 
+                    (pwo_number, asset_number, schedule_date, description, area, operations, status, isClosed, source_file, page_number) 
+                    VALUES (?, ?, ?, ?, ?, ?, 'Open', 0, ?, ?)
+                `;
+                await db4.promise().query(insertSql, [
+                    cleanPwoNum, 
+                    wo.Asset_Number || wo.asset_number, 
+                    wo.Schedule_Date || wo.schedule_date, 
+                    wo.Description || wo.description, 
+                    wo.Area || wo.area, 
+                    JSON.stringify(wo.Operations || wo.operations), 
+                    sourceFile, 
+                    pageNumber
+                ]);
+            }
+            syncCount++;
+        }
+
+        res.status(200).send({ success: true, message: `Successfully synced ${syncCount} Work Orders.` });
+    } catch (err) {
+        console.error("Database confirm execution failure:", err);
+        res.status(500).send({ error: "Database commit processing crashed: " + err.message });
+    }
+},
 
 
 
