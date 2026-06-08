@@ -2513,16 +2513,18 @@ LEFT JOIN
 
   getTempChart: async (request, response) => {
     const { area, start, finish, format } = request.query;
+    
+    // Adjusted: Removed '+ INTERVAL 1 DAY' and added '- INTERVAL 7 HOUR'
     const queryData = `
       SELECT
-        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 1 DAY, '%Y-%m-%d %H:%i:%s') AS label,
+        DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 7 HOUR, '%Y-%m-%d %H:%i:%s') AS label,
         data_index AS x,
         data_format_${format} AS y
       FROM \`${area}\`
       WHERE
-      DATE(FROM_UNIXTIME(\`time@timestamp\`)+ INTERVAL 1 DAY) BETWEEN '${start}' AND '${finish}'
-  ORDER BY
-      \`time@timestamp\`;
+        DATE(FROM_UNIXTIME(\`time@timestamp\`) - INTERVAL 7 HOUR) BETWEEN '${start}' AND '${finish}'
+      ORDER BY
+        \`time@timestamp\`;
     `;
 
     db4.query(queryData, (err, result) => {
@@ -2531,7 +2533,6 @@ LEFT JOIN
         return response.status(500).send("Internal Server Error");
       }
 
-      // Mengonversi data y ke tipe data angka pecahan (float)
       const parsedResult = result.map((entry) => ({
         ...entry,
         y: parseFloat(entry.y) / 10,
