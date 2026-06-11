@@ -24,7 +24,7 @@ const express = require("express");
 const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 const libre = require("libreoffice-convert");
-// const { execFile } = require('child_process');
+const { execFile } = require('child_process');
 
 
 const path = require('path'); // <--- ADD THIS LINE
@@ -15579,7 +15579,7 @@ updateUserLevel: async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 },
-    /*
+    
     uploadAndExtractPDF: async (req, res) => {
         try {
             if (!req.files || Object.keys(req.files).length === 0) {
@@ -15676,7 +15676,7 @@ updateUserLevel: async (req, res) => {
             console.error("Upload handler crash:", err);
             res.status(500).send({ error: "Backend processing error: " + err.message });
         }
-    }, */
+    },
 
     previewPDF: async (req, res) => {
         try {
