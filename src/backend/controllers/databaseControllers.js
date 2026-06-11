@@ -15693,7 +15693,7 @@ updateUserLevel: async (req, res) => {
 
             const scriptPath = path.resolve(__dirname, '..', 'parse_single.py');
 
-            execFile('python', [scriptPath, tempFilePath], (error, stdout, stderr) => {
+            execFile('python3', [scriptPath, tempFilePath], (error, stdout, stderr) => {
                 if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
                 if (error || stderr) {
