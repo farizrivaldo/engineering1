@@ -8465,6 +8465,54 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     });
   },
 
+  waterCostSystem: async (request, response) => {
+  const { area, start, finish } = request.query;
+
+  try {
+    const getPrice = new Promise((resolve, reject) => {
+      const priceQuery = `SELECT * FROM ems_saka.Parameter_Portal ORDER BY id DESC LIMIT 1;`;
+      db4.query(priceQuery, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    const getVolume = new Promise((resolve, reject) => {
+      const volumeQuery = `
+        SELECT
+          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%Y-%m-%d') AS label,
+          data_index AS x,
+          round(data_format_0, 2) AS y
+        FROM \`${area}\`
+        WHERE DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN ? AND ?
+        ORDER BY \`time@timestamp\`
+      `;
+      db3.query(volumeQuery, [start, finish], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    const [paramResult, volumeResult] = await Promise.all([getPrice, getVolume]);
+
+    // FIXED: Now correctly pointing to the 'Parameter_Air' column from DBeaver
+    const currentWaterPrice = paramResult[0]?.Parameter_Air || 0; 
+
+    const finalData = volumeResult.map(day => ({
+      label: day.label,
+      x: day.x,
+      y: Number(day.y || 0),                   
+      cost: Number(day.y || 0) * currentWaterPrice 
+    }));
+
+    return response.status(200).send(finalData);
+
+  } catch (error) {
+    console.error("Cost Calculation Error:", error);
+    return response.status(500).send("Database query failed during cost calculation");
+  }
+},
+
   
   //-------------------------Mesin Report--------------------------
 
@@ -15312,7 +15360,7 @@ updateUserLevel: async (req, res) => {
             // Query ambil data dengan pembatasan 14 karakter
             sqlData = `
                 SELECT 
-                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m/%Y %H:%i:%s') as wib_time,
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m/%Y %H:%i') as wib_time,
                     -- Kita bersihkan karakter '&' dan spasi/karakter null di ujung string
                     REPLACE(REPLACE(REPLACE(CAST(data_format_0 AS CHAR), '&', ''), '\\0', ''), ' ', '') as Batch_ID,
                     TRIM(BOTH '\\0' FROM REPLACE(CAST(data_format_1 AS CHAR), '&', '')) as Process_ID,
@@ -15330,7 +15378,7 @@ updateUserLevel: async (req, res) => {
             sqlCount = `SELECT COUNT(*) as total FROM \`${tableName}\` WHERE ${timeCol} BETWEEN ? AND ?`;
             sqlData = `
                 SELECT 
-                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m/%Y %H:%i:%s') as wib_time,
+                    DATE_FORMAT(FROM_UNIXTIME(${timeCol}), '%d/%m/%Y %H:%i') as wib_time,
                     t.* FROM \`${tableName}\` t
                 WHERE t.${timeCol} BETWEEN ? AND ?
                 ORDER BY t.${timeCol} ASC

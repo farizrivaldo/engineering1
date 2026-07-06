@@ -224,6 +224,7 @@ routers.get("/GrafanaWater", databaseControllers.GrafanaWater);
 routers.get("/GrafanaPower", databaseControllers.GrafanaPower);
 routers.get("/GrafanaMVMDPyear", databaseControllers.GrafanaMVMDPyear);
 routers.get("/GrafanaPDAMyear", databaseControllers.GrafanaPDAMyear);
+routers.get("/waterCostSystem", databaseControllers.waterCostSystem);
 
 //==============ReportMesin ========================================ReportMesin======================================================
 routers.get("/HM1Report", databaseControllers.HM1Report);
