@@ -8407,11 +8407,11 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
             t1.data_format_0 - COALESCE(t2.data_format_0, 0) AS daily_diff
         FROM (
             SELECT \`time@timestamp\`, data_format_0
-            FROM \`ems_saka\`.\`${area}\`
+            FROM \`parammachine_saka\`.\`${area}\`
         ) t1
         LEFT JOIN (
             SELECT \`time@timestamp\`, data_format_0
-            FROM \`ems_saka\`.\`${area}\`
+            FROM \`parammachine_saka\`.\`${area}\`
         ) t2
         ON DATE(FROM_UNIXTIME(t1.\`time@timestamp\`)) = DATE_SUB(DATE(FROM_UNIXTIME(t2.\`time@timestamp\`)), INTERVAL 1 DAY)
     ) d1
@@ -8420,7 +8420,7 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     ORDER BY year, month;
     `;
 
-    db4.query(queryGet, (err, result) => {
+    db3.query(queryGet, (err, result) => {
       if (err) {
         console.log(err);
         return response.status(500).send("Database query failed");
