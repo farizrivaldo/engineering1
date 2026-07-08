@@ -3181,22 +3181,107 @@ LEFT JOIN
 
   // Power Management 2 Backend
   PowerDaily: async (request, response) => {
-    const { area, start, finish } = request.query;
-    const queryGet = `SELECT
-    s1.data_index as x,
-    DATE_FORMAT(FROM_UNIXTIME(s1.\`time@timestamp\`) , '%Y-%m-%d') AS label,
-    round(s1.data_format_0 -
-      (select s2.data_format_0 as previous from
-      ems_saka.\`${area}\` as s2
-      where s2.data_index < s1.data_index and s2.data_format_0 > 0 order by s2.data_index  desc limit 1),2) as y
-    From ems_saka.\`${area}\` as s1 
-    WHERE date(FROM_UNIXTIME(s1.\`time@timestamp\`)) BETWEEN '${start}' AND '${finish}' and s1.data_format_0 > 0
-    `;
+  const { area, start, finish } = request.query;
+  
+  const queryGet = `
+    WITH OrderedData AS (
+      SELECT 
+        data_index AS x,
+        -- Apply the 7-hour WIB timezone fix directly to the label
+        DATE_FORMAT(DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR), '%Y-%m-%d') AS label,
+        data_format_0,
+        -- Use LAG to instantly grab the previous row's value
+        LAG(data_format_0) OVER (ORDER BY data_index) AS previous_format_0
+      FROM ems_saka.\`${area}\`
+      WHERE data_format_0 > 0
+    )
+    SELECT 
+      x,
+      label,
+      ROUND(data_format_0 - previous_format_0, 2) AS y
+    FROM OrderedData
+    WHERE 
+      -- Filter using the pre-calculated label and template literals
+      label BETWEEN '${start}' AND '${finish}'
+      AND previous_format_0 IS NOT NULL;
+  `;
 
-    db4.query(queryGet, (err, result) => {
-      return response.status(200).send(result);
+  // Reverted to your standard single-parameter query execution
+  db4.query(queryGet, (err, result) => {
+    if (err) {
+      console.error("PowerDaily Query Error:", err);
+      // Send the actual SQL error message to the frontend for easier debugging
+      return response.status(500).send({ error: "Database query failed", details: err.sqlMessage });
+    }
+    return response.status(200).send(result);
+  });
+},
+
+PowerCostDaily: async (request, response) => {
+  const { area, start, finish } = request.query;
+
+  try {
+    // 1. Fetch the electricity price from the portal
+    const getPrice = new Promise((resolve, reject) => {
+      const priceQuery = `SELECT * FROM ems_saka.Parameter_Portal ORDER BY id DESC LIMIT 1;`;
+      db4.query(priceQuery, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
     });
-  },
+
+    // 2. Fetch the daily power usage (using the optimized LAG query with the timezone fix)
+    const getVolume = new Promise((resolve, reject) => {
+      const volumeQuery = `
+        WITH OrderedData AS (
+          SELECT 
+            data_index AS x,
+            DATE_FORMAT(DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR), '%Y-%m-%d') AS label,
+            data_format_0,
+            LAG(data_format_0) OVER (ORDER BY data_index) AS previous_format_0
+          FROM ems_saka.\`${area}\`
+          WHERE data_format_0 > 0
+        )
+        SELECT 
+          x,
+          label,
+          ROUND(data_format_0 - previous_format_0, 2) AS y
+        FROM OrderedData
+        WHERE 
+          label BETWEEN '${start}' AND '${finish}'
+          AND previous_format_0 IS NOT NULL;
+      `;
+      db4.query(volumeQuery, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    // 3. Execute both queries simultaneously
+    const [paramResult, volumeResult] = await Promise.all([getPrice, getVolume]);
+
+    // 4. Extract the electricity price safely
+    const currentPowerPrice = paramResult[0]?.Parameter_Listrik || 0; 
+
+    // 5. Fuse the data together with the new cost math
+    const finalData = volumeResult.map(day => ({
+      label: day.label,
+      x: day.x,
+      y: Number(day.y || 0),                   // Daily kWh
+      cost: Number(day.y || 0) * currentPowerPrice // Total Cost in Rupiah
+    }));
+
+    return response.status(200).send(finalData);
+
+  } catch (error) {
+    console.error("Power Cost Calculation Error:", error);
+    // Keep the awesome debugging trick so it sends SQL errors to your Network tab!
+    return response.status(500).send({ 
+      error: "Database query failed during cost calculation", 
+      details: error.sqlMessage || error.message 
+    });
+  }
+},
   // PowerDaily: async (request, response) => {
   //   const { area, start, finish } = request.query;
 
@@ -8394,40 +8479,51 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
   },
 
   GrafanaMVMDPyear: async (request, response) => {
-    const { area } = request.query;
-    const queryGet = `
+  const { area } = request.query;
+  
+  const queryGet = `
+    WITH OrderedData AS (
+      SELECT 
+        -- 1. Apply the 7-hour WIB timezone fix to group the days correctly
+        DATE(DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR)) AS true_date,
+        data_format_0,
+        -- 2. Use LAG to instantly grab the previous reading for the subtraction
+        LAG(data_format_0) OVER (ORDER BY \`time@timestamp\`) AS previous_format_0
+      FROM \`ems_saka\`.\`${area}\`
+      WHERE data_format_0 > 0
+    ),
+    DailyDiffs AS (
+      SELECT 
+        true_date,
+        YEAR(true_date) AS year,
+        MONTH(true_date) AS month,
+        (data_format_0 - previous_format_0) AS daily_diff
+      FROM OrderedData
+      WHERE previous_format_0 IS NOT NULL
+    )
     SELECT 
-        YEAR(d1.date) AS year,
-        MONTH(d1.date) AS month,
-        DATE(FROM_UNIXTIME(UNIX_TIMESTAMP(d1.date))) AS time,
-        SUM(ABS(d1.daily_diff)) AS monthly_total
-    FROM (
-        SELECT 
-            DATE(FROM_UNIXTIME(t1.\`time@timestamp\`)) AS date,
-            t1.data_format_0 - COALESCE(t2.data_format_0, 0) AS daily_diff
-        FROM (
-            SELECT \`time@timestamp\`, data_format_0
-            FROM \`parammachine_saka\`.\`${area}\`
-        ) t1
-        LEFT JOIN (
-            SELECT \`time@timestamp\`, data_format_0
-            FROM \`parammachine_saka\`.\`${area}\`
-        ) t2
-        ON DATE(FROM_UNIXTIME(t1.\`time@timestamp\`)) = DATE_SUB(DATE(FROM_UNIXTIME(t2.\`time@timestamp\`)), INTERVAL 1 DAY)
-    ) d1
-    WHERE d1.daily_diff IS NOT NULL
+      year,
+      month,
+      -- 3. Pass the first available date of that month as the label for CanvasJS
+      DATE_FORMAT(MIN(true_date), '%Y-%m-%d') AS time, 
+      SUM(ABS(daily_diff)) AS monthly_total
+    FROM DailyDiffs
     GROUP BY year, month
     ORDER BY year, month;
-    `;
+  `;
 
-    db3.query(queryGet, (err, result) => {
-      if (err) {
-        console.log(err);
-        return response.status(500).send("Database query failed");
-      }
-      return response.status(200).send(result);
-    });
-  },
+  db3.query(queryGet, (err, result) => {
+    if (err) {
+      console.error("GrafanaMVMDPyear Error:", err);
+      // Send the actual SQL error message to the frontend network tab for easy debugging
+      return response.status(500).send({ 
+        error: "Database query failed", 
+        details: err.sqlMessage || err.message 
+      });
+    }
+    return response.status(200).send(result);
+  });
+},
 
   GrafanaPDAMyear: async (request, response) => {
     const { area } = request.query;
@@ -8472,21 +8568,23 @@ WHERE REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(data_format_0 USING utf8), '\0', '
     const getPrice = new Promise((resolve, reject) => {
       const priceQuery = `SELECT * FROM ems_saka.Parameter_Portal ORDER BY id DESC LIMIT 1;`;
       db4.query(priceQuery, (err, result) => {
-        if (err) reject(err);
+        if (err) reject(err); 
         else resolve(result);
       });
     });
 
     const getVolume = new Promise((resolve, reject) => {
       const volumeQuery = `
-        SELECT
-          DATE_FORMAT(FROM_UNIXTIME(\`time@timestamp\`), '%Y-%m-%d') AS label,
-          data_index AS x,
-          round(data_format_0, 2) AS y
-        FROM \`${area}\`
-        WHERE DATE(FROM_UNIXTIME(\`time@timestamp\`)) BETWEEN ? AND ?
-        ORDER BY \`time@timestamp\`
-      `;
+  SELECT
+    -- Bypasses server timezones by calculating strictly from the 1970 epoch
+    DATE_FORMAT(DATE_ADD('1970-01-01 00:00:00', INTERVAL \`time@timestamp\` SECOND), '%Y-%m-%d') AS label,
+    data_index AS x,
+    round(data_format_0, 2) AS y
+  FROM \`${area}\`
+  WHERE 
+    DATE(DATE_ADD('1970-01-01 00:00:00', INTERVAL \`time@timestamp\` SECOND)) BETWEEN ? AND ?
+  ORDER BY \`time@timestamp\`
+`;
       db3.query(volumeQuery, [start, finish], (err, result) => {
         if (err) reject(err);
         else resolve(result);

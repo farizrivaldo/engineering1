@@ -98,6 +98,7 @@ routers.get(
 );
 
 routers.get("/PowerDaily", databaseControllers.PowerDaily);
+routers.get("/PowerCostDaily", databaseControllers.PowerCostDaily);
 routers.get("/PowerMonthly", databaseControllers.PowerMonthly);
 routers.get("/PowerSankey", databaseControllers.PowerSankey);
 
