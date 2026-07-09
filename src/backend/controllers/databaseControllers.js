@@ -1872,18 +1872,23 @@ module.exports = {
         return res.status(400).send({ message: "email & password infailid2" });
       }
 
+      // THE FIX: Inject the department into the payload here
       let payload = {
         name: isEmailExist[0].name,
         id: isEmailExist[0].id_users,
         isAdmin: isEmailExist[0].isAdmin,
         level: isEmailExist[0].level,
         imagePath: isEmailExist[0].imagePath,
+        department: isEmailExist[0].department // <--- Added this line!
       };
+      
+      console.log("🚨 SCREAM TEST - PAYLOAD IS:", payload);
       const token = jwt.sign(payload, "khaerul", { expiresIn: "1h" });
       // const token = jwt.sign(payload, "khaerul");
       //const token = jwt.sign(payload, "khaerul", { expiresIn: 600 }); // 5 menit
 
-      console.log(token);
+      console.log("Generated Token Payload:", payload); // Helpful to verify on the server side
+      
       delete isEmailExist[0].password;
       return res.status(200).send({
         token,
@@ -1896,30 +1901,23 @@ module.exports = {
     }
   },
   
-  loginData: async (req, res) => {
+ loginData: async (req, res) => {
     try {
-      // console.log('\n========== LOGIN TRACKING ==========');
-      // console.log('📥 Received request at loginData endpoint');
-      // console.log('📥 Received token in header:', req.headers.authorization ? 'Yes' : 'No');
-      // console.log('🔓 Decoded user from token:', req.user);
+      // Extract the core user details from the decoded token
+      const userId = req.user.id; 
+      const userName = req.user.name; 
       
-      const userId = req.user.id; // Extract user_id from token
-      const userName = req.user.name; // Extract user name from token
+      // NEW: Grab the department since it is now in the token!
+      const userDepartment = req.user.department; 
+      
       const loginTime = new Date();
-      
-      // console.log('👤 User ID:', userId);
-      // console.log('📛 User Name:', userName);
-      // console.log('🕐 Login Time:', loginTime.toLocaleString());
-      // console.log('====================================\n');
-      
-      // Log the login activity to database or perform any tracking needed
-      // You can create a login_logs table if needed
       
       return res.status(200).send({
         message: "Login activity tracked successfully",
         data: {
           userId: userId,
           userName: userName,
+          department: userDepartment, // Send it back to the frontend
           loginTime: loginTime
         }
       });
@@ -15419,6 +15417,43 @@ updateUserLevel: async (req, res) => {
             console.error("Bulk sync failed:", error);
             res.status(500).send({ 
                 error: "Failed to sync database records.", 
+                details: error.message 
+            });
+        }
+    },
+
+    InventoryupdatePart: async (req, res) => {
+        const { partNumber } = req.params;
+        const { Location, Availability } = req.body;
+
+        // Basic validation
+        if (!partNumber) {
+            return res.status(400).json({ error: "Part Number is required" });
+        }
+
+        try {
+            // The SQL Update Query
+            // We use NOW() to automatically stamp the exact time of the edit
+            const updateSql = `
+                UPDATE sparepart_engineering 
+                SET Part_Location = ?, Availability = ?, Last_Date = NOW() 
+                WHERE Part_Number = ?
+            `;
+
+            // Execute the query using db4 (matching your bulk update setup)
+            const [result] = await db4.promise().query(updateSql, [Location, Availability, partNumber]);
+
+            // Check if the part actually existed
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: "Part not found in the database." });
+            }
+
+            res.status(200).json({ message: "Inventory part updated successfully!" });
+
+        } catch (error) {
+            console.error("Error updating inventory part:", error);
+            res.status(500).json({ 
+                error: "Failed to update database record.", 
                 details: error.message 
             });
         }

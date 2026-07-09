@@ -443,6 +443,8 @@ routers.get('/getSparepartLogs', databaseControllers.getSparepartLogs);
 
 routers.put('/updateSparepartLog/:id', databaseControllers.updateSparepartLog);
 
+routers.put('/InventoryupdatePart/:partNumber', veryfyToken, databaseControllers.InventoryupdatePart);
+
 routers.post('/updateInventoryBatch', databaseControllers.updateInventoryBatch);
 
 routers.get("/granulation-batch-record", databaseControllers.getGranulationData);
