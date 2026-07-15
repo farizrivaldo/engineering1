@@ -460,6 +460,8 @@ routers.post('/uploadAndExtractPDF', databaseControllers.uploadAndExtractPDF);
 routers.post('/preview-pdf', databaseControllers.previewPDF);
 routers.post('/confirm-sync', databaseControllers.confirmSync);
 
+routers.get('/getVibrationData', databaseControllers.VibrationData);
+
 routers.get('/getWorkOrders', databaseControllers.getWorkOrders);
 routers.get('/:pwo_number', databaseControllers.getWorkOrderById);
 routers.put('/:pwo_number', databaseControllers.updateWorkOrder);

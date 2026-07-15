@@ -25,6 +25,7 @@ const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 const libre = require("libreoffice-convert");
 const { execFile } = require('child_process');
+const downsample = require('downsample-lttb');
 
 
 const path = require('path'); // <--- ADD THIS LINE
@@ -537,6 +538,7 @@ const getPmaPhasesData1 = async (line, batchSearch, batchStart, batchEnd) => {
     return pmaResult;
 };
 
+/*
 const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
     let dbConn, dbName, tableName, ampereCol, chopperCol;
 
@@ -666,6 +668,111 @@ const getPmaPhasesData = async (line, batchSearch, batchStart, batchEnd) => {
     });
 
     return pmaResult;
+}; */
+
+const getPmaPhasesData = async (line, batch, batchStart, batchEnd) => {
+    const results = {};
+    
+    // --- ENTRY LOG ---
+    // This should now correctly print "Checking Line: Line 1 | Batch: STMXGE64979-1"
+    console.log(`\n[PMA Helper Start] Checking Line: "${line}" | Batch: "${batch}"`);
+
+    try {
+        // 2. The SQL query now safely uses the real 'batch' variable
+        const sql = `
+            SELECT 
+                step, 
+                step_desc,
+                MIN(impeller_rpm) as min_imp, MAX(impeller_rpm) as max_imp, AVG(impeller_rpm) as avg_imp,
+                MIN(chopper_rpm) as min_chop, MAX(chopper_rpm) as max_chop, AVG(chopper_rpm) as avg_chop,
+                MIN(pump_speed) as min_pump, MAX(pump_speed) as max_pump, AVG(pump_speed) as avg_pump,
+                MIN(impeler_ampere) as min_amp, MAX(impeler_ampere) as max_amp, AVG(impeler_ampere) as avg_amp,
+                (MAX(timestamp) - MIN(timestamp)) / 60 as duration_minutes
+            FROM \`test\`.\`NodeRed_PMA_L1\`
+            WHERE batchid LIKE ?
+            GROUP BY step, step_desc
+            ORDER BY MIN(timestamp) ASC;
+        `;
+        
+        const [rows] = await dbTest.promise().query(sql, [`%${batch}%`]);
+        console.log(`[PMA Telemetry] Batch: "${batch}" | Phase Rows Found: ${rows.length}`);
+        console.log(`\n=== 🛠️ RAW SQL ROWS FOR PMA BATCH: ${batch} ===`);
+        console.table(rows.map(r => ({ 
+            step: r.step, 
+            desc: r.step_desc, 
+            min_imp: r.min_imp, 
+            duration: r.duration_minutes 
+        })));
+        console.log(`====================================================\n`);
+
+        // Counters for phases that repeat (like Input Material and Discharge)
+        let inputMatCount = 1;
+        let dischargeCount = 1;
+
+        // Formatter to keep decimals clean
+        const fmt = (val) => val != null ? parseFloat(Number(val).toFixed(2)) : null;
+
+        // 2. Map the SQL output to your React Frontend keys
+        for (const row of rows) {
+            const desc = (row.step_desc || '').toLowerCase();
+            const minImp = fmt(row.min_imp); const maxImp = fmt(row.max_imp); const avgImp = fmt(row.avg_imp);
+            const minChop = fmt(row.min_chop); const maxChop = fmt(row.max_chop); const avgChop = fmt(row.avg_chop);
+            const minPump = fmt(row.min_pump); const maxPump = fmt(row.max_pump); const avgPump = fmt(row.avg_pump);
+            const minAmp = fmt(row.min_amp); const maxAmp = fmt(row.max_amp); const avgAmp = fmt(row.avg_amp);
+            const duration = fmt(row.duration_minutes);
+
+            // -- BINDER SOLUTION --
+            if (desc.includes('binder')) {
+                results['binder_speed_min1'] = minImp; results['binder_speed_max1'] = maxImp; results['binder_speed_avg1'] = avgImp;
+                results['binder_waktu_min1'] = duration; results['binder_waktu_max1'] = duration; results['binder_waktu_avg1'] = duration;
+            } 
+            // -- INPUT MATERIAL (Dynamically handles I and II) --
+            else if (desc.includes('input material')) {
+                if (inputMatCount <= 2) {
+                    results[`input${inputMatCount}_impeller_min1`] = minImp; results[`input${inputMatCount}_impeller_max1`] = maxImp; results[`input${inputMatCount}_impeller_avg1`] = avgImp;
+                    // Note: Filter Clear isn't in telemetry, so we skip it here (it comes from Recipe)
+                    results[`input${inputMatCount}_waktu_min1`] = duration; results[`input${inputMatCount}_waktu_max1`] = duration; results[`input${inputMatCount}_waktu_avg1`] = duration;
+                    inputMatCount++;
+                }
+            }
+            // -- MIXING PHASES --
+            else if (desc.includes('mixing')) {
+                let mixNum = null;
+                // Safely determine which mixing phase it is
+                if (desc.includes('iv') || desc.includes(' 4')) mixNum = 4;
+                else if (desc.includes('iii') || desc.includes(' 3')) mixNum = 3;
+                else if (desc.includes('ii') || desc.includes(' 2')) mixNum = 2;
+                else if (desc.includes(' i') || desc.includes(' 1') || desc === 'mixing') mixNum = 1;
+
+                if (mixNum) {
+                    results[`mix${mixNum}_impeller_min1`] = minImp; results[`mix${mixNum}_impeller_max1`] = maxImp; results[`mix${mixNum}_impeller_avg1`] = avgImp;
+                    results[`mix${mixNum}_chopper_min1`] = minChop; results[`mix${mixNum}_chopper_max1`] = maxChop; results[`mix${mixNum}_chopper_avg1`] = avgChop;
+                    results[`mix${mixNum}_waktu_min1`] = duration; results[`mix${mixNum}_waktu_max1`] = duration; results[`mix${mixNum}_waktu_avg1`] = duration;
+                    
+                    // Mix 3 and 4 have pump and ampere
+                    if (mixNum >= 3) {
+                        results[`mix${mixNum}_pump_min1`] = minPump; results[`mix${mixNum}_pump_max1`] = maxPump; results[`mix${mixNum}_pump_avg1`] = avgPump;
+                        results[`mix${mixNum}_ampere_min1`] = minAmp; results[`mix${mixNum}_ampere_max1`] = maxAmp; results[`mix${mixNum}_ampere_avg1`] = avgAmp;
+                    }
+                }
+            }
+            // -- DISCHARGE PHASES --
+            else if (desc.includes('discharge')) {
+                if (dischargeCount <= 12) {
+                    results[`discharge${dischargeCount}_impeller_min1`] = minImp; results[`discharge${dischargeCount}_impeller_max1`] = maxImp; results[`discharge${dischargeCount}_impeller_avg1`] = avgImp;
+                    results[`discharge${dischargeCount}_chopper_min1`] = minChop; results[`discharge${dischargeCount}_chopper_max1`] = maxChop; results[`discharge${dischargeCount}_chopper_avg1`] = avgChop;
+                    results[`discharge${dischargeCount}_waktu_min1`] = duration; results[`discharge${dischargeCount}_waktu_max1`] = duration; results[`discharge${dischargeCount}_waktu_avg1`] = duration;
+                    dischargeCount++;
+                }
+            }
+        }
+        
+        return results;
+
+    } catch (error) {
+        console.error(`[PMA Telemetry ERROR] Failed to fetch data:`, error.message);
+        return results; 
+    }
 };
 
 const getPMARecipeData = async (line, batch, dayStart, dayEnd) => {
@@ -1561,6 +1668,62 @@ function formatScheduleDate(rawDateStr) {
     }
     return "1970-01-01";
 }
+
+const SENSOR_MAPPING = {
+    'Z-Axis': {
+        table: 'vibrationPMAL1_vibration1pmaL1_data',
+        columns: {
+            'data_format_0': { key: 'hf_rms_accel', scale: 1000 },
+            'data_format_1': { key: 'rms_velocity', scale: 1000 },
+            'data_format_2': { key: 'peak_accel', scale: 1000 },
+            'data_format_3': { key: 'peak_vel_freq', scale: 1000 },
+            'data_format_4': { key: 'rms_accel', scale: 1000 },
+            'data_format_5': { key: 'kurtosis', scale: 10 },
+            'data_format_6': { key: 'crest_factor', scale: 1000 },
+            'data_format_7': { key: 'peak_velocity', scale: 1000 }
+        }
+    },
+    'X-Axis': {
+        table: 'vibrationPMAL1_vibration2pmaL1_data',
+        columns: {
+            'data_format_0': { key: 'rms_velocity', scale: 1000 },
+            'data_format_1': { key: 'peak_accel', scale: 1000 },
+            'data_format_2': { key: 'peak_vel_freq', scale: 1000 },
+            'data_format_3': { key: 'rms_accel', scale: 1000 },
+            'data_format_4': { key: 'kurtosis', scale: 10 },
+            'data_format_5': { key: 'crest_factor', scale: 1000 },
+            'data_format_6': { key: 'peak_velocity', scale: 1000 },
+            'data_format_7': { key: 'hf_rms_accel', scale: 1000 }
+        }
+    },
+    'Temperature': {
+        table: 'vibrationPMAL1_vibration3pmaL1_data',
+        columns: {
+            'data_format_0': { key: 'temperature', scale: 1000 }
+        }
+    }
+};
+
+// Helper: Calculate MIN, MAX, AVG accurately before downsampling
+const calculateStats = (values) => {
+    if (values.length === 0) return { min: 0, max: 0, avg: 0 };
+    let min = Infinity;
+    let max = -Infinity;
+    let sum = 0;
+
+    for (let i = 0; i < values.length; i++) {
+        let val = values[i];
+        if (val < min) min = val;
+        if (val > max) max = val;
+        sum += val;
+    }
+
+    return {
+        min: Number(min.toFixed(3)),
+        max: Number(max.toFixed(3)),
+        avg: Number((sum / values.length).toFixed(3))
+    };
+};
 
 module.exports = {
   fetchOee: async (request, response) => {
@@ -14749,11 +14912,11 @@ updateUserLevel: async (req, res) => {
             pmaRecipeData // <-- NEW: Added to destructuring array
         ] = await Promise.all([
             getMonitoringData(monitorTable, batchStart, batchEnd),
-            getPmaPhasesData(line, batch, batchStart, batchEnd),
+            getPmaPhasesData(line, batch),
             getFBDPhaseData(line, batch, dayStart, dayEnd),
             getEPHPhaseData(line, batch, dayStart, dayEnd),
-            getMixerData(batchStart, batchEnd),
-            getBinderData(batchStart, batchEnd),
+            // getMixerData(batchStart, batchEnd),
+            // getBinderData(batchStart, batchEnd),
             getRecipeData(line, batch, batchStart, batchEnd),
             getFBDRecipeData(line, batch, batchStart, batchEnd), // <-- NEW: Added to parallel execution
             getEPHRecipeData(line, batch, batchStart, batchEnd), // <-- NEW: Added to parallel execution
@@ -14769,18 +14932,22 @@ updateUserLevel: async (req, res) => {
             batch_total_duration: totalDurationFormatted,
             
             ...monitoringData,
-            ...pmaData,
             ...fbdData,
             ...ephData,
-            ...mixerData,
-            ...binderData,
+            //...mixerData,
+            //...binderData,
             ...recipeData,
             ...fbdRecipeData, // <-- NEW: Spread into the master JSON payload
             ...ephRecipeData,  // <-- NEW: Spread into the master JSON payload
-            ...pmaRecipeData   // <-- NEW: Spread into the master JSON payload
+            ...pmaRecipeData,   // <-- NEW: Spread into the master JSON payload
+            ...pmaData
         };
 
         res.status(200).send(combinedData);
+        // --- NEW LOG: Check the final assembled package ---
+        console.log(`\n=== 🚀 FINAL PAYLOAD LEAVING SERVER ===`);
+        console.log("Input 1 Min is:", combinedData.input1_impeller_min1);
+        console.log(`========================================\n`);
 
     } catch (error) {
         console.error("Database error in GetSuhuMonitoringData:", error);
@@ -15982,6 +16149,118 @@ updateUserLevel: async (req, res) => {
         res.status(500).send({ error: "Database commit processing crashed: " + err.message });
     }
 },
+
+VibrationData: (request, response) => {
+        const { axis, start, finish } = request.query;
+        const TARGET_POINTS = 1000; // Optimize Chart.js rendering to 1000 points max
+
+        const config = SENSOR_MAPPING[axis];
+        if (!config) {
+            return response.status(400).send({ error: "Invalid axis or table mapping." });
+        }
+
+        // 2. Build the query exactly in your style
+        // We calculate adjusted_unix so the downsampler has a clean numeric X-axis to work with
+        const queryGet = `
+            WITH OrderedData AS (
+                SELECT 
+                    (\`time@timestamp\` - 25200) AS adjusted_unix, 
+                    DATE_FORMAT(DATE_SUB(FROM_UNIXTIME(\`time@timestamp\`), INTERVAL 7 HOUR), '%Y-%m-%d %H:%i:%s') AS label,
+                    data_format_0,
+                    data_format_1,
+                    data_format_2,
+                    data_format_3,
+                    data_format_4,
+                    data_format_5,
+                    data_format_6,
+                    data_format_7
+                FROM ems_saka.\`${config.table}\`
+            )
+            SELECT * FROM OrderedData
+            WHERE label BETWEEN '${start}' AND '${finish}'
+            ORDER BY adjusted_unix ASC;
+        `;
+
+        db4.query(queryGet, (err, result) => {
+            if (err) {
+                console.error("VibrationData Query Error:", err);
+                return response.status(500).send({ error: "Database query failed", details: err.sqlMessage });
+            }
+
+            if (result.length === 0) {
+                return response.status(200).send({ data: {}, stats: {} });
+            }
+
+            // 3. Prepare structures for the payload
+            const rawSeries = {};
+            const finalPayload = {};
+            const statsPayload = {};
+
+            Object.values(config.columns).forEach(col => {
+                rawSeries[col.key] = [];
+            });
+
+            // 4. Process scaling and separate columns into individual arrays
+            // 4. Process scaling and separate columns into individual arrays
+            for (let i = 0; i < result.length; i++) {
+                const row = result[i];
+                // LTTB requires X to be numeric, so we multiply the adjusted unix seconds by 1000 for standard JS milliseconds
+                const xTime = row.adjusted_unix * 1000; 
+
+                Object.keys(config.columns).forEach(dbCol => {
+                    const mapInfo = config.columns[dbCol];
+                    let rawValue = row[dbCol];
+
+                    if (rawValue !== null && rawValue !== undefined) {
+                        
+                        // --- THE MATH FIX ---
+                        if (mapInfo.key === 'crest_factor') {
+                            // 1. Strip the negative sign to get the true physical peak
+                            rawValue = Math.abs(rawValue);
+                            
+                            // 2. Fix the 1000x multiplier unit mismatch
+                            // (Note: If you prefer, you can remove this /1000 here and just 
+                            // change the 'scale' property to 1000 in your SENSOR_MAPPING object)
+                        }
+                        // --------------------
+
+                        const scaledValue = rawValue / mapInfo.scale;
+                        // Push as [x, y] format required by LTTB
+                        rawSeries[mapInfo.key].push([xTime, scaledValue]);
+                    }
+                });
+            }
+
+            // 5. Calculate Stats and apply LTTB Downsampling
+            Object.keys(rawSeries).forEach(key => {
+                const seriesData = rawSeries[key];
+                
+                // Extract just the Y values to run perfect stats on the raw dataset
+                const yValues = seriesData.map(point => point[1]);
+                statsPayload[key] = calculateStats(yValues);
+
+                // Apply LTTB downsampling
+                let downsampled = seriesData;
+                if (seriesData.length > TARGET_POINTS) {
+                   downsampled = downsample.processData(seriesData, TARGET_POINTS);
+                }
+
+                // Format the output specifically for Chart.js {x, y} format
+                finalPayload[key] = downsampled.map(point => ({
+                    x: point[0],
+                    y: point[1]
+                }));
+            });
+
+            // 6. Return the standardized response
+            return response.status(200).send({
+                axis: axis,
+                total_raw_rows: result.length,
+                stats: statsPayload,
+                data: finalPayload
+            });
+        });
+    },
 
 
 
