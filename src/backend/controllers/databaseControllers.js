@@ -687,6 +687,7 @@ const getPmaPhasesData = async (line, batch, batchStart, batchEnd) => {
                 MIN(chopper_rpm) as min_chop, MAX(chopper_rpm) as max_chop, AVG(chopper_rpm) as avg_chop,
                 MIN(pump_speed) as min_pump, MAX(pump_speed) as max_pump, AVG(pump_speed) as avg_pump,
                 MIN(impeler_ampere) as min_amp, MAX(impeler_ampere) as max_amp, AVG(impeler_ampere) as avg_amp,
+                MIN(filterclear_interval_sec) as min_fc, MAX(filterclear_interval_sec) as max_fc, AVG(filterclear_interval_sec) as avg_fc,
                 (MAX(timestamp) - MIN(timestamp)) / 60 as duration_minutes
             FROM \`test\`.\`NodeRed_PMA_L1\`
             WHERE batchid LIKE ?
@@ -719,6 +720,10 @@ const getPmaPhasesData = async (line, batch, batchStart, batchEnd) => {
             const minChop = fmt(row.min_chop); const maxChop = fmt(row.max_chop); const avgChop = fmt(row.avg_chop);
             const minPump = fmt(row.min_pump); const maxPump = fmt(row.max_pump); const avgPump = fmt(row.avg_pump);
             const minAmp = fmt(row.min_amp); const maxAmp = fmt(row.max_amp); const avgAmp = fmt(row.avg_amp);
+            
+            // ➕ ADD THE FILTER CLEAR VARIABLES RIGHT HERE:
+            const minFc = fmt(row.min_fc); const maxFc = fmt(row.max_fc); const avgFc = fmt(row.avg_fc);
+            
             const duration = fmt(row.duration_minutes);
 
             // -- BINDER SOLUTION --
@@ -729,11 +734,20 @@ const getPmaPhasesData = async (line, batch, batchStart, batchEnd) => {
             // -- INPUT MATERIAL (Dynamically handles I and II) --
             else if (desc.includes('input material')) {
                 if (inputMatCount <= 2) {
-                    results[`input${inputMatCount}_impeller_min1`] = minImp; results[`input${inputMatCount}_impeller_max1`] = maxImp; results[`input${inputMatCount}_impeller_avg1`] = avgImp;
-                    // Note: Filter Clear isn't in telemetry, so we skip it here (it comes from Recipe)
-                    results[`input${inputMatCount}_waktu_min1`] = duration; results[`input${inputMatCount}_waktu_max1`] = duration; results[`input${inputMatCount}_waktu_avg1`] = duration;
-                    inputMatCount++;
-                }
+    results[`input${inputMatCount}_impeller_min1`] = minImp; 
+    results[`input${inputMatCount}_impeller_max1`] = maxImp; 
+    results[`input${inputMatCount}_impeller_avg1`] = avgImp;
+
+    // 🚨 MAKE SURE THESE 3 LINES ARE HERE WITH UNDERSCORES:
+    results[`input${inputMatCount}_filter_clear_min1`] = minFc;
+    results[`input${inputMatCount}_filter_clear_max1`] = maxFc;
+    results[`input${inputMatCount}_filter_clear_avg1`] = avgFc;
+
+    results[`input${inputMatCount}_waktu_min1`] = duration; 
+    results[`input${inputMatCount}_waktu_max1`] = duration; 
+    results[`input${inputMatCount}_waktu_avg1`] = duration;
+    inputMatCount++;
+}
             }
             // -- MIXING PHASES --
             else if (desc.includes('mixing')) {
