@@ -726,13 +726,7 @@ const getPmaPhasesData = async (line, batch, batchStart, batchEnd) => {
             
             const duration = fmt(row.duration_minutes);
 
-            // -- BINDER SOLUTION --
-            if (desc.includes('binder')) {
-                results['binder_speed_min1'] = minImp; results['binder_speed_max1'] = maxImp; results['binder_speed_avg1'] = avgImp;
-                results['binder_waktu_min1'] = duration; results['binder_waktu_max1'] = duration; results['binder_waktu_avg1'] = duration;
-            } 
-            // -- INPUT MATERIAL (Dynamically handles I and II) --
-            else if (desc.includes('input material')) {
+            if (desc.includes('input material')) {
                 if (inputMatCount <= 2) {
     results[`input${inputMatCount}_impeller_min1`] = minImp; 
     results[`input${inputMatCount}_impeller_max1`] = maxImp; 
@@ -819,41 +813,67 @@ const getPMARecipeData = async (line, batch, dayStart, dayEnd) => {
                 return actualKey !== undefined ? row[actualKey] : null; 
             };
 
-            // --- SPEED & WAKTU ---
-            results['pma_recipe_pump_speed1'] = getVal('PMA-SolutionPumpSpeed1');
+            // --- HELPER TO ASSIGN LOT 1 & LOT 2 SETPOINTS SIMULTANEOUSLY ---
+            // --- HELPER TO ASSIGN BOTH REACT UI AND PDF SETPOINTS ---
+            const setLotKeys = (prefix, imp, chop, time, pump = null) => {
+                // 1. Keys for the PDF Template (_set1, _set2)
+                results[`${prefix}_impeller_set1`] = imp; results[`${prefix}_impeller_set2`] = imp;
+                results[`${prefix}_waktu_set1`] = time; results[`${prefix}_waktu_set2`] = time;
+                
+                if (chop !== null) { 
+                    results[`${prefix}_chopper_set1`] = chop; results[`${prefix}_chopper_set2`] = chop; 
+                }
+                if (pump !== null) { 
+                    results[`${prefix}_pump_set1`] = pump; results[`${prefix}_pump_set2`] = pump; 
+                }
+
+                // 2. Keys for the React Frontend UI (_recipe_)
+                results[`${prefix}_recipe_impeller`] = imp;
+                results[`${prefix}_recipe_time`] = time;
+                
+                if (chop !== null) results[`${prefix}_recipe_chopper`] = chop;
+                if (pump !== null) results[`${prefix}_recipe_pump`] = pump;
+            };
+
+            // --- BINDER SPEED ---
+            const binderSpeed = getVal('PMA-SolutionPumpSpeed1');
+            results['binder_speed_set1'] = binderSpeed; 
+            results['binder_speed_set2'] = binderSpeed;
+            results['pma_recipe_pump_speed1'] = binderSpeed; // React UI Key
+
+            // --- INPUT MATERIAL I & II ---
+            const loadSpeed = getVal('PMA-ImpellerLoadingSpeed');
+            const filterInterval = getVal('PMA-FilterClearIntervalTime');
             
-            // --- INPUT MATERIAL ---
-            results['pma_recipe_loading_speed'] = getVal('PMA-ImpellerLoadingSpeed');
-            results['pma_recipe_filter_interval'] = getVal('PMA-FilterClearIntervalTime');
+            // React UI Keys
+            results['pma_recipe_loading_speed'] = loadSpeed;
+            results['pma_recipe_filter_interval'] = filterInterval;
+
+            // PDF Keys
+            ['input1', 'input2'].forEach(prefix => {
+                results[`${prefix}_impeller_set1`] = loadSpeed;
+                results[`${prefix}_impeller_set2`] = loadSpeed;
+                results[`${prefix}_filter_clear_set1`] = filterInterval;
+                results[`${prefix}_filter_clear_set2`] = filterInterval;
+            });
 
             // --- MIXING I - IV ---
-            results['mix1_recipe_impeller'] = getVal('PMA-ImpellerSpeed1');
-            results['mix1_recipe_chopper'] = getVal('PMA-ChopperSpeed1');
-            results['mix1_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin1');
-
-            results['mix2_recipe_impeller'] = getVal('PMA-ImpellerSpeed2');
-            results['mix2_recipe_chopper'] = getVal('PMA-ChopperSpeed2');
-            results['mix2_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin2');
-
-            results['mix3_recipe_impeller'] = getVal('PMA-ImpellerSpeed3');
-            results['mix3_recipe_chopper'] = getVal('PMA-ChopperSpeed3');
-            results['mix3_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin3');
-            results['mix3_recipe_pump'] = getVal('PMA-SolutionPumpSpeed2');
-
-            results['mix4_recipe_impeller'] = getVal('PMA-ImpellerSpeed4');
-            results['mix4_recipe_chopper'] = getVal('PMA-ChopperSpeed4');
-            results['mix4_recipe_time'] = getVal('PMA-ProcessTimeTripLevelMin4');
-            results['mix4_recipe_pump'] = getVal('PMA-SolutionPumpSpeed3');
+            setLotKeys('mix1', getVal('PMA-ImpellerSpeed1'), getVal('PMA-ChopperSpeed1'), getVal('PMA-ProcessTimeTripLevelMin1'));
+            setLotKeys('mix2', getVal('PMA-ImpellerSpeed2'), getVal('PMA-ChopperSpeed2'), getVal('PMA-ProcessTimeTripLevelMin2'));
+            setLotKeys('mix3', getVal('PMA-ImpellerSpeed3'), getVal('PMA-ChopperSpeed3'), getVal('PMA-ProcessTimeTripLevelMin3'), getVal('PMA-SolutionPumpSpeed2'));
+            setLotKeys('mix4', getVal('PMA-ImpellerSpeed4'), getVal('PMA-ChopperSpeed4'), getVal('PMA-ProcessTimeTripLevelMin4'), getVal('PMA-SolutionPumpSpeed3'));
 
             // --- DISCHARGE I - XII ---
-            // A quick loop since there are 12 of them mapped sequentially from 5 to 16
             for (let i = 1; i <= 12; i++) {
                 const dbIndex = i + 4; // Discharge 1 maps to ImpellerSpeed5, etc.
-                results[`discharge${i}_recipe_impeller`] = getVal(`PMA-ImpellerSpeed${dbIndex}`);
-                results[`discharge${i}_recipe_chopper`] = getVal(`PMA-ChopperSpeed${dbIndex}`);
-                results[`discharge${i}_recipe_time`] = getVal(`PMA-ProcessTimeTripLevelMin${dbIndex}`);
+                setLotKeys(
+                    `discharge${i}`, 
+                    getVal(`PMA-ImpellerSpeed${dbIndex}`), 
+                    getVal(`PMA-ChopperSpeed${dbIndex}`), 
+                    getVal(`PMA-ProcessTimeTripLevelMin${dbIndex}`)
+                );
             }
-        }
+        } // <--- The missing bracket is safely back home here!
         
         return results;
 
@@ -1132,7 +1152,7 @@ const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
     return results;
 };
 
-const getFBDRecipeData = async (line, batch, dayStart, dayEnd) => {
+/* const getFBDRecipeData = async (line, batch, dayStart, dayEnd) => {
     const results = {};
     const baseBatch = batch.split('-')[0].trim();
 
@@ -1190,6 +1210,146 @@ const getFBDRecipeData = async (line, batch, dayStart, dayEnd) => {
 
     } catch (error) {
         console.error(`Error fetching FBD Recipe Data:`, error);
+        return results; 
+    }
+};
+*/
+
+const getFBDRecipeData = async (line, batch) => {
+    const results = {};
+    if (line !== 'Line 1') return results;
+
+    console.log(`\n[FBD Telemetry] 🔍 Searching for Batch: "${batch}"`);
+
+    try {
+        const sql = `
+            SELECT 
+                step, 
+                step_desc,
+                MIN(inlet_temp) as min_inlet, MAX(inlet_temp) as max_inlet, AVG(inlet_temp) as avg_inlet,
+                MIN(product_temp) as min_prod, MAX(product_temp) as max_prod, AVG(product_temp) as avg_prod,
+                MIN(inlet_airflow) as min_flow, MAX(inlet_airflow) as max_flow, AVG(inlet_airflow) as avg_flow,
+                MIN(filterclear_intervaltime) as min_fc, MAX(filterclear_intervaltime) as max_fc, AVG(filterclear_intervaltime) as avg_fc,
+                MIN(numberofshake) as min_shake, MAX(numberofshake) as max_shake, AVG(numberofshake) as avg_shake,
+                MIN(valve) as min_valve, MAX(valve) as max_valve, AVG(valve) as avg_valve,
+                (MAX(timestamp) - MIN(timestamp)) / 60 as duration_minutes
+            FROM \`test\`.\`NodeRed_FBD_L1\`
+            WHERE batch LIKE ?
+            GROUP BY step, step_desc
+            ORDER BY MIN(timestamp) ASC;
+        `;
+        
+        // 🚨 NOTE: Are FBD batches stored with the "-1" suffix in telemetry? 
+        // If not, you might need to use baseBatch like you did in the recipe helper!
+        const [rows] = await dbTest.promise().query(sql, [`%${batch}%`]);
+        
+        console.log(`[FBD Telemetry] ✅ Found ${rows.length} rows for batch "${batch}".`);
+
+        // 🛠️ CHECKPOINT 1: RAW SQL RESULTS
+        if (rows.length > 0) {
+            console.log(`\n=== 🛠️ RAW SQL ROWS FOR FBD BATCH: ${batch} ===`);
+            console.table(rows.map(r => ({ 
+                step: r.step, 
+                desc: r.step_desc, 
+                min_inlet: r.min_inlet,
+                min_flow: r.min_flow,
+                duration: r.duration_minutes 
+            })));
+            console.log(`===================================================\n`);
+        } else {
+            console.log(`[FBD Telemetry] ⚠️ WARNING: Database returned 0 rows! Check the batch name string.`);
+        }
+
+        const fmt = (val) => {
+            if (val === null || val === undefined || val === '') return null;
+            const num = Number(val);
+            return isNaN(num) ? null : parseFloat(num.toFixed(2));
+        };
+
+        let dischargeCount = 1;
+
+        for (const row of rows) {
+            const desc = (row.step_desc || '').toLowerCase();
+
+            const minInlet = fmt(row.min_inlet); const maxInlet = fmt(row.max_inlet); const avgInlet = fmt(row.avg_inlet);
+            const minProd = fmt(row.min_prod); const maxProd = fmt(row.max_prod); const avgProd = fmt(row.avg_prod);
+            const minFlow = fmt(row.min_flow); const maxFlow = fmt(row.max_flow); const avgFlow = fmt(row.avg_flow);
+            const minFc = fmt(row.min_fc); const maxFc = fmt(row.max_fc); const avgFc = fmt(row.avg_fc);
+            const minShake = fmt(row.min_shake); const maxShake = fmt(row.max_shake); const avgShake = fmt(row.avg_shake);
+            const minValve = fmt(row.min_valve); const maxValve = fmt(row.max_valve); const avgValve = fmt(row.avg_valve);
+            const duration = fmt(row.duration_minutes);
+
+            const assignMetrics = (prefix) => {
+    // Inlet Temp
+    results[`${prefix}_temp_min1`] = minInlet; 
+    results[`${prefix}_temp_max1`] = maxInlet; 
+    results[`${prefix}_temp_avg1`] = avgInlet;
+
+    // Exhaust Temp (mapped from product_temp column)
+    results[`${prefix}_exhaust_min1`] = minProd; 
+    results[`${prefix}_exhaust_max1`] = maxProd; 
+    results[`${prefix}_exhaust_avg1`] = avgProd;
+
+    // Airflow (using _airflow_ to match React)
+    results[`${prefix}_airflow_min1`] = minFlow; 
+    results[`${prefix}_airflow_max1`] = maxFlow; 
+    results[`${prefix}_airflow_avg1`] = avgFlow;
+
+    // Filter Clear Interval
+    results[`${prefix}_filter_min1`] = minFc; 
+    results[`${prefix}_filter_max1`] = maxFc; 
+    results[`${prefix}_filter_avg1`] = avgFc;
+
+    // Number of Filter Shake (using _filtershake_ to match React)
+    results[`${prefix}_filtershake_min1`] = minShake; 
+    results[`${prefix}_filtershake_max1`] = maxShake; 
+    results[`${prefix}_filtershake_avg1`] = avgShake;
+
+    // Valve
+    results[`${prefix}_valve_min1`] = minValve; 
+    results[`${prefix}_valve_max1`] = maxValve; 
+    results[`${prefix}_valve_avg1`] = avgValve;
+
+    // Time / Duration (using both _waktu_ and _time_ to cover both bases)
+    results[`${prefix}_time_min1`] = duration; 
+    results[`${prefix}_time_max1`] = duration; 
+    results[`${prefix}_time_avg1`] = duration;
+
+    results[`${prefix}_waktu_min1`] = duration; 
+    results[`${prefix}_waktu_max1`] = duration; 
+    results[`${prefix}_waktu_avg1`] = duration;
+};
+
+            // 3. Route the data based on step description
+            
+            // 🚨 We check Transfer FIRST so "transfer granul - loading" doesn't get hijacked by the Loading block
+            if (desc.includes('transfer') || desc.includes('transfer granul - loading')) {
+                assignMetrics('transfer');
+                
+            } else if (desc.includes('loading')) {
+                assignMetrics('loading');
+                
+            } else if (desc.includes('drying') || desc.includes('heat machine') || desc.includes('endpoint')) {
+                // Captures "endpoint 30,7 Temp. exhaust" and "Heat Machine"
+                assignMetrics('drying');
+                
+            } else if (desc.includes('discharge')) {
+                if (dischargeCount <= 3) { 
+                    assignMetrics(`discharge_${dischargeCount}`);
+                    dischargeCount++;
+                }
+            }
+        }
+
+        // 🛠️ CHECKPOINT 2: FINAL MAPPED PAYLOAD
+        console.log(`\n=== 📦 MAPPED FBD TELEMETRY PAYLOAD ===`);
+        console.log(results);
+        console.log(`=======================================\n`);
+
+        return results;
+
+    } catch (error) {
+        console.error(`[FBD Telemetry ERROR] Failed to fetch data:`, error.message);
         return results; 
     }
 };
@@ -14929,8 +15089,8 @@ updateUserLevel: async (req, res) => {
             getPmaPhasesData(line, batch),
             getFBDPhaseData(line, batch, dayStart, dayEnd),
             getEPHPhaseData(line, batch, dayStart, dayEnd),
-            // getMixerData(batchStart, batchEnd),
-            // getBinderData(batchStart, batchEnd),
+            getMixerData(batchStart, batchEnd),
+            getBinderData(batchStart, batchEnd),
             getRecipeData(line, batch, batchStart, batchEnd),
             getFBDRecipeData(line, batch, batchStart, batchEnd), // <-- NEW: Added to parallel execution
             getEPHRecipeData(line, batch, batchStart, batchEnd), // <-- NEW: Added to parallel execution
@@ -14946,15 +15106,16 @@ updateUserLevel: async (req, res) => {
             batch_total_duration: totalDurationFormatted,
             
             ...monitoringData,
+            ...pmaData,
             ...fbdData,
             ...ephData,
-            //...mixerData,
-            //...binderData,
+            ...mixerData,
+            ...binderData,
             ...recipeData,
             ...fbdRecipeData, // <-- NEW: Spread into the master JSON payload
             ...ephRecipeData,  // <-- NEW: Spread into the master JSON payload
             ...pmaRecipeData,   // <-- NEW: Spread into the master JSON payload
-            ...pmaData
+
         };
 
         res.status(200).send(combinedData);
@@ -14984,8 +15145,41 @@ updateUserLevel: async (req, res) => {
                 linebreaks: true 
             });
 
-            // 3. Inject the data into the template
+            const mapSet = (prefix) => {
+                const imp = reportData[`${prefix}_recipe_impeller`] ?? '-';
+                const chop = reportData[`${prefix}_recipe_chopper`] ?? '-';
+                const time = reportData[`${prefix}_recipe_time`] ?? '-';
+                const pump = reportData[`${prefix}_recipe_pump`] ?? '-';
+
+                reportData[`${prefix}_impeller_set1`] = imp; reportData[`${prefix}_impeller_set2`] = imp;
+                reportData[`${prefix}_chopper_set1`] = chop; reportData[`${prefix}_chopper_set2`] = chop;
+                reportData[`${prefix}_waktu_set1`] = time;   reportData[`${prefix}_waktu_set2`] = time;
+                reportData[`${prefix}_pump_set1`] = pump;    reportData[`${prefix}_pump_set2`] = pump;
+            };
+
+            // Map all Mixing and Discharge phases
+            ['mix1', 'mix2', 'mix3', 'mix4'].forEach(mapSet);
+            for (let i = 1; i <= 12; i++) mapSet(`discharge${i}`);
+
+            // Map Input Materials
+            const loadSpeed = reportData['pma_recipe_loading_speed'] ?? '-';
+            const filterInterval = reportData['pma_recipe_filter_interval'] ?? '-';
+            ['input1', 'input2'].forEach(prefix => {
+                reportData[`${prefix}_impeller_set1`] = loadSpeed; 
+                reportData[`${prefix}_impeller_set2`] = loadSpeed;
+                reportData[`${prefix}_filter_clear_set1`] = filterInterval; 
+                reportData[`${prefix}_filter_clear_set2`] = filterInterval;
+            });
+
+            // Map Binder Speed
+            const binderSpeed = reportData['pma_recipe_pump_speed1'] ?? '-';
+            reportData['binder_speed_set1'] = binderSpeed; 
+            reportData['binder_speed_set2'] = binderSpeed;
+            // ---------------------------
+
             doc.render(reportData);
+
+            // 3. Inject the data into the template
 
             // 4. Generate the DOCX buffer
             const docxBuf = doc.getZip().generate({ type: "nodebuffer" });
