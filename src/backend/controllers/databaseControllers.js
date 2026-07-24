@@ -1007,7 +1007,7 @@ const getFBDPhaseData1 = async (line, batch, dayStart, dayEnd) => {
     return results;
 };
 
-const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
+/* const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
     // We keep the -1/-2 suffix removal logic so we can find the base batch ID
     const baseBatch = batch.split('-')[0].trim(); 
     const results = {};
@@ -1214,6 +1214,102 @@ const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
     }
 };
 */
+
+const getFBDPhaseData = async (line, batch, dayStart, dayEnd) => {
+    const results = {};
+    const baseBatch = batch.split('-')[0].trim(); 
+
+    if (line !== 'Line 1') return results; 
+
+    try {
+        // --- 1. SINGLE SQL AGGREGATION ---
+        // We calculate all MIN, MAX, and AVG directly in the database
+        const sql = `
+            SELECT 
+                LOWER(TRIM(step_desc)) AS desc_lower,
+                MIN(inlet_temp) as min_temp, MAX(inlet_temp) as max_temp, AVG(inlet_temp) as avg_temp,
+                MIN(inlet_airflow) as min_flow, MAX(inlet_airflow) as max_flow, AVG(inlet_airflow) as avg_flow,
+                MIN(filterclear_intervaltime) as min_filter, MAX(filterclear_intervaltime) as max_filter, AVG(filterclear_intervaltime) as avg_filter,
+                MIN(numberofshake) as min_shake, MAX(numberofshake) as max_shake, AVG(numberofshake) as avg_shake,
+                MIN(valve) as min_valve, MAX(valve) as max_valve, AVG(valve) as avg_valve,
+                MIN(product_temp) as min_exhaust, MAX(product_temp) as max_exhaust, AVG(product_temp) as avg_exhaust,
+                (MAX(\`timestamp\`) - MIN(\`timestamp\`)) / 60 as duration_minutes
+            FROM \`test\`.\`NodeRed_FBD_L1\`
+            WHERE batch LIKE ? 
+            AND \`timestamp\` BETWEEN ? AND ?
+            GROUP BY LOWER(TRIM(step_desc))
+        `;
+        
+        const [rows] = await dbTest.promise().query(sql, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+        console.log(`\n--- FBD TELEMETRY LOG FOR BATCH: ${baseBatch} ---`);
+        console.log(`Total phase rows found: ${rows.length}`);
+
+        // Safe formatter to protect '0' values and handle nulls
+        const fmt = (val) => {
+            if (val === null || val === undefined || val === '') return null;
+            const num = Number(val);
+            return isNaN(num) ? null : parseFloat(num.toFixed(2));
+        };
+
+        // --- 2. MAP THE DATA DIRECTLY ---
+        rows.forEach(row => {
+            const desc = row.desc_lower || '';
+            
+            // DRY Helper to assign standard keys
+            const assignMetrics = (prefix, timeKey, flowKey) => {
+                results[`${prefix}_temp_min1`] = fmt(row.min_temp);
+                results[`${prefix}_temp_max1`] = fmt(row.max_temp);
+                results[`${prefix}_temp_avg1`] = fmt(row.avg_temp);
+
+                results[`${prefix}_${flowKey}_min1`] = fmt(row.min_flow);
+                results[`${prefix}_${flowKey}_max1`] = fmt(row.max_flow);
+                results[`${prefix}_${flowKey}_avg1`] = fmt(row.avg_flow);
+
+                results[`${prefix}_filter_min1`] = fmt(row.min_filter);
+                results[`${prefix}_filter_max1`] = fmt(row.max_filter);
+                results[`${prefix}_filter_avg1`] = fmt(row.avg_filter);
+
+                results[`${prefix}_filtershake_min1`] = fmt(row.min_shake);
+                results[`${prefix}_filtershake_max1`] = fmt(row.max_shake);
+                results[`${prefix}_filtershake_avg1`] = fmt(row.avg_shake);
+
+                results[`${prefix}_${timeKey}_min1`] = fmt(row.duration_minutes);
+                results[`${prefix}_${timeKey}_max1`] = fmt(row.duration_minutes);
+                results[`${prefix}_${timeKey}_avg1`] = fmt(row.duration_minutes);
+            };
+
+            // --- 3. ROUTING LOGIC ---
+            if (desc.includes('loading')) {
+                // Captures "Transfer Granul - loading" and standard "loading"
+                // Uses PDF keys: loading_time_... and loading_flow_...
+                assignMetrics('loading', 'time', 'flow'); 
+                
+                // Loading exclusively uses valve
+                results['loading_valve_min1'] = fmt(row.min_valve);
+                results['loading_valve_max1'] = fmt(row.max_valve);
+                results['loading_valve_avg1'] = fmt(row.avg_valve);
+                
+            } else if (desc.includes('drying') || desc.includes('endpoint')) {
+                // Captures "endpoint 30,7 Temp. exhaust"
+                // Intentionally ignores "heat machine" and "Transfer granul kering"
+                // Uses PDF keys: drying_pengeringan_... and drying_airflow_...
+                assignMetrics('drying', 'pengeringan', 'airflow'); 
+                
+                // Drying exclusively uses exhaust (mapped from product_temp)
+                results['drying_exhaust_min1'] = fmt(row.min_exhaust);
+                results['drying_exhaust_max1'] = fmt(row.max_exhaust);
+                results['drying_exhaust_avg1'] = fmt(row.avg_exhaust);
+            }
+        });
+
+        return results;
+
+    } catch (error) {
+        console.error(`[FBD Telemetry ERROR] Failed to fetch data:`, error.message);
+        return results; 
+    }
+};
 
 const getFBDRecipeData = async (line, batch) => {
     const results = {};
@@ -1503,7 +1599,7 @@ const getEPHPhaseData1 = async (line, batch, dayStart, dayEnd) => {
     return results;
 };
 
-const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
+/*const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
     const baseBatch = batch.replace(/-[12]$/, '').trim();
     const results = {};
     if (line !== 'Line 1') return results;
@@ -1627,6 +1723,98 @@ const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
     if (d3Data.length > 0) calculateMetrics('discharge3', d3Data, sensorMap);
 
     return results;
+};*/
+
+const getEPHPhaseData = async (line, batch, dayStart, dayEnd) => {
+    const results = {};
+    const baseBatch = batch.split('-')[0].trim();
+
+    if (line !== 'Line 1') return results;
+
+    try {
+        // 1. Query NodeRed_EPH_L1 grouped by step and step_desc
+        const sql = `
+            SELECT 
+                step,
+                LOWER(TRIM(step_desc)) AS desc_lower,
+                MIN(valve) as min_valve, MAX(valve) as max_valve, AVG(valve) as avg_valve,
+                MIN(speed) as min_speed, MAX(speed) as max_speed, AVG(speed) as avg_speed,
+                (MAX(\`timestamp\`) - MIN(\`timestamp\`)) / 60 as duration_minutes
+            FROM \`test\`.\`NodeRed_EPH_L1\`
+            WHERE batchid LIKE ? 
+            AND \`timestamp\` BETWEEN ? AND ?
+            GROUP BY step, LOWER(TRIM(step_desc))
+            ORDER BY step ASC
+        `;
+
+        const [rows] = await dbTest.promise().query(sql, [`%${baseBatch}%`, dayStart, dayEnd]);
+
+        // 🛠️ CHECKPOINT 1: RAW SQL RESULTS
+        console.log(`\n[EPH Telemetry] ✅ Found ${rows.length} rows for batch "${baseBatch}".`);
+        
+        if (rows.length > 0) {
+            console.log(`\n=== 🛠️ RAW SQL ROWS FOR EPH BATCH: ${baseBatch} ===`);
+            console.table(rows.map(r => ({ 
+                step: r.step, 
+                desc: r.desc_lower, 
+                min_valve: r.min_valve,
+                min_speed: r.min_speed,
+                duration: r.duration_minutes 
+            })));
+            console.log(`===================================================\n`);
+        } else {
+            console.log(`[EPH Telemetry] ⚠️ WARNING: Database returned 0 rows! Check the date range and batch ID.`);
+        }
+
+        // Helper to format numbers safely to 2 decimal places
+        const fmt = (val) => {
+            if (val === null || val === undefined || val === '') return null;
+            const num = Number(val);
+            return isNaN(num) ? null : parseFloat(num.toFixed(2));
+        };
+
+        // 2. Map telemetry to React & Word Template keys
+        rows.forEach(row => {
+            const desc = row.desc_lower || '';
+
+            // Extract index number from "discharge 1", "discharge 2", etc.
+            let index = null;
+            if (desc.includes('discharge')) {
+                const match = desc.match(/\d+/);
+                if (match) index = match[0];
+            } else if (row.step) {
+                index = row.step;
+            }
+
+            if (index) {
+                // Valve position keys (%)
+                results[`finalmix_discharge${index}_min1`] = fmt(row.min_valve);
+                results[`finalmix_discharge${index}_max1`] = fmt(row.max_valve);
+                results[`finalmix_discharge${index}_avg1`] = fmt(row.avg_valve);
+
+                // Speed keys (RPM)
+                results[`finalmix_speed${index}_min1`] = fmt(row.min_speed);
+                results[`finalmix_speed${index}_max1`] = fmt(row.max_speed);
+                results[`finalmix_speed${index}_avg1`] = fmt(row.avg_speed);
+
+                // Duration keys (minutes)
+                results[`finalmix_waktu${index}_min1`] = fmt(row.duration_minutes);
+                results[`finalmix_waktu${index}_max1`] = fmt(row.duration_minutes);
+                results[`finalmix_waktu${index}_avg1`] = fmt(row.duration_minutes);
+            }
+        });
+
+        // 🛠️ CHECKPOINT 2: FINAL MAPPED PAYLOAD
+        console.log(`\n=== 📦 MAPPED EPH TELEMETRY PAYLOAD ===`);
+        console.log(results);
+        console.log(`=======================================\n`);
+
+        return results;
+
+    } catch (error) {
+        console.error(`[EPH Telemetry ERROR] Failed to fetch data:`, error.message);
+        return results;
+    }
 };
 
 const getEPHRecipeData = async (line, batch, dayStart, dayEnd) => {
